@@ -19,6 +19,9 @@ hide_st_style = """
             header {visibility: hidden;}
             .stDeployButton {display:none;}
             [data-testid="stStatusWidget"] {visibility: hidden;}
+            [data-testid="stToolbar"] {visibility: hidden;}
+            [data-testid="stDecoration"] {visibility: hidden;}
+            .viewerBadge_container__1QSob {visibility: hidden !important;}
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
@@ -33,7 +36,6 @@ USERNAME_TIKTOK = "hadimarkno"
 NAMA_MULE = "MOHAMMAD HILMI BIN MOHD HANIF"
 BANK_MULE = "Bank Simpanan Nasional (BSN)"
 AKAUN_MULE = "0820041100050836"
-BAKI_HUTANG = "RM 1,783.00"
 
 # ==========================================
 # UI UTAMA (STREAMLIT)
@@ -47,7 +49,6 @@ with st.sidebar:
     st.error(f"**Nama:** {NAMA_SUSPEK}")
     st.warning(f"**Tel:** {NOMOR_SUSPEK}")
     st.info(f"**Email:** {EMAIL_SUSPEK}")
-    st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
     st.markdown("---")
     st.write("**Keldai Akaun (Mule):**")
     st.code(f"{NAMA_MULE}\n{BANK_MULE}\n{AKAUN_MULE}")
@@ -58,16 +59,15 @@ tab1, tab2, tab3 = st.tabs(["📄 Laporan & Aduan", "🔍 Carian OSINT (Deep Web
 # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
 with tab1:
     st.header("Laporan Polis")
-    st.write("Masukkan maklumat anda di bawah untuk buat draf laporan polis dalam format PDF.")
+    st.write("Masukkan maklumat anda di bawah untuk buat draf laporan polis yang lengkap dengan kronologi kes.")
     
-    # KOTAK INPUT MANUAL (Selamat, tiada data disimpan di web)
+    # KOTAK INPUT MANUAL
     nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)")
     ic_pengadu = st.text_input("No. IC Anda")
     tel_pengadu = st.text_input("No. Telefon Anda")
     alamat_pengadu = st.text_area("Alamat Penuh Anda")
-    jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)")
     
-    if st.button("📥 Buat Laporan PDF", type="primary"):
+    if st.button("📥 Buat Laporan PDF (Lengkap)", type="primary"):
         if not nama_pengadu or not ic_pengadu:
             st.error("Sila isi Nama dan No. IC anda dahulu!")
         else:
@@ -78,6 +78,7 @@ with tab1:
             pdf.cell(200, 10, txt="LAPORAN POLIS (DRAF PENGADU)", ln=True, align='C')
             pdf.ln(10)
             
+            # Bahagian A
             pdf.set_font("Arial", 'B', 12)
             pdf.cell(200, 10, txt="A. MAKLUMAT PENGADU", ln=True)
             pdf.set_font("Arial", size=11)
@@ -87,6 +88,7 @@ with tab1:
             pdf.multi_cell(0, 8, txt=f"   Alamat      : {alamat_pengadu}")
             pdf.ln(5)
             
+            # Bahagian B
             pdf.set_font("Arial", 'B', 12)
             pdf.cell(200, 10, txt="B. MAKLUMAT SUSPEK & KELDAI AKAUN", ln=True)
             pdf.set_font("Arial", size=11)
@@ -98,16 +100,38 @@ with tab1:
             pdf.cell(200, 8, txt=f"   No. Akaun    : {AKAUN_MULE}", ln=True)
             pdf.ln(5)
             
+            # Bahagian C - KRONOLOGI TERPERINCI
             pdf.set_font("Arial", 'B', 12)
             pdf.cell(200, 10, txt="C. KRONOLOGI & PENGAKUAN SUSPEK", ln=True)
             pdf.set_font("Arial", size=11)
+            
             kronologi = (
-                f"1. Saya telah membuat transaksi pindahan wang kepada suspek dan keldai akaunnya berjumlah {jumlah_kerugian}.\n"
-                f"2. Suspek mengiktiraf berhutang baki {BAKI_HUTANG} melalui WhatsApp.\n"
-                f"3. Suspek gagal membayar dan menyekat panggilan.\n"
-                f"4. Nombor suspek ditag 'Penipu' oleh 80 mangsa lain."
+                "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. Beliau sering menawarkan projek dan perkhidmatan.\n\n"
+                "2. KES PERTAMA (Pembuatan PC): Suspek menawarkan untuk membina PC dengan harga murah. Saya telah membuat pembayaran lebih RM500. Namun, sehingga kini PC tidak disiapkan, barang tidak diserahkan, dan wang tidak dipulangkan.\n\n"
+                "3. KES KEDUA (Modal Perniagaan): Ketika menunggu PC, suspek meminta saya menampung modal RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 (termasuk RM160 hutang servis game).\n\n"
+                "4. Suspek telah MENGIKTIRAF beliau berhutang melalui aplikasi WhatsApp. Beliau menulis: 'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
+                "5. Saya juga mendapati nombor telefon suspek telah ditag sebagai 'Penipu' oleh lebih 80 mangsa lain di aplikasi GetContact/Truecaller. Ini membuktikan beliau adalah penipu bersiri."
             )
             pdf.multi_cell(0, 8, txt=kronologi)
+            pdf.ln(5)
+            
+            # Bahagian D - Lampiran
+            pdf.set_font("Arial", 'B', 12)
+            pdf.cell(200, 10, txt="D. LAMPIRAN BUKTI", ln=True)
+            pdf.set_font("Arial", size=11)
+            pdf.cell(200, 8, txt="1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow).", ln=True)
+            pdf.cell(200, 8, txt="2. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang RM1,783).", ln=True)
+            pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok & Email suspek.", ln=True)
+            pdf.cell(200, 8, txt="4. [ ] Tangkapan skrin Tag/GetContact (80 tag aduan).", ln=True)
+            
+            pdf.ln(10)
+            pdf.set_font("Arial", 'I', 10)
+            pdf.multi_cell(0, 8, txt="Saya bersumpah bahawa maklumat yang diberikan adalah benar dan ingin membuat laporan rasmi untuk tindakan pihak berkuasa di bawah Seksyen 420 Kanun Keseksaan.")
+            
+            pdf.ln(15)
+            pdf.cell(200, 10, txt="Tandatangan Pengadu: _____________________", ln=True)
+            pdf.cell(200, 10, txt=f"Nama: {nama_pengadu}", ln=True)
+            pdf.cell(200, 10, txt=f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", ln=True)
             
             pdf.output("Laporan_Polis_UI.pdf")
             
@@ -118,7 +142,7 @@ with tab1:
                     file_name=f"Laporan_Polis_{nama_pengadu}.pdf",
                     mime="application/pdf"
                 )
-            st.success("Laporan berjaya dijana!")
+            st.success("Laporan lengkap berjaya dijana!")
 
     st.markdown("---")
     st.subheader("Pautan Aduan Segera & Pangkalan Data")
