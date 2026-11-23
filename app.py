@@ -40,7 +40,7 @@ with st.sidebar:
     st.code(f"{NAMA_MULE}\n{BANK_MULE}\n{AKAUN_MULE}")
 
 # Tab Navigation
-tab1, tab2, tab3 = st.tabs(["📄 Jana Laporan & Aduan", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi"])
+tab1, tab2, tab3 = st.tabs(["📄  Laporan & Aduan", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi"])
 
 # --- TAB 1: JANA LAPORAN PDF & ADUAN ---
 with tab1:
