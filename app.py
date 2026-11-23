@@ -11,6 +11,19 @@ import urllib.parse
 # ==========================================
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️", layout="wide")
 
+# --- KOD UNTUK SOROKKAN BUTANG STREAMLIT (UI BERSIH) ---
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            .stDeployButton {display:none;}
+            [data-testid="stStatusWidget"] {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
+# -------------------------------------------------------
+
 # --- MAKLUMAT SUSPEK (Maklumat Awam untuk diburu) ---
 NAMA_SUSPEK = "ABDUL HADI BIN MOHD NOR"
 NOMOR_SUSPEK = "+601128065526"
@@ -25,7 +38,7 @@ BAKI_HUTANG = "RM 1,783.00"
 # ==========================================
 # UI UTAMA (STREAMLIT)
 # ==========================================
-st.title("🕵️‍♂️ Sistem Siasatan ")
+st.title("🕵️‍♂️ Sistem Siasatan Penipu")
 st.markdown("---")
 
 # Sidebar (Maklumat Suspek)
@@ -40,9 +53,9 @@ with st.sidebar:
     st.code(f"{NAMA_MULE}\n{BANK_MULE}\n{AKAUN_MULE}")
 
 # Tab Navigation
-tab1, tab2, tab3 = st.tabs(["📄  Laporan & Aduan", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi"])
+tab1, tab2, tab3 = st.tabs(["📄 Laporan & Aduan", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi"])
 
-# --- TAB 1: buat LAPORAN PDF & ADUAN ---
+# --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
 with tab1:
     st.header("Laporan Polis")
     st.write("Masukkan maklumat anda di bawah untuk buat draf laporan polis dalam format PDF.")
@@ -54,7 +67,7 @@ with tab1:
     alamat_pengadu = st.text_area("Alamat Penuh Anda")
     jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)")
     
-    if st.button("📥 buat Laporan PDF", type="primary"):
+    if st.button("📥 Buat Laporan PDF", type="primary"):
         if not nama_pengadu or not ic_pengadu:
             st.error("Sila isi Nama dan No. IC anda dahulu!")
         else:
@@ -127,7 +140,6 @@ with tab2:
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Jejak Suspek (Hadi)")
-        # Guna st.link_button supaya boleh dibuka di telefon
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22")
         st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
         st.link_button("🎵 Cari 'Boyspark Band' di FB", "https://www.facebook.com/search/top?q=Boyspark+Band")
