@@ -33,10 +33,11 @@ NOMOR_SUSPEK = "+601128065526"
 NOMOR_WA = "601128065526"
 EMAIL_SUSPEK = "boyspark641@gmail.com"
 USERNAME_TIKTOK = "hadimarkno"
+USERNAME_SMULE = "GSR_ADIJDT_RX15A" # Data Baru!
 LINK_FB = "https://www.facebook.com/adisprinter"
 LINK_FB_PHOTOS = "https://www.facebook.com/adisprinter/photos"
 PLAT_KERETA = "WHG 8164"
-PLAT_MOTOR = "WGG 4317" # Dikemaskini!
+PLAT_MOTOR = "WGG 4317"
 CHECK_IN = "Ipoh, Perak"
 CAPTION_FB = "Hati aku hanya pada Perak"
 
@@ -63,6 +64,7 @@ with st.sidebar:
     st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
     st.markdown(f"📘 [Facebook (Adisprinter)]({LINK_FB})")
     st.markdown(f"📸 [Gambar Facebook]({LINK_FB_PHOTOS})")
+    st.markdown(f"🎤 [Smule (@{USERNAME_SMULE})](https://www.smule.com/{USERNAME_SMULE})") # Link Smule
     
     st.markdown("---")
     st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
@@ -96,7 +98,7 @@ with tab1:
         "2. KES PERTAMA (Pembuatan PC): Suspek menawarkan untuk membina PC dengan harga murah. Saya telah membuat pembayaran lebih RM500. Namun, sehingga kini PC tidak disiapkan, barang tidak diserahkan, dan wang tidak dipulangkan.\n\n"
         "3. KES KEDUA (Modal Perniagaan): Ketika menunggu PC, suspek meminta saya menampung modal RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 (termasuk RM160 hutang servis game).\n\n"
         "4. Suspek telah MENGIKTIRAF beliau berhutang melalui aplikasi WhatsApp. Beliau menulis: 'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
-        "5. Saya juga mendapati suspek mempunyai pelbagai rekod digital yang mengaitkannya dengan kawasan Perak (Check-in Facebook di Ipoh, video TikTok di Sg Siput, tag 'Adi Ipoh' di GetContact, dan caption FB 'Hati aku hanya pada Perak'). Nombor telefon suspek juga telah ditag sebagai 'Penipu' oleh 80 mangsa lain. Saya juga mempunyai bukti gambar kenderaan suspek (Kereta: WHG 8164, Motor: WGG 4317)."
+        "5. Saya juga mendapati suspek mempunyai pelbagai rekod digital yang mengaitkannya dengan kawasan Perak (Check-in Facebook di Ipoh, video TikTok di Sg Siput, tag 'Adi Ipoh' di GetContact, dan caption FB 'Hati aku hanya pada Perak'). Nombor telefon suspek juga telah ditag sebagai 'Penipu' oleh 80 mangsa lain. Saya juga mempunyai bukti gambar kenderaan suspek (Kereta: WHG 8164, Motor: WGG 4317) dan akaun Smule (GSR_ADIJDT_RX15A)."
     )
     
     kronologi_edit = st.text_area("Kronologi Kejadian:", value=teks_default, height=300)
@@ -128,6 +130,7 @@ with tab1:
             pdf.cell(200, 8, txt=f"   Email        : {EMAIL_SUSPEK}", ln=True)
             pdf.cell(200, 8, txt=f"   TikTok       : @{USERNAME_TIKTOK}", ln=True)
             pdf.cell(200, 8, txt=f"   Facebook     : {LINK_FB}", ln=True)
+            pdf.cell(200, 8, txt=f"   Smule        : {USERNAME_SMULE}", ln=True) # Masuk PDF
             pdf.cell(200, 8, txt=f"   Plat Kereta  : {PLAT_KERETA}", ln=True)
             pdf.cell(200, 8, txt=f"   Plat Motor   : {PLAT_MOTOR}", ln=True) 
             pdf.cell(200, 8, txt=f"   Check-in FB  : {CHECK_IN}", ln=True)
@@ -147,7 +150,7 @@ with tab1:
             pdf.set_font("Arial", size=11)
             pdf.cell(200, 8, txt="1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow).", ln=True)
             pdf.cell(200, 8, txt="2. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang).", ln=True)
-            pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok, Facebook, Gambar Kereta & Motor.", ln=True)
+            pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok, Facebook, Smule, Gambar Kereta & Motor.", ln=True)
             pdf.cell(200, 8, txt="4. [ ] Tangkapan skrin Tag/GetContact (80 tag aduan).", ln=True)
             
             pdf.ln(10)
@@ -195,6 +198,7 @@ with tab2:
         st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
         st.link_button("📘 Buka Profil Facebook (Adisprinter)", LINK_FB)
         st.link_button("📸 Buka Gambar Facebook (Photos)", LINK_FB_PHOTOS)
+        st.link_button("🎤 Buka Akaun Smule", f"https://www.smule.com/{USERNAME_SMULE}") # Butang Baru Smule
         st.link_button("🎵 Cari 'Boyspark Band' di FB", "https://www.facebook.com/search/top?q=Boyspark+Band")
         st.link_button("🚗 Semak Plat Kereta (WHG 8164)", "https://www.google.com/search?q=%22WHG+8164%22")
         st.link_button("🏍️ Semak Plat Motor (WGG 4317)", "https://www.google.com/search?q=%22WGG+4317%22")
