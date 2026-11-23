@@ -1,72 +1,3 @@
-Cara buat projek Python lokasi
-Ah, sekarang saya nampak! Rupanya anda telah menggunakan fungsi GitHub Copilot (AI) untuk menterjemah kod tu ke dalam Bahasa Melayu.
-
-Ini masalah besar. Kod Python tidak boleh menggunakan perkataan Bahasa Melayu seperti import streamlit sebagai st, tarikh import masa, atau daripada. Python hanya faham Bahasa Inggeris. Ini yang menyebabkan Streamlit tak boleh nak jalan (ralat).
-
-Anda kena padam semua kod dalam gambar tu, dan tampal semula kod Bahasa Inggeris yang saya beri sebelum ini.
-
-Langkah Membetulkan:
-Di page GitHub yang anda buka tu, klik ikon Pensel (Edit) di kanan atas.
-
-Highlight (pilih) semua kod dari baris 1 hingga hujung (tekan Ctrl + A).
-
-Tekan Padam (Delete) pada keyboard. Pastikan kotak tu kosong.
-
-Salin (Copy) semula kod penuh yang saya bagi sebelum ini (yang ada import streamlit as st).
-
-Tampal (Paste) kod tu ke dalam kotak yang kosong tadi.
-
-Kat bahagian atas sekali (kotak nama fail), pastikan namanya ialah sistem_laporan.py (pastikan ada .py di hujung).
-
-Scroll ke bawah, klik butang hijau "Commit changes...".
-
-Klik "Commit changes" sekali lagi.
-
-Lepas anda dah pastikan kod tu guna Bahasa Inggeris (Python asli) dan nama fail ada .py, barulah pergi semula ke Streamlit Cloud dan taip nama fail tu.
-
-Cuba buang kod pelik tu dan paste kod asal balik. Beritahu saya bila dah siap!
-
-Mantap! Kod ini dah betul-betul bersih dan menggunakan Bahasa Inggeris (Python asli). Anda dah selamat dari masalah "terjemahan" tadi.
-
-Sekarang, ikut langkah ini untuk simpan semula di GitHub dan lancarkan website anda:
-
-📤 Langkah 1: Kemaskini Fail di GitHub
-Buka semula fail dalam GitHub anda (page yang ada pensel edit tadi).
-
-Padam semua kod lama (Ctrl+A, kemudian Delete).
-
-Copy & Paste seluruh kod dari fail teks yang anda beri tadi.
-
-Di kotak nama fail di atas sekali, pastikan namanya ialah: sistem_laporan.py (pastikan ada .py di hujung).
-
-Scroll ke bawah, klik butang hijau "Commit changes...".
-
-Klik "Commit changes" sekali lagi.
-
-🚀 Langkah 2: Deploy di Streamlit Cloud
-Pergi semula ke page Streamlit Cloud (yang ada kotak Main file path merah tu).
-
-Kat kotak Main file path, padam yang lama, dan taip nama fail baru: sistem_laporan.py
-
-Tulisan merah sepatutnya hilang serta-merta.
-
-Butang biru "Deploy" akan menyala. Klik butang tu.
-
-⏳ Langkah 3: Tunggu
-Streamlit akan ambil masa 2-5 minit untuk install library dan buka website anda.
-
-Bila siap, anda akan dapat link website yang boleh dibuka di telefon. Beritahu saya bila website tu dah siap keluar! 🚀
-
-Sempurna! Pop-up ni dah betul.
-
-Anda cuma perlu klik butang hijau "Perubahan komitmen" di penjuru kanan bawah tu.
-
-(Biarkan pilihan "Berkomitmen secara langsung kepada utama/cawangan" tu terpilih macam sekarang).
-
-Lepas klik, tunggu sekejap. Lepas tu, terus pergi balik ke tab Streamlit Cloud, taip sistem_laporan.py kat kotak Main file path tu, dan tekan Deploy! 🚀
-
-
-import streamlit as st.txt
 import streamlit as st
 import datetime
 import os
@@ -95,7 +26,7 @@ BAKI_HUTANG = "RM 1,783.00"
 # ==========================================
 # UI UTAMA (STREAMLIT)
 # ==========================================
-st.title("🕵️‍♂️ Sistem Siasatan Penipu (Mega UI)")
+st.title("🕵️‍♂️ Sistem Siasatan Penipu (Mega UI Final)")
 st.markdown("---")
 
 # Sidebar (Maklumat Suspek)
@@ -110,14 +41,14 @@ with st.sidebar:
     st.code(f"{NAMA_MULE}\n{BANK_MULE}\n{AKAUN_MULE}")
 
 # Tab Navigation
-tab1, tab2, tab3 = st.tabs(["📄 Jana Laporan Polis", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi"])
+tab1, tab2, tab3 = st.tabs(["📄 Jana Laporan & Aduan", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi"])
 
-# --- TAB 1: JANA LAPORAN PDF ---
+# --- TAB 1: JANA LAPORAN PDF & ADUAN ---
 with tab1:
     st.header("Jana Laporan Polis")
     st.write("Masukkan maklumat anda di bawah untuk menjana draf laporan polis dalam format PDF.")
     
-    # KOTAK INPUT MANUAL
+    # KOTAK INPUT MANUAL (Selamat, tiada data disimpan di web)
     nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)")
     ic_pengadu = st.text_input("No. IC Anda")
     tel_pengadu = st.text_input("No. Telefon Anda")
@@ -178,14 +109,16 @@ with tab1:
             st.success("Laporan berjaya dijana!")
 
     st.markdown("---")
-    st.subheader("Pautan Aduan Segera")
-    col1, col2, col3 = st.columns(3)
+    st.subheader("Pautan Aduan Segera & Pangkalan Data")
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.link_button("🚨 NSRC 997 (Sekat Bank)", "https://nfcc.jpm.gov.my/")
     with col2:
         st.link_button("📞 Semak Mule PDRM", "https://semakmule.rmp.gov.my/")
     with col3:
         st.link_button("📧 Aduan MCMC", "https://aduan.mcmc.gov.my/")
+    with col4:
+        st.link_button("🔎 Truecaller (80 Tags)", f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}")
 
 # --- TAB 2: CARIAN OSINT ---
 with tab2:
@@ -194,20 +127,26 @@ with tab2:
     
     col1, col2 = st.columns(2)
     with col1:
+        st.subheader("Jejak Suspek (Hadi)")
         if st.button("🔎 Cari Email di Google"):
             webbrowser.open_new_tab(f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22")
         if st.button("📱 Buka TikTok Suspek"):
             webbrowser.open_new_tab(f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
-        if st.button("🏦 Cari Keldai Akaun (Hilmi) di FB"):
-            webbrowser.open_new_tab(f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}")
-            
-    with col2:
         if st.button("🎵 Cari 'Boyspark Band' di FB"):
             webbrowser.open_new_tab(f"https://www.facebook.com/search/top?q=Boyspark+Band")
         if st.button("☕ Cari 'Black Cafe Sg Siput' di Maps"):
             webbrowser.open_new_tab("https://www.google.com/maps/search/Black+Cafe+Sungai+Siput")
-        if st.button("📞 Cari Info Nombor (Truecaller)"):
+            
+    with col2:
+        st.subheader("Jejak Keldai Akaun (Hilmi)")
+        if st.button("🏦 Cari Nama Hilmi di FB"):
+            webbrowser.open_new_tab(f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}")
+        if st.button("🔍 Cari Hilmi di Google"):
+            webbrowser.open_new_tab(f"https://www.google.com/search?q=%22{urllib.parse.quote(NAMA_MULE)}%22")
+        if st.button("📞 Cari Info Nombor Suspek"):
             webbrowser.open_new_tab(f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}")
+        if st.button("🕵️‍♂️ Semak GetContact"):
+            webbrowser.open_new_tab(f"https://getcontact.com/en/search?q={NOMOR_SUSPEK.replace('+', '')}")
 
 # --- TAB 3: PETA LOKASI ---
 with tab3:
