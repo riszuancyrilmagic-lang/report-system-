@@ -42,10 +42,10 @@ with st.sidebar:
 # Tab Navigation
 tab1, tab2, tab3 = st.tabs(["📄  Laporan & Aduan", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi"])
 
-# --- TAB 1: JANA LAPORAN PDF & ADUAN ---
+# --- TAB 1: buat LAPORAN PDF & ADUAN ---
 with tab1:
-    st.header("Jana Laporan Polis")
-    st.write("Masukkan maklumat anda di bawah untuk menjana draf laporan polis dalam format PDF.")
+    st.header("Laporan Polis")
+    st.write("Masukkan maklumat anda di bawah untuk buat draf laporan polis dalam format PDF.")
     
     # KOTAK INPUT MANUAL (Selamat, tiada data disimpan di web)
     nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)")
@@ -54,11 +54,11 @@ with tab1:
     alamat_pengadu = st.text_area("Alamat Penuh Anda")
     jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)")
     
-    if st.button("📥 Jana Laporan PDF", type="primary"):
+    if st.button("📥 buat Laporan PDF", type="primary"):
         if not nama_pengadu or not ic_pengadu:
             st.error("Sila isi Nama dan No. IC anda dahulu!")
         else:
-            # Proses jana PDF
+            # Proses buat PDF
             pdf = FPDF()
             pdf.add_page()
             pdf.set_font("Arial", 'B', 16)
