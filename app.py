@@ -25,7 +25,7 @@ BAKI_HUTANG = "RM 1,783.00"
 # ==========================================
 # UI UTAMA (STREAMLIT)
 # ==========================================
-st.title("🕵️‍♂️ Sistem Siasatan Penipu (Mega UI Final)")
+st.title("🕵️‍♂️ Sistem Siasatan ")
 st.markdown("---")
 
 # Sidebar (Maklumat Suspek)
