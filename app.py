@@ -5,7 +5,6 @@ from fpdf import FPDF
 import folium
 from streamlit_folium import folium_static
 import urllib.parse
-import webbrowser
 
 # ==========================================
 # KONFIGURASI UI
@@ -123,30 +122,23 @@ with tab1:
 # --- TAB 2: CARIAN OSINT ---
 with tab2:
     st.header("Carian OSINT (Open Source Intelligence)")
-    st.write("Gunakan butang di bawah untuk mencari jejak digital suspek.")
+    st.write("Klik butang di bawah untuk membuka carian di tab baru.")
     
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Jejak Suspek (Hadi)")
-        if st.button("🔎 Cari Email di Google"):
-            webbrowser.open_new_tab(f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22")
-        if st.button("📱 Buka TikTok Suspek"):
-            webbrowser.open_new_tab(f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
-        if st.button("🎵 Cari 'Boyspark Band' di FB"):
-            webbrowser.open_new_tab(f"https://www.facebook.com/search/top?q=Boyspark+Band")
-        if st.button("☕ Cari 'Black Cafe Sg Siput' di Maps"):
-            webbrowser.open_new_tab("https://www.google.com/maps/search/Black+Cafe+Sungai+Siput")
+        # Guna st.link_button supaya boleh dibuka di telefon
+        st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22")
+        st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
+        st.link_button("🎵 Cari 'Boyspark Band' di FB", "https://www.facebook.com/search/top?q=Boyspark+Band")
+        st.link_button("☕ Cari 'Black Cafe Sg Siput' di Maps", "https://www.google.com/maps/search/Black+Cafe+Sungai+Siput")
             
     with col2:
         st.subheader("Jejak Keldai Akaun (Hilmi)")
-        if st.button("🏦 Cari Nama Hilmi di FB"):
-            webbrowser.open_new_tab(f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}")
-        if st.button("🔍 Cari Hilmi di Google"):
-            webbrowser.open_new_tab(f"https://www.google.com/search?q=%22{urllib.parse.quote(NAMA_MULE)}%22")
-        if st.button("📞 Cari Info Nombor Suspek"):
-            webbrowser.open_new_tab(f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}")
-        if st.button("🕵️‍♂️ Semak GetContact"):
-            webbrowser.open_new_tab(f"https://getcontact.com/en/search?q={NOMOR_SUSPEK.replace('+', '')}")
+        st.link_button("🏦 Cari Nama Hilmi di FB", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}")
+        st.link_button("🔍 Cari Hilmi di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(NAMA_MULE)}%22")
+        st.link_button("📞 Cari Info Nombor Suspek", f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}")
+        st.link_button("🕵️‍♂️ Semak GetContact", f"https://getcontact.com/en/search?q={NOMOR_SUSPEK.replace('+', '')}")
 
 # --- TAB 3: PETA LOKASI ---
 with tab3:
