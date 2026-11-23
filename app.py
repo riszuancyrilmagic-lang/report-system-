@@ -33,13 +33,20 @@ NOMOR_SUSPEK = "+601128065526"
 NOMOR_WA = "601128065526"
 EMAIL_SUSPEK = "boyspark641@gmail.com"
 USERNAME_TIKTOK = "hadimarkno"
-USERNAME_SMULE = "GSR_ADIJDT_RX15A" # Data Baru!
+USERNAME_SMULE = "GSR_ADIJDT_RX15A"
 LINK_FB = "https://www.facebook.com/adisprinter"
 LINK_FB_PHOTOS = "https://www.facebook.com/adisprinter/photos"
 PLAT_KERETA = "WHG 8164"
 PLAT_MOTOR = "WGG 4317"
 CHECK_IN = "Ipoh, Perak"
 CAPTION_FB = "Hati aku hanya pada Perak"
+
+# --- KAWAN RAPAT / KONTAK TERDEKAT (Baru) ---
+KAWAN_RAPAT = [
+    "Faiz Badiozaman",
+    "Fitri Azizi Ramli",
+    "Muhd Syhmy"
+]
 
 NAMA_MULE = "MOHAMMAD HILMI BIN MOHD HANIF"
 BANK_MULE = "Bank Simpanan Nasional (BSN)"
@@ -64,14 +71,18 @@ with st.sidebar:
     st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
     st.markdown(f"📘 [Facebook (Adisprinter)]({LINK_FB})")
     st.markdown(f"📸 [Gambar Facebook]({LINK_FB_PHOTOS})")
-    st.markdown(f"🎤 [Smule (@{USERNAME_SMULE})](https://www.smule.com/{USERNAME_SMULE})") # Link Smule
+    st.markdown(f"🎤 [Smule (@{USERNAME_SMULE})](https://www.smule.com/{USERNAME_SMULE})")
     
     st.markdown("---")
     st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
     st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
     st.info(f"📍 **Check-in FB:** {CHECK_IN}")
-    st.success(f"💬 **Caption FB:** '{CAPTION_FB}'")
     
+    st.markdown("---")
+    st.error("👥 **KAWAN RAPAT / KONTAK**")
+    for kawan in KAWAN_RAPAT:
+        st.markdown(f"- {kawan}")
+
     st.markdown("---")
     st.error("🚨 **KELDAI AKAUN (MULE)**")
     st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
@@ -98,7 +109,7 @@ with tab1:
         "2. KES PERTAMA (Pembuatan PC): Suspek menawarkan untuk membina PC dengan harga murah. Saya telah membuat pembayaran lebih RM500. Namun, sehingga kini PC tidak disiapkan, barang tidak diserahkan, dan wang tidak dipulangkan.\n\n"
         "3. KES KEDUA (Modal Perniagaan): Ketika menunggu PC, suspek meminta saya menampung modal RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 (termasuk RM160 hutang servis game).\n\n"
         "4. Suspek telah MENGIKTIRAF beliau berhutang melalui aplikasi WhatsApp. Beliau menulis: 'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
-        "5. Saya juga mendapati suspek mempunyai pelbagai rekod digital yang mengaitkannya dengan kawasan Perak (Check-in Facebook di Ipoh, video TikTok di Sg Siput, tag 'Adi Ipoh' di GetContact, dan caption FB 'Hati aku hanya pada Perak'). Nombor telefon suspek juga telah ditag sebagai 'Penipu' oleh 80 mangsa lain. Saya juga mempunyai bukti gambar kenderaan suspek (Kereta: WHG 8164, Motor: WGG 4317) dan akaun Smule (GSR_ADIJDT_RX15A)."
+        "5. Saya juga mendapati suspek mempunyai pelbagai rekod digital yang mengaitkannya dengan kawasan Perak (Check-in Facebook di Ipoh, video TikTok di Sg Siput, tag 'Adi Ipoh' di GetContact, dan caption FB 'Hati aku hanya pada Perak'). Nombor telefon suspek juga telah ditag sebagai 'Penipu' oleh 80 mangsa lain. Saya juga mempunyai bukti gambar kenderaan suspek (Kereta: WHG 8164, Motor: WGG 4317)."
     )
     
     kronologi_edit = st.text_area("Kronologi Kejadian:", value=teks_default, height=300)
@@ -130,7 +141,7 @@ with tab1:
             pdf.cell(200, 8, txt=f"   Email        : {EMAIL_SUSPEK}", ln=True)
             pdf.cell(200, 8, txt=f"   TikTok       : @{USERNAME_TIKTOK}", ln=True)
             pdf.cell(200, 8, txt=f"   Facebook     : {LINK_FB}", ln=True)
-            pdf.cell(200, 8, txt=f"   Smule        : {USERNAME_SMULE}", ln=True) # Masuk PDF
+            pdf.cell(200, 8, txt=f"   Smule        : {USERNAME_SMULE}", ln=True)
             pdf.cell(200, 8, txt=f"   Plat Kereta  : {PLAT_KERETA}", ln=True)
             pdf.cell(200, 8, txt=f"   Plat Motor   : {PLAT_MOTOR}", ln=True) 
             pdf.cell(200, 8, txt=f"   Check-in FB  : {CHECK_IN}", ln=True)
@@ -139,19 +150,29 @@ with tab1:
             pdf.cell(200, 8, txt=f"   No. Akaun    : {AKAUN_MULE}", ln=True)
             pdf.ln(5)
             
+            # Bahagian Rangkaian Sosial (Kawan)
             pdf.set_font("Arial", 'B', 12)
-            pdf.cell(200, 10, txt="C. KRONOLOGI KEJADIAN", ln=True)
+            pdf.cell(200, 10, txt="C. RANGKAIAN SOSIAL (KAWAN RAPAT)", ln=True)
+            pdf.set_font("Arial", size=11)
+            pdf.multi_cell(0, 8, txt="Berdasarkan komen Facebook, suspek mempunyai hubungan rapat dengan individu berikut:")
+            for kawan in KAWAN_RAPAT:
+                pdf.cell(200, 8, txt=f"   - {kawan}", ln=True)
+            pdf.ln(5)
+
+            pdf.set_font("Arial", 'B', 12)
+            pdf.cell(200, 10, txt="D. KRONOLOGI KEJADIAN", ln=True)
             pdf.set_font("Arial", size=11)
             pdf.multi_cell(0, 8, txt=kronologi_edit)
             pdf.ln(5)
             
             pdf.set_font("Arial", 'B', 12)
-            pdf.cell(200, 10, txt="D. LAMPIRAN BUKTI", ln=True)
+            pdf.cell(200, 10, txt="E. LAMPIRAN BUKTI", ln=True)
             pdf.set_font("Arial", size=11)
             pdf.cell(200, 8, txt="1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow).", ln=True)
             pdf.cell(200, 8, txt="2. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang).", ln=True)
             pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok, Facebook, Smule, Gambar Kereta & Motor.", ln=True)
             pdf.cell(200, 8, txt="4. [ ] Tangkapan skrin Tag/GetContact (80 tag aduan).", ln=True)
+            pdf.cell(200, 8, txt="5. [ ] Tangkapan skrin Komen FB Kawan Rapat.", ln=True)
             
             pdf.ln(10)
             pdf.set_font("Arial", 'I', 10)
@@ -198,18 +219,21 @@ with tab2:
         st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
         st.link_button("📘 Buka Profil Facebook (Adisprinter)", LINK_FB)
         st.link_button("📸 Buka Gambar Facebook (Photos)", LINK_FB_PHOTOS)
-        st.link_button("🎤 Buka Akaun Smule", f"https://www.smule.com/{USERNAME_SMULE}") # Butang Baru Smule
+        st.link_button("🎤 Buka Akaun Smule", f"https://www.smule.com/{USERNAME_SMULE}")
         st.link_button("🎵 Cari 'Boyspark Band' di FB", "https://www.facebook.com/search/top?q=Boyspark+Band")
         st.link_button("🚗 Semak Plat Kereta (WHG 8164)", "https://www.google.com/search?q=%22WHG+8164%22")
         st.link_button("🏍️ Semak Plat Motor (WGG 4317)", "https://www.google.com/search?q=%22WGG+4317%22")
         st.link_button("📍 Cari 'Ipoh, Perak' di Maps", "https://www.google.com/maps/search/Ipoh,+Perak")
             
     with col2:
-        st.subheader("Jejak Keldai Akaun (Hilmi)")
+        st.subheader("Jejak Keldai Akaun & Kawan")
         st.link_button("🏦 Cari Nama Hilmi di FB", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}")
         st.link_button("🔍 Cari Hilmi di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(NAMA_MULE)}%22")
-        st.link_button("📞 Cari Info Nombor Suspek", f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}")
-        st.link_button("🕵️‍♂️ Semak GetContact", f"https://getcontact.com/en/search?q={NOMOR_SUSPEK.replace('+', '')}")
+        
+        st.markdown("**Cari Kawan Rapat:**")
+        for kawan in KAWAN_RAPAT:
+            kawan_encoded = urllib.parse.quote(kawan)
+            st.link_button(f"🔍 Cari {kawan} di FB", f"https://www.facebook.com/search/top?q={kawan_encoded}")
 
 # --- TAB 3: PETA LOKASI ---
 with tab3:
