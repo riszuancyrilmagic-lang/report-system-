@@ -30,10 +30,14 @@ st.markdown(hide_st_style, unsafe_allow_html=True)
 # --- MAKLUMAT SUSPEK ---
 NAMA_SUSPEK = "ABDUL HADI BIN MOHD NOR"
 NOMOR_SUSPEK = "+601128065526"
-NOMOR_WA = "601128065526" # Format untuk link wa.me
+NOMOR_WA = "601128065526"
 EMAIL_SUSPEK = "boyspark641@gmail.com"
 USERNAME_TIKTOK = "hadimarkno"
 LINK_FB = "https://www.facebook.com/adisprinter"
+LINK_FB_PHOTOS = "https://www.facebook.com/adisprinter/photos"
+PLAT_KERETA = "WHG 8164"
+CHECK_IN = "Ipoh, Perak"
+CAPTION_FB = "Hati aku hanya pada Perak" # Petunjuk Baru!
 
 NAMA_MULE = "MOHAMMAD HILMI BIN MOHD HANIF"
 BANK_MULE = "Bank Simpanan Nasional (BSN)"
@@ -45,29 +49,29 @@ AKAUN_MULE = "0820041100050836"
 st.title("🕵️‍♂️ Sistem Siasatan Penipu")
 st.markdown("---")
 
-# ================= SIDEBAR (DIKEMASKINI DENGAN WHATSAPP) =================
+# ================= SIDEBAR =================
 with st.sidebar:
     st.header("🎯 Profil Sasaran (Suspek)")
     
-    # Kotak Nama (Merah)
     st.error(f"**Nama:** {NAMA_SUSPEK}")
-    
-    # Kotak Telefon & WhatsApp
     st.warning(f"**Tel:** {NOMOR_SUSPEK}")
     st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
-    
-    # Kotak Email
     st.info(f"**Email:** {EMAIL_SUSPEK}")
     
-    # Kotak Media Sosial
     st.success("**Media Sosial:**")
     st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
     st.markdown(f"📘 [Facebook (Adisprinter)]({LINK_FB})")
+    st.markdown(f"📸 [Gambar Facebook]({LINK_FB_PHOTOS})")
+    
+    st.markdown("---")
+    st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
+    st.info(f"📍 **Check-in FB:** {CHECK_IN}")
+    st.success(f"💬 **Caption FB:** '{CAPTION_FB}'") # Papar Caption
     
     st.markdown("---")
     st.error("🚨 **KELDAI AKAUN (MULE)**")
     st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
-# =========================================================================
+# ==========================================
 
 # Tab Navigation
 tab1, tab2, tab3, tab4 = st.tabs(["📄 Laporan & Aduan", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi", "📧 Carian Email & Data"])
@@ -90,7 +94,7 @@ with tab1:
         "2. KES PERTAMA (Pembuatan PC): Suspek menawarkan untuk membina PC dengan harga murah. Saya telah membuat pembayaran lebih RM500. Namun, sehingga kini PC tidak disiapkan, barang tidak diserahkan, dan wang tidak dipulangkan.\n\n"
         "3. KES KEDUA (Modal Perniagaan): Ketika menunggu PC, suspek meminta saya menampung modal RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 (termasuk RM160 hutang servis game).\n\n"
         "4. Suspek telah MENGIKTIRAF beliau berhutang melalui aplikasi WhatsApp. Beliau menulis: 'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
-        "5. Saya juga mendapati nombor telefon suspek telah ditag sebagai 'Penipu' oleh lebih 80 mangsa lain di aplikasi GetContact/Truecaller. Saya juga telah menjumpai profil Facebook sebenar suspek dan profil TikTok yang mengesahkan identitinya."
+        "5. Saya juga mendapati suspek mempunyai pelbagai rekod digital yang mengaitkannya dengan kawasan Perak (Check-in Facebook di Ipoh, video TikTok di Sg Siput, tag 'Adi Ipoh' di GetContact, dan caption FB 'Hati aku hanya pada Perak'). Nombor telefon suspek juga telah ditag sebagai 'Penipu' oleh 80 mangsa lain."
     )
     
     kronologi_edit = st.text_area("Kronologi Kejadian:", value=teks_default, height=300)
@@ -122,6 +126,9 @@ with tab1:
             pdf.cell(200, 8, txt=f"   Email        : {EMAIL_SUSPEK}", ln=True)
             pdf.cell(200, 8, txt=f"   TikTok       : @{USERNAME_TIKTOK}", ln=True)
             pdf.cell(200, 8, txt=f"   Facebook     : {LINK_FB}", ln=True)
+            pdf.cell(200, 8, txt=f"   Plat Kereta  : {PLAT_KERETA}", ln=True)
+            pdf.cell(200, 8, txt=f"   Check-in FB  : {CHECK_IN}", ln=True)
+            pdf.cell(200, 8, txt=f"   Caption FB   : '{CAPTION_FB}'", ln=True) # Masuk PDF
             pdf.cell(200, 8, txt=f"   Keldai Akaun : {NAMA_MULE} ({BANK_MULE})", ln=True)
             pdf.cell(200, 8, txt=f"   No. Akaun    : {AKAUN_MULE}", ln=True)
             pdf.ln(5)
@@ -137,7 +144,7 @@ with tab1:
             pdf.set_font("Arial", size=11)
             pdf.cell(200, 8, txt="1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow).", ln=True)
             pdf.cell(200, 8, txt="2. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang).", ln=True)
-            pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok & Facebook suspek.", ln=True)
+            pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok, Facebook, Gambar Kereta & Caption.", ln=True)
             pdf.cell(200, 8, txt="4. [ ] Tangkapan skrin Tag/GetContact (80 tag aduan).", ln=True)
             
             pdf.ln(10)
@@ -184,8 +191,10 @@ with tab2:
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22")
         st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
         st.link_button("📘 Buka Profil Facebook (Adisprinter)", LINK_FB)
+        st.link_button("📸 Buka Gambar Facebook (Photos)", LINK_FB_PHOTOS)
         st.link_button("🎵 Cari 'Boyspark Band' di FB", "https://www.facebook.com/search/top?q=Boyspark+Band")
-        st.link_button("☕ Cari 'Black Cafe Sg Siput' di Maps", "https://www.google.com/maps/search/Black+Cafe+Sungai+Siput")
+        st.link_button("🚗 Semak Plat Kereta (WHG 8164)", "https://www.google.com/search?q=%22WHG+8164%22")
+        st.link_button("📍 Cari 'Ipoh, Perak' di Maps", "https://www.google.com/maps/search/Ipoh,+Perak")
             
     with col2:
         st.subheader("Jejak Keldai Akaun (Hilmi)")
