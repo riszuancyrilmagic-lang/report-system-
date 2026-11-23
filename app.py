@@ -27,11 +27,13 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 # -------------------------------------------------------
 
-# --- MAKLUMAT SUSPEK ---
+# --- MAKLUMAT SUSPEK (Dikemaskini dengan data FB) ---
 NAMA_SUSPEK = "ABDUL HADI BIN MOHD NOR"
 NOMOR_SUSPEK = "+601128065526"
 EMAIL_SUSPEK = "boyspark641@gmail.com"
 USERNAME_TIKTOK = "hadimarkno"
+LINK_FB = "https://www.facebook.com/adisprinter"
+
 NAMA_MULE = "MOHAMMAD HILMI BIN MOHD HANIF"
 BANK_MULE = "Bank Simpanan Nasional (BSN)"
 AKAUN_MULE = "0820041100050836"
@@ -48,11 +50,12 @@ with st.sidebar:
     st.error(f"**Nama:** {NAMA_SUSPEK}")
     st.warning(f"**Tel:** {NOMOR_SUSPEK}")
     st.info(f"**Email:** {EMAIL_SUSPEK}")
+    st.success(f"**FB:** [Klik Profil]({LINK_FB})")
     st.markdown("---")
     st.write("**Keldai Akaun (Mule):**")
     st.code(f"{NAMA_MULE}\n{BANK_MULE}\n{AKAUN_MULE}")
 
-# Tab Navigation (Tambah tab ke-4)
+# Tab Navigation
 tab1, tab2, tab3, tab4 = st.tabs(["📄 Laporan & Aduan", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi", "📧 Carian Email & Data"])
 
 # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
@@ -73,7 +76,7 @@ with tab1:
         "2. KES PERTAMA (Pembuatan PC): Suspek menawarkan untuk membina PC dengan harga murah. Saya telah membuat pembayaran lebih RM500. Namun, sehingga kini PC tidak disiapkan, barang tidak diserahkan, dan wang tidak dipulangkan.\n\n"
         "3. KES KEDUA (Modal Perniagaan): Ketika menunggu PC, suspek meminta saya menampung modal RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 (termasuk RM160 hutang servis game).\n\n"
         "4. Suspek telah MENGIKTIRAF beliau berhutang melalui aplikasi WhatsApp. Beliau menulis: 'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
-        "5. Saya juga mendapati nombor telefon suspek telah ditag sebagai 'Penipu' oleh lebih 80 mangsa lain di aplikasi GetContact/Truecaller. Ini membuktikan beliau adalah penipu bersiri."
+        "5. Saya juga mendapati nombor telefon suspek telah ditag sebagai 'Penipu' oleh lebih 80 mangsa lain di aplikasi GetContact/Truecaller. Saya juga telah menjumpai profil Facebook sebenar suspek (facebook.com/adisprinter) dan profil TikTok (@hadimarkno) yang mengesahkan identitinya."
     )
     
     kronologi_edit = st.text_area("Kronologi Kejadian:", value=teks_default, height=300)
@@ -104,6 +107,7 @@ with tab1:
             pdf.cell(200, 8, txt=f"   No. Telefon  : {NOMOR_SUSPEK}", ln=True)
             pdf.cell(200, 8, txt=f"   Email        : {EMAIL_SUSPEK}", ln=True)
             pdf.cell(200, 8, txt=f"   TikTok       : @{USERNAME_TIKTOK}", ln=True)
+            pdf.cell(200, 8, txt=f"   Facebook     : {LINK_FB}", ln=True)
             pdf.cell(200, 8, txt=f"   Keldai Akaun : {NAMA_MULE} ({BANK_MULE})", ln=True)
             pdf.cell(200, 8, txt=f"   No. Akaun    : {AKAUN_MULE}", ln=True)
             pdf.ln(5)
@@ -119,7 +123,7 @@ with tab1:
             pdf.set_font("Arial", size=11)
             pdf.cell(200, 8, txt="1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow).", ln=True)
             pdf.cell(200, 8, txt="2. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang).", ln=True)
-            pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok & Email suspek.", ln=True)
+            pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok & Facebook suspek.", ln=True)
             pdf.cell(200, 8, txt="4. [ ] Tangkapan skrin Tag/GetContact (80 tag aduan).", ln=True)
             
             pdf.ln(10)
@@ -164,6 +168,7 @@ with tab2:
         st.subheader("Jejak Suspek (Hadi)")
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22")
         st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
+        st.link_button("📘 Buka Profil Facebook (Adisprinter)", LINK_FB) # BUTANG BARU FB
         st.link_button("🎵 Cari 'Boyspark Band' di FB", "https://www.facebook.com/search/top?q=Boyspark+Band")
         st.link_button("☕ Cari 'Black Cafe Sg Siput' di Maps", "https://www.google.com/maps/search/Black+Cafe+Sungai+Siput")
             
@@ -189,7 +194,7 @@ with tab3:
     
     folium_static(m)
 
-# --- TAB 4: CARIAN EMAIL & DATA (BARU) ---
+# --- TAB 4: CARIAN EMAIL & DATA ---
 with tab4:
     st.header("Carian Email & Data Bocor")
     st.write("Klik butang di bawah untuk semak jejak email suspek.")
