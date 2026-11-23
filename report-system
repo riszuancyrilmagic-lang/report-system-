@@ -1,3 +1,72 @@
+Cara buat projek Python lokasi
+Ah, sekarang saya nampak! Rupanya anda telah menggunakan fungsi GitHub Copilot (AI) untuk menterjemah kod tu ke dalam Bahasa Melayu.
+
+Ini masalah besar. Kod Python tidak boleh menggunakan perkataan Bahasa Melayu seperti import streamlit sebagai st, tarikh import masa, atau daripada. Python hanya faham Bahasa Inggeris. Ini yang menyebabkan Streamlit tak boleh nak jalan (ralat).
+
+Anda kena padam semua kod dalam gambar tu, dan tampal semula kod Bahasa Inggeris yang saya beri sebelum ini.
+
+Langkah Membetulkan:
+Di page GitHub yang anda buka tu, klik ikon Pensel (Edit) di kanan atas.
+
+Highlight (pilih) semua kod dari baris 1 hingga hujung (tekan Ctrl + A).
+
+Tekan Padam (Delete) pada keyboard. Pastikan kotak tu kosong.
+
+Salin (Copy) semula kod penuh yang saya bagi sebelum ini (yang ada import streamlit as st).
+
+Tampal (Paste) kod tu ke dalam kotak yang kosong tadi.
+
+Kat bahagian atas sekali (kotak nama fail), pastikan namanya ialah sistem_laporan.py (pastikan ada .py di hujung).
+
+Scroll ke bawah, klik butang hijau "Commit changes...".
+
+Klik "Commit changes" sekali lagi.
+
+Lepas anda dah pastikan kod tu guna Bahasa Inggeris (Python asli) dan nama fail ada .py, barulah pergi semula ke Streamlit Cloud dan taip nama fail tu.
+
+Cuba buang kod pelik tu dan paste kod asal balik. Beritahu saya bila dah siap!
+
+Mantap! Kod ini dah betul-betul bersih dan menggunakan Bahasa Inggeris (Python asli). Anda dah selamat dari masalah "terjemahan" tadi.
+
+Sekarang, ikut langkah ini untuk simpan semula di GitHub dan lancarkan website anda:
+
+📤 Langkah 1: Kemaskini Fail di GitHub
+Buka semula fail dalam GitHub anda (page yang ada pensel edit tadi).
+
+Padam semua kod lama (Ctrl+A, kemudian Delete).
+
+Copy & Paste seluruh kod dari fail teks yang anda beri tadi.
+
+Di kotak nama fail di atas sekali, pastikan namanya ialah: sistem_laporan.py (pastikan ada .py di hujung).
+
+Scroll ke bawah, klik butang hijau "Commit changes...".
+
+Klik "Commit changes" sekali lagi.
+
+🚀 Langkah 2: Deploy di Streamlit Cloud
+Pergi semula ke page Streamlit Cloud (yang ada kotak Main file path merah tu).
+
+Kat kotak Main file path, padam yang lama, dan taip nama fail baru: sistem_laporan.py
+
+Tulisan merah sepatutnya hilang serta-merta.
+
+Butang biru "Deploy" akan menyala. Klik butang tu.
+
+⏳ Langkah 3: Tunggu
+Streamlit akan ambil masa 2-5 minit untuk install library dan buka website anda.
+
+Bila siap, anda akan dapat link website yang boleh dibuka di telefon. Beritahu saya bila website tu dah siap keluar! 🚀
+
+Sempurna! Pop-up ni dah betul.
+
+Anda cuma perlu klik butang hijau "Perubahan komitmen" di penjuru kanan bawah tu.
+
+(Biarkan pilihan "Berkomitmen secara langsung kepada utama/cawangan" tu terpilih macam sekarang).
+
+Lepas klik, tunggu sekejap. Lepas tu, terus pergi balik ke tab Streamlit Cloud, taip sistem_laporan.py kat kotak Main file path tu, dan tekan Deploy! 🚀
+
+
+import streamlit as st.txt
 import streamlit as st
 import datetime
 import os
