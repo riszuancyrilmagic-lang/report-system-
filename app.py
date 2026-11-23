@@ -30,6 +30,7 @@ st.markdown(hide_st_style, unsafe_allow_html=True)
 # --- MAKLUMAT SUSPEK ---
 NAMA_SUSPEK = "ABDUL HADI BIN MOHD NOR"
 NOMOR_SUSPEK = "+601128065526"
+NOMOR_WA = "601128065526" # Format untuk link wa.me
 EMAIL_SUSPEK = "boyspark641@gmail.com"
 USERNAME_TIKTOK = "hadimarkno"
 LINK_FB = "https://www.facebook.com/adisprinter"
@@ -44,15 +45,16 @@ AKAUN_MULE = "0820041100050836"
 st.title("🕵️‍♂️ Sistem Siasatan Penipu")
 st.markdown("---")
 
-# ================= SIDEBAR (DIKEMASKINI) =================
+# ================= SIDEBAR (DIKEMASKINI DENGAN WHATSAPP) =================
 with st.sidebar:
     st.header("🎯 Profil Sasaran (Suspek)")
     
     # Kotak Nama (Merah)
     st.error(f"**Nama:** {NAMA_SUSPEK}")
     
-    # Kotak Telefon (Kuning)
+    # Kotak Telefon & WhatsApp
     st.warning(f"**Tel:** {NOMOR_SUSPEK}")
+    st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
     
     # Kotak Email
     st.info(f"**Email:** {EMAIL_SUSPEK}")
@@ -65,7 +67,7 @@ with st.sidebar:
     st.markdown("---")
     st.error("🚨 **KELDAI AKAUN (MULE)**")
     st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
-# =========================================================
+# =========================================================================
 
 # Tab Navigation
 tab1, tab2, tab3, tab4 = st.tabs(["📄 Laporan & Aduan", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi", "📧 Carian Email & Data"])
@@ -178,6 +180,7 @@ with tab2:
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Jejak Suspek (Hadi)")
+        st.link_button("💬 Buka WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}")
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22")
         st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
         st.link_button("📘 Buka Profil Facebook (Adisprinter)", LINK_FB)
