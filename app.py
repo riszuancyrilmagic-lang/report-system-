@@ -27,12 +27,11 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 # -------------------------------------------------------
 
-# --- MAKLUMAT SUSPEK (Maklumat Awam untuk diburu) ---
+# --- MAKLUMAT SUSPEK ---
 NAMA_SUSPEK = "ABDUL HADI BIN MOHD NOR"
 NOMOR_SUSPEK = "+601128065526"
 EMAIL_SUSPEK = "boyspark641@gmail.com"
 USERNAME_TIKTOK = "hadimarkno"
-
 NAMA_MULE = "MOHAMMAD HILMI BIN MOHD HANIF"
 BANK_MULE = "Bank Simpanan Nasional (BSN)"
 AKAUN_MULE = "0820041100050836"
@@ -59,7 +58,7 @@ tab1, tab2, tab3 = st.tabs(["📄 Laporan & Aduan", "🔍 Carian OSINT (Deep Web
 # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
 with tab1:
     st.header("Laporan Polis")
-    st.write("Masukkan maklumat anda di bawah untuk buat draf laporan polis yang lengkap dengan kronologi kes.")
+    st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
     
     # KOTAK INPUT MANUAL
     nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)")
@@ -67,7 +66,21 @@ with tab1:
     tel_pengadu = st.text_input("No. Telefon Anda")
     alamat_pengadu = st.text_area("Alamat Penuh Anda")
     
-    if st.button("📥 Buat Laporan PDF (Lengkap)", type="primary"):
+    # KOTAK TEKS UNTUK EDIT KRONOLOGI
+    st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
+    st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda. Sistem akan jadikan teks ini sebagai PDF.")
+    
+    teks_default = (
+        "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. Beliau sering menawarkan projek dan perkhidmatan.\n\n"
+        "2. KES PERTAMA (Pembuatan PC): Suspek menawarkan untuk membina PC dengan harga murah. Saya telah membuat pembayaran lebih RM500. Namun, sehingga kini PC tidak disiapkan, barang tidak diserahkan, dan wang tidak dipulangkan.\n\n"
+        "3. KES KEDUA (Modal Perniagaan): Ketika menunggu PC, suspek meminta saya menampung modal RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 (termasuk RM160 hutang servis game).\n\n"
+        "4. Suspek telah MENGIKTIRAF beliau berhutang melalui aplikasi WhatsApp. Beliau menulis: 'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
+        "5. Saya juga mendapati nombor telefon suspek telah ditag sebagai 'Penipu' oleh lebih 80 mangsa lain di aplikasi GetContact/Truecaller. Ini membuktikan beliau adalah penipu bersiri."
+    )
+    
+    kronologi_edit = st.text_area("Kronologi Kejadian:", value=teks_default, height=300)
+    
+    if st.button("📥 Buat Laporan PDF", type="primary"):
         if not nama_pengadu or not ic_pengadu:
             st.error("Sila isi Nama dan No. IC anda dahulu!")
         else:
@@ -100,19 +113,11 @@ with tab1:
             pdf.cell(200, 8, txt=f"   No. Akaun    : {AKAUN_MULE}", ln=True)
             pdf.ln(5)
             
-            # Bahagian C - KRONOLOGI TERPERINCI
+            # Bahagian C - GUNA TEKS YANG DIEDIT OLEH USER
             pdf.set_font("Arial", 'B', 12)
-            pdf.cell(200, 10, txt="C. KRONOLOGI & PENGAKUAN SUSPEK", ln=True)
+            pdf.cell(200, 10, txt="C. KRONOLOGI KEJADIAN", ln=True)
             pdf.set_font("Arial", size=11)
-            
-            kronologi = (
-                "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. Beliau sering menawarkan projek dan perkhidmatan.\n\n"
-                "2. KES PERTAMA (Pembuatan PC): Suspek menawarkan untuk membina PC dengan harga murah. Saya telah membuat pembayaran lebih RM500. Namun, sehingga kini PC tidak disiapkan, barang tidak diserahkan, dan wang tidak dipulangkan.\n\n"
-                "3. KES KEDUA (Modal Perniagaan): Ketika menunggu PC, suspek meminta saya menampung modal RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 (termasuk RM160 hutang servis game).\n\n"
-                "4. Suspek telah MENGIKTIRAF beliau berhutang melalui aplikasi WhatsApp. Beliau menulis: 'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
-                "5. Saya juga mendapati nombor telefon suspek telah ditag sebagai 'Penipu' oleh lebih 80 mangsa lain di aplikasi GetContact/Truecaller. Ini membuktikan beliau adalah penipu bersiri."
-            )
-            pdf.multi_cell(0, 8, txt=kronologi)
+            pdf.multi_cell(0, 8, txt=kronologi_edit)
             pdf.ln(5)
             
             # Bahagian D - Lampiran
@@ -126,7 +131,7 @@ with tab1:
             
             pdf.ln(10)
             pdf.set_font("Arial", 'I', 10)
-            pdf.multi_cell(0, 8, txt="Saya bersumpah bahawa maklumat yang diberikan adalah benar dan ingin membuat laporan rasmi untuk tindakan pihak berkuasa di bawah Seksyen 420 Kanun Keseksaan.")
+            pdf.multi_cell(0, 8, txt="Saya bersumpah bahawa maklumat yang diberikan adalah benar dan ingin membuat laporan rasmi untuk tindakan pihak berkuasa.")
             
             pdf.ln(15)
             pdf.cell(200, 10, txt="Tandatangan Pengadu: _____________________", ln=True)
@@ -142,7 +147,7 @@ with tab1:
                     file_name=f"Laporan_Polis_{nama_pengadu}.pdf",
                     mime="application/pdf"
                 )
-            st.success("Laporan lengkap berjaya dijana!")
+            st.success("Laporan berjaya dijana! Sila semak PDF anda.")
 
     st.markdown("---")
     st.subheader("Pautan Aduan Segera & Pangkalan Data")
