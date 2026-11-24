@@ -6,6 +6,8 @@ from streamlit_folium import folium_static
 import urllib.parse
 import json
 import os
+from PIL import Image
+import io
 
 # ==========================================
 # KONFIGURASI UI
@@ -145,8 +147,8 @@ with st.sidebar:
     st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
 
 # Tab Navigation
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📄 Laporan & Aduan", "🔍 Carian OSINT", "🗺️ Peta Lokasi", "📧 Carian Email & Data", "🚗 Kenderaan Suspek"
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "📄 Laporan & Aduan", "🔍 Carian OSINT", "🗺️ Peta Lokasi", "📧 Carian Email & Data", "🚗 Kenderaan Suspek", "📁 Bukti & Gambar"
 ])
 
 # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
@@ -154,10 +156,14 @@ with tab1:
     st.header("Jana Laporan Polis")
     st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
     
+    # BUTANG TELEGRAM
+    st.info("💡 Anda boleh lihat semua bukti (gambar, resit, chat) di channel Telegram kami.")
+    st.link_button("📢 Buka Channel Telegram Bukti", "https://t.me/+2M7Vwt8K3lQwYzE1", type="primary")
+    st.markdown("---")
+    
     if os.path.exists(DATA_FILE):
         st.success("✅ Data draf sebelum ini telah dimuatkan secara automatik dari fail simpanan.")
 
-    # Set default value untuk text input berdasarkan data_tersimpan
     data = st.session_state.data_tersimpan
     if "pengadu_nama" not in st.session_state: st.session_state.pengadu_nama = data["nama"]
     if "pengadu_ic" not in st.session_state: st.session_state.pengadu_ic = data["ic"]
@@ -177,9 +183,6 @@ with tab1:
     
     kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=320)
 
-    # ==========================================
-    # BUTANG SAVE & RESET (Diletakkan rapat bawah kotak)
-    # ==========================================
     col_btn1, col_btn2, col_space = st.columns([1, 1, 2])
     with col_btn1:
         btn_save = st.button("💾 SAVE Draf", type="primary", use_container_width=True)
@@ -188,12 +191,9 @@ with tab1:
 
     if btn_save:
         new_data = {
-            "nama": st.session_state.pengadu_nama,
-            "ic": st.session_state.pengadu_ic,
-            "tel": st.session_state.pengadu_tel,
-            "alamat": st.session_state.pengadu_alamat,
-            "kerugian": st.session_state.pengadu_kerugian,
-            "kronologi": st.session_state.kronologi_teks
+            "nama": st.session_state.pengadu_nama, "ic": st.session_state.pengadu_ic,
+            "tel": st.session_state.pengadu_tel, "alamat": st.session_state.pengadu_alamat,
+            "kerugian": st.session_state.pengadu_kerugian, "kronologi": st.session_state.kronologi_teks
         }
         save_data(new_data)
         st.session_state.data_tersimpan = new_data
@@ -209,11 +209,9 @@ with tab1:
         st.session_state.pengadu_kerugian = ""
         st.session_state.kronologi_teks = TEKS_DEFAULT
         st.success("🔄 Draf telah di-reset ke teks asal.")
-    # ==========================================
 
     st.markdown("---")
-    # Butang Jana PDF
-    if st.button("📥 Jana Laporan PDF", type="secondary"):
+    if st.button("📥 Jana Laporan PDF Utama", type="secondary"):
         if not nama_pengadu or not ic_pengadu:
             st.error("Sila isi Nama dan No. IC anda dahulu!")
         else:
@@ -298,96 +296,72 @@ with tab1:
             pdf_bytes = pdf.output()
 
             st.download_button(
-                label="📥 Klik Sini Untuk Download PDF",
+                label="📥 Klik Sini Untuk Download Laporan Utama",
                 data=bytes(pdf_bytes),
                 file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf",
                 mime="application/pdf",
             )
-            st.success("✅ Laporan berjaya dijana! Sila semak PDF anda.")
+            st.success("✅ Laporan Utama berjaya dijana!")
 
-    st.markdown("---")
-    st.subheader("Pautan Aduan Segera & Pangkalan Data")
-    col1, col2, col3, col4 = st.columns(4)
-    with col1: st.link_button("🚨 NSRC 997 (Sekat Bank)", "https://nfcc.jpm.gov.my/")
-    with col2: st.link_button("📞 Semak Mule PDRM", "https://semakmule.rmp.gov.my/")
-    with col3: st.link_button("📧 Aduan MCMC", "https://aduan.mcmc.gov.my/")
-    with col4: st.link_button("🔎 Truecaller (80 Tags)", f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}")
+# --- TAB 6: BUKTI & GAMBAR (UPLOAD & JANA PDF) ---
+with tab6:
+    st.header("Muat Naik Bukti & Jana PDF")
+    st.write("Anda boleh upload gambar (resit, chat, atau bukti lain) dan jadikannya satu fail PDF untuk diserahkan kepada polis.")
+    
+    uploaded_files = st.file_uploader(
+        "Pilih gambar bukti (Boleh pilih lebih dari satu)", 
+        type=["jpg", "jpeg", "png"], 
+        accept_multiple_files=True
+    )
 
-# --- TAB 2: CARIAN OSINT ---
-with tab2:
-    st.header("Carian OSINT (Open Source Intelligence)")
-    st.write("Klik butang di bawah untuk membuka carian di tab baru.")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Jejak Suspek (Hadi)")
-        st.link_button("💬 Buka WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}")
-        st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22")
-        st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
-        st.link_button("📘 Buka Profil Facebook (Adisprinter)", LINK_FB)
-        st.link_button("📸 Buka Gambar Facebook (Photos)", LINK_FB_PHOTOS)
-        st.link_button("🎤 Buka Akaun Smule", f"https://www.smule.com/{USERNAME_SMULE}")
-        st.link_button("🎵 Cari 'Boyspark Band' di FB", "https://www.facebook.com/search/top?q=Boyspark+Band")
-        st.link_button("🚗 Semak Plat Kereta (WHG 8164)", "https://www.google.com/search?q=%22WHG+8164%22")
-        st.link_button("🏍️ Semak Plat Motor (WGG 4317)", "https://www.google.com/search?q=%22WGG+4317%22")
-        st.link_button("📍 Cari 'Ipoh, Perak' di Maps", "https://www.google.com/maps/search/Ipoh,+Perak")
-    with col2:
-        st.subheader("Jejak Keldai Akaun & Kawan")
-        st.link_button("🏦 Cari Nama Hilmi di FB", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}")
-        st.link_button("🔍 Cari Hilmi di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(NAMA_MULE)}%22")
-        st.markdown("**Cari Kawan Rapat:**")
-        for kawan in KAWAN_RAPAT:
-            kawan_encoded = urllib.parse.quote(kawan)
-            st.link_button(f"🔍 Cari {kawan} di FB", f"https://www.facebook.com/search/top?q={kawan_encoded}")
+    if uploaded_files:
+        st.success(f"✅ {len(uploaded_files)} gambar telah berjaya dimuat naik.")
+        
+        # Preview gambar
+        cols = st.columns(3)
+        for idx, file in enumerate(uploaded_files):
+            img = Image.open(file)
+            with cols[idx % 3]:
+                st.image(img, caption=f"Gambar {idx+1}", use_container_width=True)
 
-# --- TAB 3: PETA LOKASI ---
-with tab3:
-    st.header("Peta Anggaran Lokasi")
-    st.write("Peta ini menunjukkan kawasan tumpuan suspek berdasarkan siasatan (Sungai Siput / Kuala Kangsar).")
-    m = folium.Map(location=[4.7735, 101.1000], zoom_start=11)
-    folium.Marker(
-        [4.7735, 101.1000], popup="Kawasan Sasaran: Kuala Kangsar / Sg Siput", tooltip="Klik untuk info", icon=folium.Icon(color='red', icon='info-sign')
-    ).add_to(m)
-    folium_static(m)
+        # Butang untuk jana PDF bukti
+        if st.button("📄 Jana PDF Bukti", type="primary"):
+            pdf = FPDF()
+            
+            for idx, file in enumerate(uploaded_files):
+                # Buat page baru untuk setiap gambar
+                pdf.add_page()
+                
+                # Simpan gambar sementara
+                img = Image.open(file)
+                img_path = f"temp_img_{idx}.jpg"
+                img = img.convert("RGB") # Pastikan format RGB
+                img.save(img_path, "JPEG")
 
-# --- TAB 4: CARIAN EMAIL & DATA ---
-with tab4:
-    st.header("Carian Email & Data Bocor")
-    st.write("Klik butang di bawah untuk semak jejak email suspek.")
-    email_encoded = urllib.parse.quote(EMAIL_SUSPEK)
-    nama_encoded = urllib.parse.quote(NAMA_SUSPEK)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Carian Emel")
-        st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{email_encoded}%22")
-        st.link_button("📧 Semak Data Bocor (HIBP)", f"https://haveibeenpwned.com/account/{email_encoded}")
-        st.link_button("📘 Cari Emel di Facebook", f"https://www.facebook.com/search/top?q={email_encoded}")
-    with col2:
-        st.subheader("Carian Nama & Bisnes")
-        st.link_button("🔍 Cari Nama + Black Cafe", f"https://www.google.com/search?q=%22{nama_encoded}%22+%22Black+Cafe%22")
-        st.link_button("🎵 Cari Nama + TikTok", f"https://www.google.com/search?q=%22{nama_encoded}%22+TikTok+OR+hadimarkno")
-        st.link_button("🏢 Semak Pendaftaran SSM", "https://www.ssm-einfo.my/")
+                # Dapatkan saiz gambar dan page A4
+                img_w, img_h = img.size
+                page_w, page_h = 210, 297 # Saiz A4 (mm)
+                
+                # Kira nisbah untuk fit gambar dalam page
+                ratio = min((page_w - 20) / img_w, (page_h - 20) / img_h)
+                new_w = img_w * ratio
+                new_h = img_h * ratio
+                
+                # Letak gambar di tengah
+                x = (page_w - new_w) / 2
+                y = (page_h - new_h) / 2
+                
+                pdf.image(img_path, x=x, y=y, w=new_w, h=new_h)
+                
+                # Padam fail sementara
+                os.remove(img_path)
 
-# --- TAB 5: MAKLUMAT KENDERAAN ---
-with tab5:
-    st.header("Maklumat Kenderaan Disyaki")
-    st.write("Maklumat ini diperoleh daripada semakan rekod pendaftaran kenderaan. Berguna untuk siasatan lanjut pihak polis.")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader(f"🚗 Kereta: {KENDERAAN_1['plat']}")
-        st.info(f"**Pemilik Berdaftar:** {KENDERAAN_1['nama']}")
-        st.warning(f"**No. IC:** {KENDERAAN_1['ic']}")
-        st.write(f"**Alamat:** {KENDERAAN_1['alamat']}")
-        st.write(f"**Model:** {KENDERAAN_1['model']}")
-        st.error(f"**Status:** {KENDERAAN_1['status']}")
-    with col2:
-        st.subheader(f"🏍️ Motor: {KENDERAAN_2['plat']}")
-        st.info(f"**Pemilik Berdaftar:** {KENDERAAN_2['nama']}")
-        st.warning(f"**No. IC:** {KENDERAAN_2['ic']}")
-        st.write(f"**Alamat:** {KENDERAAN_2['alamat']}")
-        st.write(f"**Model:** {KENDERAAN_2['model']}")
-        st.error(f"**Status:** {KENDERAAN_2['status']}")
-    st.markdown("---")
-    st.warning("**Nota Siasatan:** Pemilik kenderaan mungkin bukan suspek utama. Pihak polis perlu menyiasat sama ada kenderaan ini dijual, disewa, atau digunakan oleh suspek (ABDUL HADI).")
-
-st.markdown("---")
-st.caption("Sistem dibangunkan untuk tujuan siasatan sah. Sila bawa laporan ke balai polis untuk tindakan lanjut.")
+            pdf_bytes = pdf.output()
+            
+            st.download_button(
+                label="📥 Klik Sini Untuk Download Bukti (PDF)",
+                data=bytes(pdf_bytes),
+                file_name="Bukti_Kes_Penipu.pdf",
+                mime="application/pdf",
+            )
+            st.success("✅ PDF Bukti berjaya dijana! Sila muat turun.")
