@@ -34,17 +34,15 @@ def check_password():
     """Returns `True` if the user had the correct password."""
     def password_entered():
         """Checks whether a password entered by the user is correct."""
-        # PASSWORD DIKEMASKINI TERUS DI SINI
         correct_password = "Along123" 
         
         if st.session_state["password"] == correct_password:
             st.session_state["password_correct"] = True
-            del st.session_state["password"]  # don't store password
+            del st.session_state["password"]
         else:
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        # First run, show input for password.
         st.title("🔒 Sistem Siasatan Penipu")
         st.info("Sila masukkan kata laluan untuk mengakses sistem ini.")
         st.text_input(
@@ -52,7 +50,6 @@ def check_password():
         )
         return False
     elif not st.session_state["password_correct"]:
-        # Password not correct, show input + error.
         st.title("🔒 Sistem Siasatan Penipu")
         st.text_input(
             "Kata Laluan", type="password", on_change=password_entered, key="password"
@@ -60,12 +57,9 @@ def check_password():
         st.error("😕 Kata laluan salah. Sila cuba lagi.")
         return False
     else:
-        # Password correct.
         return True
 
 if check_password():
-    # Jika password betul, barulah kod di bawah ini akan berjalan
-    
     # --- MAKLUMAT SUSPEK ---
     NAMA_SUSPEK = "ABDUL HADI BIN MOHD NOR"
     NOMOR_SUSPEK = "+601128065526"
@@ -115,7 +109,7 @@ if check_password():
     # ==========================================
     DATA_FILE = "simpanan_laporan.json"
 
-    # UPDATE: Ayat kronologi dibuang elemen MVM Music, diganti dengan taktik memperdaya
+    # Teks Default yang baru (tanpa dua kotak)
     TEKS_DEFAULT = (
         "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. "
         "Beliau sering menawarkan projek serta urusan jual beli barang komputer (PC).\n\n"
@@ -146,7 +140,7 @@ if check_password():
             with open(DATA_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         return {
-            "nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", "kronologi": TEKS_DEFAULT, "nota_tambahan": ""
+            "nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", "kronologi": TEKS_DEFAULT
         }
 
     def save_data(data):
@@ -157,13 +151,12 @@ if check_password():
         st.session_state.data_tersimpan = load_data()
 
     # ==========================================
-    # UI UTAMA (Selepas Login Berjaya)
+    # UI UTAMA
     # ==========================================
     st.title("🕵️‍♂️ Sistem Siasatan Penipu")
     st.markdown("---")
 
     with st.sidebar:
-        # BUTANG LOG KELUAR
         if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
             st.session_state["password_correct"] = False
             st.rerun()
@@ -186,7 +179,6 @@ if check_password():
         
         st.markdown("---")
         
-        # MAKLUMAT KENDERAAN
         st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
         st.caption(f"👤 **Pemilik:** {KENDERAAN_1['nama']}\n\n"
                    f"🆔 **IC:** {KENDERAAN_1['ic']}\n\n"
@@ -201,7 +193,6 @@ if check_password():
                    f"🏍️ **Model:** {KENDERAAN_2['model']}\n\n"
                    f"⚠️ **Status:** {KENDERAAN_2['status']}")
                    
-        # NOTA TAMBAHAN DARI FACEBOOK
         st.info("💡 **Nota:** Maklumat pemilik kenderaan di atas diperoleh daripada gambar galeri Facebook suspek.")
 
         st.markdown("---")
@@ -217,7 +208,6 @@ if check_password():
         st.error("🚨 **KELDAI AKAUN (MULE)**")
         st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
 
-    # Tab Navigation
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📄 Laporan & Aduan", "🔍 Carian OSINT", "🗺️ Peta Lokasi", "📧 Carian Email & Data", "📁 Bukti & Gambar"
     ])
@@ -237,9 +227,6 @@ if check_password():
         if "pengadu_alamat" not in st.session_state: st.session_state.pengadu_alamat = data["alamat"]
         if "pengadu_kerugian" not in st.session_state: st.session_state.pengadu_kerugian = data["kerugian"]
         if "kronologi_teks" not in st.session_state: st.session_state.kronologi_teks = data["kronologi"]
-        
-        # Update: Tambah session state untuk nota tambahan
-        if "nota_tambahan" not in st.session_state: st.session_state.nota_tambahan = data.get("nota_tambahan", "")
 
         nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)", key="pengadu_nama")
         ic_pengadu = st.text_input("No. IC Anda", key="pengadu_ic")
@@ -248,14 +235,10 @@ if check_password():
         jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)", key="pengadu_kerugian")
         
         st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
-        st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
+        st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda. (Masukkan juga nota MVM/kereta di sini jika perlu).")
         
-        kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=320)
-
-        # Update: Kotak Nota Tambahan untuk Polis
-        st.markdown("### 🗒️ Nota Tambahan / Maklumat Siasatan (Untuk Polis)")
-        st.warning("Sila masukkan maklumat MVM Music, plat kereta, atau apa-apa 'clue' di sini. Ia akan dicetak di dalam PDF.")
-        nota_edit = st.text_area("Nota Siasatan Tambahan:", key="nota_tambahan", height=150)
+        # HANYA SATU KOTAK TEKS
+        kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=400)
 
         col_btn1, col_btn2, col_space = st.columns([1, 1, 2])
         with col_btn1:
@@ -267,8 +250,7 @@ if check_password():
             new_data = {
                 "nama": st.session_state.pengadu_nama, "ic": st.session_state.pengadu_ic,
                 "tel": st.session_state.pengadu_tel, "alamat": st.session_state.pengadu_alamat,
-                "kerugian": st.session_state.pengadu_kerugian, "kronologi": st.session_state.kronologi_teks,
-                "nota_tambahan": st.session_state.nota_tambahan
+                "kerugian": st.session_state.pengadu_kerugian, "kronologi": st.session_state.kronologi_teks
             }
             save_data(new_data)
             st.session_state.data_tersimpan = new_data
@@ -283,7 +265,6 @@ if check_password():
             st.session_state.pengadu_alamat = ""
             st.session_state.pengadu_kerugian = ""
             st.session_state.kronologi_teks = TEKS_DEFAULT
-            st.session_state.nota_tambahan = ""
             st.success("🔄 Draf telah di-reset ke teks asal.")
 
         st.markdown("---")
@@ -348,25 +329,14 @@ if check_password():
                     pdf.set_font("Helvetica", "B", 12)
                     pdf.cell(0, 10, "D. KRONOLOGI KEJADIAN", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font("Helvetica", "", 11)
+                    # Ini akan cetak semua yang kau taip dalam satu kotak tu
                     pdf.multi_cell(0, 8, kronologi_edit, new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(5)
 
-                    # Update: Cetak Nota Tambahan di dalam PDF
-                    if nota_edit.strip() != "":
-                        pdf.set_font("Helvetica", "B", 12)
-                        pdf.cell(0, 10, "E. NOTA TAMBAHAN / MAKLUMAT SIASATAN", new_x="LMARGIN", new_y="NEXT")
-                        pdf.set_font("Helvetica", "", 11)
-                        pdf.multi_cell(0, 8, nota_edit, new_x="LMARGIN", new_y="NEXT")
-                        pdf.ln(5)
-                        lampiran_title = "F. LAMPIRAN BUKTI"
-                    else:
-                        lampiran_title = "E. LAMPIRAN BUKTI"
-
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, lampiran_title, new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 10, "E. LAMPIRAN BUKTI", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font("Helvetica", "", 11)
                     
-                    # Update: Senarai Lampiran Bukti baru (Buang elemen MVM Music yang tak pasti)
                     lampiran = [
                         "1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow) - Nama Abdul Hadi.",
                         "2. [ ] Tangkapan skrin transaksi ke akaun keldai (MOHAMMAD HILMI, BSN).",
@@ -434,7 +404,6 @@ if check_password():
             st.link_button("🏍️ Semak Plat Motor (WGG 4317)", "https://www.google.com/search?q=%22WGG+4317%22")
             st.link_button("📍 Cari 'Ipoh, Perak' di Maps", "https://www.google.com/maps/search/Ipoh,+Perak")
             
-            # Tambahan carian MVM Music
             st.markdown("---")
             st.subheader("Kaitan MVM Music")
             st.link_button("🎵 Cari MVM Music di Google", "https://www.google.com/search?q=MVM+Music+Puchong")
