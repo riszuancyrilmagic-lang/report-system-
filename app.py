@@ -13,16 +13,28 @@ from PIL import Image
 # ==========================================
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️", layout="wide")
 
+# CSS: Buang header hiding supaya butang sidebar muncul kat phone.
+# Tambah style responsif untuk mobile.
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
-            header {visibility: hidden;}
             .stDeployButton {display:none;}
             [data-testid="stStatusWidget"] {visibility: hidden;}
             [data-testid="stToolbar"] {visibility: hidden;}
             [data-testid="stDecoration"] {visibility: hidden;}
             .viewerBadge_container__1QSob {visibility: hidden !important;}
+            
+            /* MOBILE OPTIMIZATION */
+            @media (max-width: 768px) {
+                .block-container {padding-left: 0.5rem !important; padding-right: 0.5rem !important;}
+                [data-testid="stSidebar"] {min-width: 85vw !important; max-width: 85vw !important;}
+                .stButton > button {width: 100% !important; font-size: 0.85rem !important;}
+                .stTabs [data-baseweb="tab"] {font-size: 0.75rem !important; padding: 0.5rem 0.3rem !important;}
+                h1 {font-size: 1.5rem !important;}
+                h2 {font-size: 1.2rem !important;}
+                h3 {font-size: 1.0rem !important;}
+            }
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
@@ -31,11 +43,8 @@ st.markdown(hide_st_style, unsafe_allow_html=True)
 # SISTEM LOG MASUK (PASSWORD TERUS DALAM KOD)
 # ==========================================
 def check_password():
-    """Returns `True` if the user had the correct password."""
     def password_entered():
-        """Checks whether a password entered by the user is correct."""
         correct_password = "Along123" 
-        
         if st.session_state["password"] == correct_password:
             st.session_state["password_correct"] = True
             del st.session_state["password"]
@@ -109,7 +118,6 @@ if check_password():
     # ==========================================
     DATA_FILE = "simpanan_laporan.json"
 
-    # Teks Default baru (Point 7 MVM Music dibuang, fokus pada fakta jenayah)
     TEKS_DEFAULT = (
         "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. "
         "Beliau sering menawarkan projek serta urusan jual beli barang komputer (PC).\n\n"
@@ -152,6 +160,9 @@ if check_password():
     st.title("🕵️‍♂️ Sistem Siasatan Penipu")
     st.markdown("---")
 
+    # ==========================================
+    # SIDEBAR - DIOPTIMALKAN UNTUK PHONE
+    # ==========================================
     with st.sidebar:
         if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
             st.session_state["password_correct"] = False
@@ -159,70 +170,68 @@ if check_password():
             
         st.markdown("---")
         st.header("🎯 Profil Sasaran (Suspek)")
-        st.error(f"**Nama:** {NAMA_SUSPEK}")
-        st.warning(f"**Tel:** {NOMOR_SUSPEK}")
-        st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
-        st.info(f"**Email:** {EMAIL_SUSPEK}")
-        st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
-        st.info(f"**Kerja (FB):** {KERJA_FB}")
         
-        st.markdown("---")
-        st.success("**Media Sosial:**")
-        st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
-        st.markdown(f"📘 [Facebook (Adisprinter)]({LINK_FB})")
-        st.markdown(f"📸 [Gambar Facebook]({LINK_FB_PHOTOS})")
-        st.markdown(f"🎤 [Smule (@{USERNAME_SMULE})](https://www.smule.com/{USERNAME_SMULE})")
+        # Maklumat asas dalam container berbingkai (kemas kat phone)
+        with st.container(border=True):
+            st.error(f"**Nama:** {NAMA_SUSPEK}")
+            st.warning(f"**Tel:** {NOMOR_SUSPEK}")
+            st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
+            st.info(f"**Email:** {EMAIL_SUSPEK}")
+            st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
         
-        st.markdown("---")
+        # Guna expander untuk maklumat panjang (jimat ruang kat phone)
+        with st.expander("📱 Media Sosial & Pekerjaan", expanded=False):
+            st.info(f"**Kerja (FB):** {KERJA_FB}")
+            st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
+            st.markdown(f"📘 [Facebook (Adisprinter)]({LINK_FB})")
+            st.markdown(f"📸 [Gambar Facebook]({LINK_FB_PHOTOS})")
+            st.markdown(f"🎤 [Smule (@{USERNAME_SMULE})](https://www.smule.com/{USERNAME_SMULE})")
+            
+        with st.expander("🚗 Maklumat Kenderaan", expanded=False):
+            st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
+            st.markdown(f"**Pemilik:** {KENDERAAN_1['nama']}")
+            st.markdown(f"**IC:** {KENDERAAN_1['ic']}")
+            st.markdown(f"**Alamat:** {KENDERAAN_1['alamat']}")
+            st.markdown(f"**Model:** {KENDERAAN_1['model']}")
+            st.markdown(f"**Status:** {KENDERAAN_1['status']}")
+            
+            st.markdown("---")
+            
+            st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
+            st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}")
+            st.markdown(f"**IC:** {KENDERAAN_2['ic']}")
+            st.markdown(f"**Alamat:** {KENDERAAN_2['alamat']}")
+            st.markdown(f"**Model:** {KENDERAAN_2['model']}")
+            st.markdown(f"**Status:** {KENDERAAN_2['status']}")
+            
+            st.info("💡 **Nota:** Maklumat pemilik kenderaan di atas diperoleh daripada gambar galeri Facebook suspek.")
         
-        # MAKLUMAT KENDERAAN
-        st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
-        st.caption(f"👤 **Pemilik:** {KENDERAAN_1['nama']}\n\n"
-                   f"🆔 **IC:** {KENDERAAN_1['ic']}\n\n"
-                   f"📍 **Alamat:** {KENDERAAN_1['alamat']}\n\n"
-                   f"🚙 **Model:** {KENDERAAN_1['model']}\n\n"
-                   f"⚠️ **Status:** {KENDERAAN_1['status']}")
-
-        st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
-        st.caption(f"👤 **Pemilik:** {KENDERAAN_2['nama']}\n\n"
-                   f"🆔 **IC:** {KENDERAAN_2['ic']}\n\n"
-                   f"📍 **Alamat:** {KENDERAAN_2['alamat']}\n\n"
-                   f"🏍️ **Model:** {KENDERAAN_2['model']}\n\n"
-                   f"⚠️ **Status:** {KENDERAAN_2['status']}")
-                   
-        # NOTA TAMBAHAN DARI FACEBOOK
-        st.info("💡 **Nota:** Maklumat pemilik kenderaan di atas diperoleh daripada gambar galeri Facebook suspek.")
-
-        st.markdown("---")
-        st.info(f"📍 **Check-in FB:** {CHECK_IN}")
-        st.info(f"📝 **Caption FB:** '{CAPTION_FB}'")
+        with st.expander("📍 Check-in & Caption FB", expanded=False):
+            st.info(f"📍 **Check-in FB:** {CHECK_IN}")
+            st.info(f"📝 **Caption FB:** '{CAPTION_FB}'")
         
-        st.markdown("---")
-        st.error("👥 **KAWAN RAPAT / KONTAK**")
-        for kawan in KAWAN_RAPAT:
-            st.markdown(f"- {kawan}")
+        with st.expander("👥 Kawan Rapat / Kontak", expanded=False):
+            for kawan in KAWAN_RAPAT:
+                st.markdown(f"- {kawan}")
+        
+        with st.expander("🚨 Keldai Akaun (Mule)", expanded=False):
+            st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
+        
+        with st.expander("🎵 Kaitan MVM Music", expanded=False):
+            st.info("Individu 'Hadi' (Booking Artis)")
+            st.write("Suspek mendakwa mempunyai kaitan dengan MVM Music. Saya mendapati dalam promosi rasmi MVM Music terdapat nama Hadi dengan nombor 016 217 3665 dan email mvm.hadi@gmail.com untuk urusan booking artis. Saya memohon pihak polis menyemak sama ada suspek mempunyai kaitan dengan individu ini atau sama ada suspek menyamar menggunakan identiti tersebut.")
+            st.code("No. Tel: 016-217 3665\nEmail: mvm.hadi@gmail.com")
+            st.markdown(f"🔍 [Cari MVM Music di Google](https://www.google.com/search?q=MVM+Music+Puchong)")
+            st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
 
-        st.markdown("---")
-        st.error("🚨 **KELDAI AKAUN (MULE)**")
-        st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
-
-        # ==========================================
-        # UPDATE: BAHAGIAN BARU UNTUK MVM MUSIC
-        # ==========================================
-        st.markdown("---")
-        st.warning("🎵 **KAITAN MVM MUSIC**")
-        st.info("Individu 'Hadi' (Booking Artis)")
-        st.info("Suspek mendakwa mempunyai kaitan dengan MVM Music. Saya mendapati dalam promosi rasmi MVM Music terdapat nama Hadi dengan nombor 016 217 3665 dan email mvm.hadi@gmail.com untuk urusan booking artis Saya memohon pihak polis menyemak sama ada suspek mempunyai kaitan dengan individu ini atau sama ada suspek menyamar menggunakan identiti tersebut")
-        st.code("No. Tel: 016-217 3665\nEmail: mvm.hadi@gmail.com")
-        st.markdown(f"🔍 [Cari MVM Music di Google](https://www.google.com/search?q=MVM+Music+Puchong)")
-        st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
-
+    # ==========================================
+    # TABS - SAMA MACAM ASAL (TAPI RESPONSIF)
+    # ==========================================
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📄 Laporan & Aduan", "🔍 Carian OSINT", "🗺️ Peta Lokasi", "📧 Carian Email & Data", "📁 Bukti & Gambar"
+        "📄 Laporan", "🔍 OSINT", "🗺️ Peta", "📧 Email", "📁 Bukti"
     ])
 
     # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
-    # (Bahagian ni kekal sama macam sebelum ni, tak perlu ubah)
     with tab1:
         st.header("Jana Laporan Polis")
         st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
@@ -247,13 +256,13 @@ if check_password():
         st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
         st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
         
-        kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=400)
+        kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=300)
 
-        col_btn1, col_btn2, col_space = st.columns([1, 1, 2])
+        col_btn1, col_btn2 = st.columns(2)
         with col_btn1:
             btn_save = st.button("💾 SAVE Draf", type="primary", use_container_width=True)
         with col_btn2:
-            btn_reset = st.button("🔄 Reset ke Teks Asal", use_container_width=True)
+            btn_reset = st.button("🔄 Reset", use_container_width=True)
 
         if btn_save:
             new_data = {
@@ -280,7 +289,7 @@ if check_password():
         
         st.info("💡 Anda juga boleh lihat semua bukti (gambar, resit, chat) di channel Telegram kami.")
         
-        col_pdf, col_tg = st.columns([1, 1])
+        col_pdf, col_tg = st.columns(2)
         
         with col_pdf:
             if st.button("📥 Jana Laporan PDF Utama", type="secondary", use_container_width=True):
@@ -321,7 +330,6 @@ if check_password():
                         ("Kerja (FB)", KERJA_FB), ("Plat Kereta", PLAT_KERETA), ("Plat Motor", PLAT_MOTOR),
                         ("Check-in FB", CHECK_IN), ("Caption FB", f"'{CAPTION_FB}'"),
                         ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"), ("No. Akaun", AKAUN_MULE),
-                        # Tambah info MVM dalam PDF juga
                         ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
                     ]
                     for label, value in suspek_data:
@@ -373,7 +381,7 @@ if check_password():
                     pdf_bytes = bytes(pdf.output())
 
                     st.download_button(
-                        label="📥 Klik Sini Untuk Download Laporan Utama",
+                        label="📥 Download Laporan Utama",
                         data=pdf_bytes,
                         file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf",
                         mime="application/pdf",
@@ -391,44 +399,48 @@ if check_password():
 
         st.markdown("---")
         st.subheader("Pautan Aduan Segera & Pangkalan Data")
-        col1, col2, col3, col4 = st.columns(4)
-        with col1: st.link_button("🚨 NSRC 997 (Sekat Bank)", "https://nfcc.jpm.gov.my/")
-        with col2: st.link_button("📞 Semak Mule PDRM", "https://semakmule.rmp.gov.my/")
-        with col3: st.link_button("📧 Aduan MCMC", "https://aduan.mcmc.gov.my/")
-        with col4: st.link_button("🔎 Truecaller (80 Tags)", f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}")
+        
+        # Kat phone, 4 columns akan jadi sangat kecil. Guna 2 columns je.
+        col1, col2 = st.columns(2)
+        with col1: 
+            st.link_button("🚨 NSRC 997", "https://nfcc.jpm.gov.my/", use_container_width=True)
+            st.link_button("📧 Aduan MCMC", "https://aduan.mcmc.gov.my/", use_container_width=True)
+        with col2: 
+            st.link_button("📞 Semak Mule PDRM", "https://semakmule.rmp.gov.my/", use_container_width=True)
+            st.link_button("🔎 Truecaller", f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}", use_container_width=True)
 
     # --- TAB 2: CARIAN OSINT ---
     with tab2:
         st.header("Carian OSINT (Open Source Intelligence)")
         st.write("Klik butang di bawah untuk membuka carian di tab baru.")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader("Jejak Suspek (Hadi)")
-            st.link_button("💬 Buka WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}")
-            st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22")
-            st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
-            st.link_button("📘 Buka Profil Facebook (Adisprinter)", LINK_FB)
-            st.link_button("📸 Buka Gambar Facebook (Photos)", LINK_FB_PHOTOS)
-            st.link_button("🎤 Buka Akaun Smule", f"https://www.smule.com/{USERNAME_SMULE}")
-            st.link_button("🎵 Cari 'Boyspark Band' di FB", "https://www.facebook.com/search/top?q=Boyspark+Band")
-            st.link_button("🚗 Semak Plat Kereta (WHG 8164)", "https://www.google.com/search?q=%22WHG+8164%22")
-            st.link_button("🏍️ Semak Plat Motor (WGG 4317)", "https://www.google.com/search?q=%22WGG+4317%22")
-            st.link_button("📍 Cari 'Ipoh, Perak' di Maps", "https://www.google.com/maps/search/Ipoh,+Perak")
+        
+        # Kat phone, 2 columns akan sempit. Guna 1 column je (stack atas bawah)
+        st.subheader("Jejak Suspek (Hadi)")
+        st.link_button("💬 Buka WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}", use_container_width=True)
+        st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22", use_container_width=True)
+        st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}", use_container_width=True)
+        st.link_button("📘 Buka Profil Facebook (Adisprinter)", LINK_FB, use_container_width=True)
+        st.link_button("📸 Buka Gambar Facebook (Photos)", LINK_FB_PHOTOS, use_container_width=True)
+        st.link_button("🎤 Buka Akaun Smule", f"https://www.smule.com/{USERNAME_SMULE}", use_container_width=True)
+        st.link_button("🎵 Cari 'Boyspark Band' di FB", "https://www.facebook.com/search/top?q=Boyspark+Band", use_container_width=True)
+        st.link_button("🚗 Semak Plat Kereta (WHG 8164)", "https://www.google.com/search?q=%22WHG+8164%22", use_container_width=True)
+        st.link_button("🏍️ Semak Plat Motor (WGG 4317)", "https://www.google.com/search?q=%22WGG+4317%22", use_container_width=True)
+        st.link_button("📍 Cari 'Ipoh, Perak' di Maps", "https://www.google.com/maps/search/Ipoh,+Perak", use_container_width=True)
+        
+        st.markdown("---")
+        st.subheader("Kaitan MVM Music")
+        st.link_button("🎵 Cari MVM Music di Google", "https://www.google.com/search?q=MVM+Music+Puchong", use_container_width=True)
+        st.link_button("🎤 Cari 'Hadi MVM Music'", "https://www.google.com/search?q=%22Hadi%22+%22MVM+Music%22", use_container_width=True)
+        st.link_button("📞 Cari No. Tel MVM (016-217 3665)", "https://www.google.com/search?q=%22016-217+3665%22", use_container_width=True)
             
-            st.markdown("---")
-            st.subheader("Kaitan MVM Music")
-            st.link_button("🎵 Cari MVM Music di Google", "https://www.google.com/search?q=MVM+Music+Puchong")
-            st.link_button("🎤 Cari 'Hadi MVM Music'", "https://www.google.com/search?q=%22Hadi%22+%22MVM+Music%22")
-            st.link_button("📞 Cari No. Tel MVM (016-217 3665)", "https://www.google.com/search?q=%22016-217+3665%22")
-            
-        with col2:
-            st.subheader("Jejak Keldai Akaun & Kawan")
-            st.link_button("🏦 Cari Nama Hilmi di FB", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}")
-            st.link_button("🔍 Cari Hilmi di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(NAMA_MULE)}%22")
-            st.markdown("**Cari Kawan Rapat:**")
-            for idx, kawan in enumerate(KAWAN_RAPAT):
-                kawan_encoded = urllib.parse.quote(kawan)
-                st.link_button(f"🔍 Cari {kawan} di FB", f"https://www.facebook.com/search/top?q={kawan_encoded}", key=f"fb_{idx}")
+        st.markdown("---")
+        st.subheader("Jejak Keldai Akaun & Kawan")
+        st.link_button("🏦 Cari Nama Hilmi di FB", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}", use_container_width=True)
+        st.link_button("🔍 Cari Hilmi di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(NAMA_MULE)}%22", use_container_width=True)
+        st.markdown("**Cari Kawan Rapat:**")
+        for idx, kawan in enumerate(KAWAN_RAPAT):
+            kawan_encoded = urllib.parse.quote(kawan)
+            st.link_button(f"🔍 Cari {kawan} di FB", f"https://www.facebook.com/search/top?q={kawan_encoded}", key=f"fb_{idx}", use_container_width=True)
 
     # --- TAB 3: PETA LOKASI ---
     with tab3:
@@ -438,7 +450,8 @@ if check_password():
         folium.Marker(
             [4.7735, 101.1000], popup="Kawasan Sasaran: Kuala Kangsar / Sg Siput", tooltip="Klik untuk info", icon=folium.Icon(color='red', icon='info-sign')
         ).add_to(m)
-        st_folium(m, width=800, height=500)
+        # Guna use_container_width=True supaya peta responsive ikut skrin phone
+        st_folium(m, use_container_width=True, height=400)
 
     # --- TAB 4: CARIAN EMAIL & DATA ---
     with tab4:
@@ -446,17 +459,17 @@ if check_password():
         st.write("Klik butang di bawah untuk semak jejak email suspek.")
         email_encoded = urllib.parse.quote(EMAIL_SUSPEK)
         nama_encoded = urllib.parse.quote(NAMA_SUSPEK)
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader("Carian Emel")
-            st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{email_encoded}%22")
-            st.link_button("📧 Semak Data Bocor (HIBP)", f"https://haveibeenpwned.com/account/{email_encoded}")
-            st.link_button("📘 Cari Emel di Facebook", f"https://www.facebook.com/search/top?q={email_encoded}")
-        with col2:
-            st.subheader("Carian Nama & Bisnes")
-            st.link_button("🔍 Cari Nama + Black Cafe", f"https://www.google.com/search?q=%22{nama_encoded}%22+%22Black+Cafe%22")
-            st.link_button("🎵 Cari Nama + TikTok", f"https://www.google.com/search?q=%22{nama_encoded}%22+TikTok+OR+hadimarkno")
-            st.link_button("🏢 Semak Pendaftaran SSM", "https://www.ssm-einfo.my/")
+        
+        st.subheader("Carian Emel")
+        st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{email_encoded}%22", use_container_width=True)
+        st.link_button("📧 Semak Data Bocor (HIBP)", f"https://haveibeenpwned.com/account/{email_encoded}", use_container_width=True)
+        st.link_button("📘 Cari Emel di Facebook", f"https://www.facebook.com/search/top?q={email_encoded}", use_container_width=True)
+        
+        st.markdown("---")
+        st.subheader("Carian Nama & Bisnes")
+        st.link_button("🔍 Cari Nama + Black Cafe", f"https://www.google.com/search?q=%22{nama_encoded}%22+%22Black+Cafe%22", use_container_width=True)
+        st.link_button("🎵 Cari Nama + TikTok", f"https://www.google.com/search?q=%22{nama_encoded}%22+TikTok+OR+hadimarkno", use_container_width=True)
+        st.link_button("🏢 Semak Pendaftaran SSM", "https://www.ssm-einfo.my/", use_container_width=True)
 
     # --- TAB 5: BUKTI & GAMBAR (UPLOAD & JANA PDF) ---
     with tab5:
@@ -472,13 +485,14 @@ if check_password():
         if uploaded_files:
             st.success(f"✅ {len(uploaded_files)} gambar telah berjaya dimuat naik.")
             
-            cols = st.columns(3)
+            # Kat phone, 3 columns jadi kecik. Guna 2 columns je.
+            cols = st.columns(2)
             for idx, file in enumerate(uploaded_files):
                 img = Image.open(file)
-                with cols[idx % 3]:
+                with cols[idx % 2]:
                     st.image(img, caption=f"Gambar {idx+1}", use_container_width=True)
 
-            if st.button("📄 Jana PDF Bukti", type="primary"):
+            if st.button("📄 Jana PDF Bukti", type="primary", use_container_width=True):
                 pdf = FPDF()
                 
                 for idx, file in enumerate(uploaded_files):
@@ -506,10 +520,11 @@ if check_password():
                 pdf_bytes = bytes(pdf.output())
                 
                 st.download_button(
-                    label="📥 Klik Sini Untuk Download Bukti (PDF)",
+                    label="📥 Download Bukti (PDF)",
                     data=pdf_bytes,
                     file_name="Bukti_Kes_Penipu.pdf",
                     mime="application/pdf",
+                    use_container_width=True
                 )
                 st.success("✅ PDF Bukti berjaya dijana! Sila muat turun.")
 
