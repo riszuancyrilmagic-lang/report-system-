@@ -109,7 +109,7 @@ if check_password():
     # ==========================================
     DATA_FILE = "simpanan_laporan.json"
 
-    # Teks Default yang baru (tanpa dua kotak)
+    # Teks Default baru (Point 7 MVM Music dibuang, fokus pada fakta jenayah)
     TEKS_DEFAULT = (
         "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. "
         "Beliau sering menawarkan projek serta urusan jual beli barang komputer (PC).\n\n"
@@ -128,11 +128,7 @@ if check_password():
         "Saya turut mempunyai bukti gambar kenderaan suspek (Kereta: WHG 8164, Motor: WGG 4317) yang saya peroleh "
         "daripada profil Facebook beliau.\n\n"
         "6. Suspek mendakwa beliau bekerja di KDN, Putrajaya dalam profil Facebooknya. Saya juga mempunyai bukti "
-        "transaksi berjumlah RM2,083.00 yang dipindahkan ke akaun suspek dan akaun keldai (MOHAMMAD HILMI, BSN).\n\n"
-        "7. Suspek turut menggunakan taktik memperdaya dengan mendakwa beliau mempunyai kaitan sebagai artis/penyanyi "
-        "untuk meyakinkan saya agar memberikan modal perniagaan. Beliau mempamerkan gambar-gambar yang kononnya "
-        "menunjukkan beliau berada di dalam studio rakaman untuk menyakinkan saya. Saya percaya ini adalah taktik "
-        "penipuan untuk mendapatkan kepercayaan saya."
+        "transaksi berjumlah RM2,083.00 yang dipindahkan ke akaun suspek dan akaun keldai (MOHAMMAD HILMI, BSN)."
     )
 
     def load_data():
@@ -179,6 +175,7 @@ if check_password():
         
         st.markdown("---")
         
+        # MAKLUMAT KENDERAAN
         st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
         st.caption(f"👤 **Pemilik:** {KENDERAAN_1['nama']}\n\n"
                    f"🆔 **IC:** {KENDERAAN_1['ic']}\n\n"
@@ -193,6 +190,7 @@ if check_password():
                    f"🏍️ **Model:** {KENDERAAN_2['model']}\n\n"
                    f"⚠️ **Status:** {KENDERAAN_2['status']}")
                    
+        # NOTA TAMBAHAN DARI FACEBOOK
         st.info("💡 **Nota:** Maklumat pemilik kenderaan di atas diperoleh daripada gambar galeri Facebook suspek.")
 
         st.markdown("---")
@@ -208,11 +206,22 @@ if check_password():
         st.error("🚨 **KELDAI AKAUN (MULE)**")
         st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
 
+        # ==========================================
+        # UPDATE: BAHAGIAN BARU UNTUK MVM MUSIC
+        # ==========================================
+        st.markdown("---")
+        st.warning("🎵 **KAITAN MVM MUSIC**")
+        st.info("Individu 'Hadi' (Booking Artis)")
+        st.code("No. Tel: 016-217 3665\nEmail: mvm.hadi@gmail.com")
+        st.markdown(f"🔍 [Cari MVM Music di Google](https://www.google.com/search?q=MVM+Music+Puchong)")
+        st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
+
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📄 Laporan & Aduan", "🔍 Carian OSINT", "🗺️ Peta Lokasi", "📧 Carian Email & Data", "📁 Bukti & Gambar"
     ])
 
     # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
+    # (Bahagian ni kekal sama macam sebelum ni, tak perlu ubah)
     with tab1:
         st.header("Jana Laporan Polis")
         st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
@@ -235,9 +244,8 @@ if check_password():
         jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)", key="pengadu_kerugian")
         
         st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
-        st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda. (Masukkan juga nota MVM/kereta di sini jika perlu).")
+        st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
         
-        # HANYA SATU KOTAK TEKS
         kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=400)
 
         col_btn1, col_btn2, col_space = st.columns([1, 1, 2])
@@ -312,6 +320,8 @@ if check_password():
                         ("Kerja (FB)", KERJA_FB), ("Plat Kereta", PLAT_KERETA), ("Plat Motor", PLAT_MOTOR),
                         ("Check-in FB", CHECK_IN), ("Caption FB", f"'{CAPTION_FB}'"),
                         ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"), ("No. Akaun", AKAUN_MULE),
+                        # Tambah info MVM dalam PDF juga
+                        ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
                     ]
                     for label, value in suspek_data:
                         pdf.cell(40, 8, label, new_x="RIGHT", new_y="TOP")
@@ -329,7 +339,6 @@ if check_password():
                     pdf.set_font("Helvetica", "B", 12)
                     pdf.cell(0, 10, "D. KRONOLOGI KEJADIAN", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font("Helvetica", "", 11)
-                    # Ini akan cetak semua yang kau taip dalam satu kotak tu
                     pdf.multi_cell(0, 8, kronologi_edit, new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(5)
 
@@ -345,6 +354,7 @@ if check_password():
                         "5. [ ] Tangkapan skrin gambar kereta (WHG 8164), motor (WGG 4317), & gambar kemalangan.",
                         "6. [ ] Tangkapan skrin gambar zaman persekolahan (SK Kuala Kangsar).",
                         "7. [ ] Tangkapan skrin tag GetContact (80 tag aduan).",
+                        "8. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi.",
                     ]
                     for item in lampiran:
                         pdf.multi_cell(0, 8, item, new_x="LMARGIN", new_y="NEXT")
