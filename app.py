@@ -13,7 +13,8 @@ from PIL import Image
 # ==========================================
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️", layout="wide")
 
-# CSS: Buang header hide, tambah style untuk butang toggle
+# CSS: Buang header hiding supaya butang sidebar muncul kat phone.
+# Tambah style responsif untuk mobile.
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -154,7 +155,13 @@ if check_password():
         st.session_state.data_tersimpan = load_data()
 
     # ==========================================
-    # SIDEBAR (Diletak paling atas supaya state betul)
+    # UI UTAMA
+    # ==========================================
+    st.title("🕵️‍♂️ Sistem Siasatan Penipu")
+    st.markdown("---")
+
+    # ==========================================
+    # SIDEBAR - DIOPTIMALKAN UNTUK PHONE
     # ==========================================
     with st.sidebar:
         if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
@@ -164,6 +171,7 @@ if check_password():
         st.markdown("---")
         st.header("🎯 Profil Sasaran (Suspek)")
         
+        # Maklumat asas dalam container berbingkai (kemas kat phone)
         with st.container(border=True):
             st.error(f"**Nama:** {NAMA_SUSPEK}")
             st.warning(f"**Tel:** {NOMOR_SUSPEK}")
@@ -171,6 +179,7 @@ if check_password():
             st.info(f"**Email:** {EMAIL_SUSPEK}")
             st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
         
+        # Guna expander untuk maklumat panjang (jimat ruang kat phone)
         with st.expander("📱 Media Sosial & Pekerjaan", expanded=False):
             st.info(f"**Kerja (FB):** {KERJA_FB}")
             st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
@@ -185,13 +194,16 @@ if check_password():
             st.markdown(f"**Alamat:** {KENDERAAN_1['alamat']}")
             st.markdown(f"**Model:** {KENDERAAN_1['model']}")
             st.markdown(f"**Status:** {KENDERAAN_1['status']}")
+            
             st.markdown("---")
+            
             st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
             st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}")
             st.markdown(f"**IC:** {KENDERAAN_2['ic']}")
             st.markdown(f"**Alamat:** {KENDERAAN_2['alamat']}")
             st.markdown(f"**Model:** {KENDERAAN_2['model']}")
             st.markdown(f"**Status:** {KENDERAAN_2['status']}")
+            
             st.info("💡 **Nota:** Maklumat pemilik kenderaan di atas diperoleh daripada gambar galeri Facebook suspek.")
         
         with st.expander("📍 Check-in & Caption FB", expanded=False):
@@ -213,32 +225,12 @@ if check_password():
             st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
 
     # ==========================================
-    # BUTANG TOGGLE SIDEBAR (GUNA ST.BUTTON)
-    # ==========================================
-    # Butang ini akan sentiasa ada kat atas, senang tekan kat phone
-    # Bila tekan, ia set state 'show_sidebar' dan kita guna CSS untuk manipulate
-    
-    # Cara paling mudah: Guna butang yang render di atas tajuk
-    col_btn, col_title = st.columns([1, 4])
-    with col_btn:
-        # Butang ni takkan buat apa-apa selain trigger rerun. 
-        # Kita guna CSS untuk buat ia nampak macam butang toggle.
-        st.button("☰ Menu", key="toggle_menu_btn", help="Buka/Tutup Menu Suspek")
-
-    with col_title:
-        st.title("🕵️‍♂️ Sistem Siasatan Penipu")
-
-    st.markdown("---")
-
-    # ==========================================
-    # TABS
+    # TABS - SAMA MACAM ASAL (TAPI RESPONSIF)
     # ==========================================
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📄 Laporan", "🔍 OSINT", "🗺️ Peta", "📧 Email", "📁 Bukti"
     ])
-    
-    # ... (Bahagian tab1 hingga tab5 kekal sama macam kod sebelum ni) ...
-    
+
     # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
     with tab1:
         st.header("Jana Laporan Polis")
@@ -408,6 +400,7 @@ if check_password():
         st.markdown("---")
         st.subheader("Pautan Aduan Segera & Pangkalan Data")
         
+        # Kat phone, 4 columns akan jadi sangat kecil. Guna 2 columns je.
         col1, col2 = st.columns(2)
         with col1: 
             st.link_button("🚨 NSRC 997", "https://nfcc.jpm.gov.my/", use_container_width=True)
@@ -421,6 +414,7 @@ if check_password():
         st.header("Carian OSINT (Open Source Intelligence)")
         st.write("Klik butang di bawah untuk membuka carian di tab baru.")
         
+        # Kat phone, 2 columns akan sempit. Guna 1 column je (stack atas bawah)
         st.subheader("Jejak Suspek (Hadi)")
         st.link_button("💬 Buka WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}", use_container_width=True)
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22", use_container_width=True)
@@ -456,6 +450,7 @@ if check_password():
         folium.Marker(
             [4.7735, 101.1000], popup="Kawasan Sasaran: Kuala Kangsar / Sg Siput", tooltip="Klik untuk info", icon=folium.Icon(color='red', icon='info-sign')
         ).add_to(m)
+        # Guna use_container_width=True supaya peta responsive ikut skrin phone
         st_folium(m, use_container_width=True, height=400)
 
     # --- TAB 4: CARIAN EMAIL & DATA ---
@@ -490,6 +485,7 @@ if check_password():
         if uploaded_files:
             st.success(f"✅ {len(uploaded_files)} gambar telah berjaya dimuat naik.")
             
+            # Kat phone, 3 columns jadi kecik. Guna 2 columns je.
             cols = st.columns(2)
             for idx, file in enumerate(uploaded_files):
                 img = Image.open(file)
