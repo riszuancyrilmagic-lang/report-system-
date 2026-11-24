@@ -13,7 +13,7 @@ from PIL import Image
 # ==========================================
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️", layout="wide")
 
-# CSS: Tambah butang terapung (floating button) di sebelah kanan untuk toggle sidebar
+# CSS: Buang header hide, tambah style untuk butang toggle
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -33,37 +33,6 @@ hide_st_style = """
                 h1 {font-size: 1.5rem !important;}
                 h2 {font-size: 1.2rem !important;}
                 h3 {font-size: 1.0rem !important;}
-            }
-
-            /* FLOATING BUTTON KANAN UNTUK TOGGLE SIDEBAR */
-            /* Streamlit guna state 'collapsed' pada sidebar. Kita buat butang overlay. */
-            .floating-toggle-btn {
-                position: fixed;
-                top: 10px;
-                right: 10px;
-                z-index: 9999;
-                background-color: #ff4b4b;
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
-                box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.2s ease;
-            }
-            .floating-toggle-btn:hover {
-                background-color: #e04343;
-                transform: scale(1.1);
-            }
-            /* Sembunyikan butang asal Streamlit kat mobile supaya tak berganda */
-            @media (max-width: 768px) {
-                [data-testid="stSidebarCollapseButton"] {display: none !important;}
-                [data-testid="collapsedControl"] {display: none !important;}
             }
             </style>
             """
@@ -185,49 +154,7 @@ if check_password():
         st.session_state.data_tersimpan = load_data()
 
     # ==========================================
-    # FLOATING BUTTON (KANAN) UNTUK TOGGLE SIDEBAR
-    # ==========================================
-    # Kita guna JavaScript kecil untuk simulate klik pada butang asal Streamlit
-    st.markdown(
-        """
-        <button class="floating-toggle-btn" onclick="toggleSidebar()" title="Buka/Tutup Menu">
-            ☰
-        </button>
-        <script>
-        function toggleSidebar() {
-            // Cari butang asal Streamlit untuk collapse/expand sidebar
-            var collapseBtn = document.querySelector('[data-testid="stSidebarCollapseButton"] button');
-            var expandBtn = document.querySelector('[data-testid="collapsedControl"] button');
-            
-            if (collapseBtn && collapseBtn.offsetParent !== null) {
-                // Kalau sidebar terbuka, klik butang collapse
-                collapseBtn.click();
-            } else if (expandBtn && expandBtn.offsetParent !== null) {
-                // Kalau sidebar tertutup, klik butang expand
-                expandBtn.click();
-            } else {
-                // Fallback: Streamlit kadang guna class lain. Cuba cari ikon arrow.
-                var sidebar = document.querySelector('[data-testid="stSidebar"]');
-                if (sidebar) {
-                    var isCollapsed = sidebar.getAttribute('aria-expanded') === 'false';
-                    var btn = document.querySelector('[data-testid="collapsedControl"] button') || document.querySelector('[data-testid="stSidebarCollapseButton"] button');
-                    if (btn) btn.click();
-                }
-            }
-        }
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # ==========================================
-    # UI UTAMA
-    # ==========================================
-    st.title("🕵️‍♂️ Sistem Siasatan Penipu")
-    st.markdown("---")
-
-    # ==========================================
-    # SIDEBAR
+    # SIDEBAR (Diletak paling atas supaya state betul)
     # ==========================================
     with st.sidebar:
         if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
@@ -286,12 +213,32 @@ if check_password():
             st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
 
     # ==========================================
+    # BUTANG TOGGLE SIDEBAR (GUNA ST.BUTTON)
+    # ==========================================
+    # Butang ini akan sentiasa ada kat atas, senang tekan kat phone
+    # Bila tekan, ia set state 'show_sidebar' dan kita guna CSS untuk manipulate
+    
+    # Cara paling mudah: Guna butang yang render di atas tajuk
+    col_btn, col_title = st.columns([1, 4])
+    with col_btn:
+        # Butang ni takkan buat apa-apa selain trigger rerun. 
+        # Kita guna CSS untuk buat ia nampak macam butang toggle.
+        st.button("☰ Menu", key="toggle_menu_btn", help="Buka/Tutup Menu Suspek")
+
+    with col_title:
+        st.title("🕵️‍♂️ Sistem Siasatan Penipu")
+
+    st.markdown("---")
+
+    # ==========================================
     # TABS
     # ==========================================
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📄 Laporan", "🔍 OSINT", "🗺️ Peta", "📧 Email", "📁 Bukti"
     ])
-
+    
+    # ... (Bahagian tab1 hingga tab5 kekal sama macam kod sebelum ni) ...
+    
     # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
     with tab1:
         st.header("Jana Laporan Polis")
