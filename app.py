@@ -113,7 +113,7 @@ with st.sidebar:
     st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
 # ==========================================
 
-# Tab Navigation (Tambah Tab 5 untuk Kenderaan)
+# Tab Navigation
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📄 Laporan & Aduan", 
     "🔍 Carian OSINT", 
@@ -137,15 +137,32 @@ with tab1:
     st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
     
     teks_default = (
-        "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. Beliau sering menawarkan projek dan perkhidmatan.\n\n"
-        "2. KES PERTAMA (Pembuatan PC): Suspek menawarkan untuk membina PC dengan harga murah. Saya telah membuat pembayaran lebih RM500. Namun, sehingga kini PC tidak disiapkan, barang tidak diserahkan, dan wang tidak dipulangkan.\n\n"
-        "3. KES KEDUA (Modal Perniagaan): Ketika menunggu PC, suspek meminta saya menampung modal RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 (termasuk RM160 hutang servis game).\n\n"
-        "4. Suspek telah MENGIKTIRAF beliau berhutang melalui aplikasi WhatsApp. Beliau menulis: 'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
-        "5. Saya juga mendapati suspek mempunyai pelbagai rekod digital yang mengaitkannya dengan kawasan Perak (Check-in Facebook di Ipoh, video TikTok di Sg Siput, tag 'Adi Ipoh' di GetContact, dan caption FB 'Hati aku hanya pada Perak'). Nombor telefon suspek juga telah ditag sebagai 'Penipu' oleh 80 mangsa lain. Saya juga mempunyai bukti gambar kenderaan suspek (Kereta: WHG 8164, Motor: WGG 4317).\n\n"
-        "6. Suspek mendakwa beliau bekerja di KDN, Putrajaya di dalam profil Facebooknya. Saya juga ada bukti transaksi berjumlah RM2,083.00 yang dipindahkan ke akaun suspek dan keldai akaun (MOHAMMAD HILMI - BSN)."
+        "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. "
+        "Beliau sering menawarkan projek serta urusan jual beli barang komputer (PC).\n\n"
+
+        "2. KES PERTAMA (Barang PC - RAM 16GB x2): Suspek menawarkan barang tersebut dengan harga murah. "
+        "Saya telah membuat pembayaran lebih RM500. Namun, sehingga ke hari ini, barang fizikal yang saya pesan "
+        "(RAM 16GB x2) tidak diserahkan dan wang tidak dipulangkan.\n\n"
+
+        "3. KES KEDUA (Modal Perniagaan): Ketika menunggu barang PC saya, suspek meminta saya menampung modal "
+        "RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar "
+        "RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 "
+        "(termasuk RM160 hutang servis game).\n\n"
+
+        "4. Suspek telah MENGIKTIRAF beliau berhutang melalui WhatsApp dan menulis: "
+        "'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
+
+        "5. Saya juga mendapati suspek mempunyai pelbagai rekod digital yang mengaitkannya dengan kawasan Perak "
+        "(Check-in Facebook di Ipoh, video TikTok di Sg Siput, tag 'Adi Ipoh' di GetContact, dan caption FB "
+        "'Hati aku hanya pada Perak'). Nombor telefon suspek juga telah ditag sebagai penipu oleh 80 mangsa lain. "
+        "Saya turut mempunyai bukti gambar kenderaan suspek (Kereta: WHG 8164, Motor: WGG 4317) yang saya peroleh "
+        "daripada profil Facebook beliau.\n\n"
+
+        "6. Suspek mendakwa beliau bekerja di KDN, Putrajaya dalam profil Facebooknya. Saya juga mempunyai bukti "
+        "transaksi berjumlah RM2,083.00 yang dipindahkan ke akaun suspek dan akaun keldai (MOHAMMAD HILMI, BSN)."
     )
     
-    kronologi_edit = st.text_area("Kronologi Kejadian:", value=teks_default, height=300)
+    kronologi_edit = st.text_area("Kronologi Kejadian:", value=teks_default, height=320)
     
     if st.button("📥 Jana Laporan PDF", type="primary"):
         if not nama_pengadu or not ic_pengadu:
@@ -153,87 +170,106 @@ with tab1:
         else:
             pdf = FPDF()
             pdf.add_page()
-            
-            # --- GUNA FONT ARIAL UNICODE (fpdf2) ---
-            pdf.add_font("Arial", "", "arial.ttf", uni=True)
-            pdf.add_font("Arial", "B", "arialbd.ttf", uni=True)
-            
-            pdf.set_font("Arial", 'B', 16)
-            pdf.cell(200, 10, txt="LAPORAN POLIS (DRAF PENGADU)", ln=True, align='C')
-            pdf.ln(10)
-            
-            pdf.set_font("Arial", 'B', 12)
-            pdf.cell(200, 10, txt="A. MAKLUMAT PENGADU", ln=True)
-            pdf.set_font("Arial", size=11)
-            pdf.cell(200, 8, txt=f"   Nama        : {nama_pengadu}", ln=True)
-            pdf.cell(200, 8, txt=f"   No. IC      : {ic_pengadu}", ln=True)
-            pdf.cell(200, 8, txt=f"   No. Telefon : {tel_pengadu}", ln=True)
-            pdf.multi_cell(0, 8, txt=f"   Alamat      : {alamat_pengadu}")
-            pdf.ln(5)
-            
-            pdf.set_font("Arial", 'B', 12)
-            pdf.cell(200, 10, txt="B. MAKLUMAT SUSPEK & KELDAI AKAUN", ln=True)
-            pdf.set_font("Arial", size=11)
-            pdf.cell(200, 8, txt=f"   Suspek Utama : {NAMA_SUSPEK}", ln=True)
-            pdf.cell(200, 8, txt=f"   No. Telefon  : {NOMOR_SUSPEK}", ln=True)
-            pdf.cell(200, 8, txt=f"   Email        : {EMAIL_SUSPEK}", ln=True)
-            pdf.cell(200, 8, txt=f"   TikTok       : @{USERNAME_TIKTOK}", ln=True)
-            pdf.cell(200, 8, txt=f"   Facebook     : {LINK_FB}", ln=True)
-            pdf.cell(200, 8, txt=f"   Smule        : {USERNAME_SMULE}", ln=True)
-            pdf.cell(200, 8, txt=f"   Kerja (FB)   : {KERJA_FB}", ln=True)
-            pdf.cell(200, 8, txt=f"   Plat Kereta  : {PLAT_KERETA}", ln=True)
-            pdf.cell(200, 8, txt=f"   Plat Motor   : {PLAT_MOTOR}", ln=True) 
-            pdf.cell(200, 8, txt=f"   Check-in FB  : {CHECK_IN}", ln=True)
-            pdf.cell(200, 8, txt=f"   Caption FB   : '{CAPTION_FB}'", ln=True)
-            pdf.cell(200, 8, txt=f"   Keldai Akaun : {NAMA_MULE} ({BANK_MULE})", ln=True)
-            pdf.cell(200, 8, txt=f"   No. Akaun    : {AKAUN_MULE}", ln=True)
-            pdf.ln(5)
-            
-            # Bahagian Rangkaian Sosial (Kawan)
-            pdf.set_font("Arial", 'B', 12)
-            pdf.cell(200, 10, txt="C. RANGKAIAN SOSIAL (KAWAN RAPAT)", ln=True)
-            pdf.set_font("Arial", size=11)
-            pdf.multi_cell(0, 8, txt="Berdasarkan komen Facebook, suspek mempunyai hubungan rapat dengan individu berikut:")
-            for kawan in KAWAN_RAPAT:
-                pdf.cell(200, 8, txt=f"   - {kawan}", ln=True)
+            pdf.set_auto_page_break(auto=True, margin=15)
+
+            # --- FONT BUILT-IN (HELVETICA) - TIADA FILE LUAR ---
+            pdf.set_font("Helvetica", "B", 16)
+            pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", new_x="LMARGIN", new_y="NEXT", align="C")
+            pdf.ln(8)
+
+            # --- A. MAKLUMAT PENGADU ---
+            pdf.set_font("Helvetica", "B", 12)
+            pdf.cell(0, 10, "A. MAKLUMAT PENGADU", new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "", 11)
+
+            pdf.cell(35, 8, "Nama", new_x="RIGHT", new_y="TOP")
+            pdf.cell(0, 8, f": {nama_pengadu}", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(35, 8, "No. IC", new_x="RIGHT", new_y="TOP")
+            pdf.cell(0, 8, f": {ic_pengadu}", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(35, 8, "No. Telefon", new_x="RIGHT", new_y="TOP")
+            pdf.cell(0, 8, f": {tel_pengadu}", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(35, 8, "Alamat", new_x="RIGHT", new_y="TOP")
+            pdf.multi_cell(0, 8, f": {alamat_pengadu}", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(35, 8, "Jumlah Kerugian", new_x="RIGHT", new_y="TOP")
+            pdf.cell(0, 8, f": {jumlah_kerugian}", new_x="LMARGIN", new_y="NEXT")
             pdf.ln(5)
 
-            pdf.set_font("Arial", 'B', 12)
-            pdf.cell(200, 10, txt="D. KRONOLOGI KEJADIAN", ln=True)
-            pdf.set_font("Arial", size=11)
-            pdf.multi_cell(0, 8, txt=kronologi_edit)
+            # --- B. MAKLUMAT SUSPEK ---
+            pdf.set_font("Helvetica", "B", 12)
+            pdf.cell(0, 10, "B. MAKLUMAT SUSPEK & KELDAI AKAUN", new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "", 11)
+
+            suspek_data = [
+                ("Suspek Utama", NAMA_SUSPEK),
+                ("No. Telefon", NOMOR_SUSPEK),
+                ("Email", EMAIL_SUSPEK),
+                ("TikTok", f"@{USERNAME_TIKTOK}"),
+                ("Facebook", LINK_FB),
+                ("Smule", USERNAME_SMULE),
+                ("Kerja (FB)", KERJA_FB),
+                ("Plat Kereta", PLAT_KERETA),
+                ("Plat Motor", PLAT_MOTOR),
+                ("Check-in FB", CHECK_IN),
+                ("Caption FB", f"'{CAPTION_FB}'"),
+                ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"),
+                ("No. Akaun", AKAUN_MULE),
+            ]
+            for label, value in suspek_data:
+                pdf.cell(40, 8, label, new_x="RIGHT", new_y="TOP")
+                pdf.multi_cell(0, 8, f": {value}", new_x="LMARGIN", new_y="NEXT")
             pdf.ln(5)
-            
-            pdf.set_font("Arial", 'B', 12)
-            pdf.cell(200, 10, txt="E. LAMPIRAN BUKTI", ln=True)
-            pdf.set_font("Arial", size=11)
-            pdf.cell(200, 8, txt="1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow).", ln=True)
-            pdf.cell(200, 8, txt="2. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang).", ln=True)
-            pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok, Facebook, Smule, Gambar Kereta & Motor.", ln=True)
-            pdf.cell(200, 8, txt="4. [ ] Tangkapan skrin Tag/GetContact (80 tag aduan).", ln=True)
-            pdf.cell(200, 8, txt="5. [ ] Tangkapan skrin Komen FB Kawan Rapat.", ln=True)
-            pdf.cell(200, 8, txt="6. [ ] Tangkapan skrin Maklumat Kenderaan & Kerja (KDN).", ln=True)
-            
+
+            # --- C. RANGKAIAN SOSIAL ---
+            pdf.set_font("Helvetica", "B", 12)
+            pdf.cell(0, 10, "C. RANGKAIAN SOSIAL (KAWAN RAPAT)", new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "", 11)
+            pdf.multi_cell(0, 8, "Berdasarkan komen Facebook, suspek mempunyai hubungan rapat dengan individu berikut:", new_x="LMARGIN", new_y="NEXT")
+            for kawan in KAWAN_RAPAT:
+                pdf.cell(0, 8, f"   - {kawan}", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(5)
+
+            # --- D. KRONOLOGI ---
+            pdf.set_font("Helvetica", "B", 12)
+            pdf.cell(0, 10, "D. KRONOLOGI KEJADIAN", new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "", 11)
+            pdf.multi_cell(0, 8, kronologi_edit, new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(5)
+
+            # --- E. LAMPIRAN ---
+            pdf.set_font("Helvetica", "B", 12)
+            pdf.cell(0, 10, "E. LAMPIRAN BUKTI", new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "", 11)
+            lampiran = [
+                "1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow).",
+                "2. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang).",
+                "3. [ ] Tangkapan skrin profil TikTok, Facebook, Smule, gambar kereta & motor.",
+                "4. [ ] Tangkapan skrin tag GetContact (80 tag aduan).",
+                "5. [ ] Tangkapan skrin komen FB kawan rapat.",
+                "6. [ ] Tangkapan skrin maklumat kenderaan & kerja (KDN).",
+            ]
+            for item in lampiran:
+                pdf.multi_cell(0, 8, item, new_x="LMARGIN", new_y="NEXT")
+
             pdf.ln(10)
-            pdf.set_font("Arial", 'I', 10)
-            pdf.multi_cell(0, 8, txt="Saya bersumpah bahawa maklumat yang diberikan adalah benar.")
-            
+            pdf.set_font("Helvetica", "I", 10)
+            pdf.multi_cell(0, 8, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.", new_x="LMARGIN", new_y="NEXT")
+
             pdf.ln(15)
-            pdf.cell(200, 10, txt="Tandatangan Pengadu: _____________________", ln=True)
-            pdf.cell(200, 10, txt=f"Nama: {nama_pengadu}", ln=True)
-            pdf.cell(200, 10, txt=f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", ln=True)
-            
-            # --- SIMPAN PDF ---
-            pdf.output("Laporan_Polis_UI.pdf")
-            
-            with open("Laporan_Polis_UI.pdf", "rb") as f:
-                st.download_button(
-                    label="Klik Sini Untuk Download PDF",
-                    data=f,
-                    file_name=f"Laporan_Polis_{nama_pengadu}.pdf",
-                    mime="application/pdf"
-                )
-            st.success("Laporan berjaya dijana! Sila semak PDF anda.")
+            pdf.set_font("Helvetica", "", 11)
+            pdf.cell(0, 10, "Tandatangan Pengadu: _____________________", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 10, f"Nama: {nama_pengadu}", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", new_x="LMARGIN", new_y="NEXT")
+
+            # --- OUTPUT KE BYTES (TAK PERLU SAVE FILE) ---
+            pdf_bytes = pdf.output()
+
+            st.download_button(
+                label="📥 Klik Sini Untuk Download PDF",
+                data=bytes(pdf_bytes),
+                file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf",
+                mime="application/pdf",
+            )
+            st.success("✅ Laporan berjaya dijana! Sila semak PDF anda.")
 
     st.markdown("---")
     st.subheader("Pautan Aduan Segera & Pangkalan Data")
