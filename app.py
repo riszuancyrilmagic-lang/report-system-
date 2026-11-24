@@ -11,9 +11,9 @@ from PIL import Image
 # ==========================================
 # KONFIGURASI UI
 # ==========================================
-st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️")
+st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️", layout="wide")
 
-# CSS: Buang header hide supaya Streamlit nampak clean
+# CSS: Betulkan saiz sidebar, font, dan buang butang asal yang mengelirukan
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -30,20 +30,37 @@ hide_st_style = """
                     padding-left: 0.5rem !important; 
                     padding-right: 0.5rem !important;
                     padding-top: 1rem !important;
-                    max-width: 100% !important;
                 }
+                /* Kecilkan sidebar supaya tak makan seluruh skrin */
+                [data-testid="stSidebar"] {
+                    min-width: 75vw !important; 
+                    max-width: 75vw !important;
+                }
+                /* Kecilkan font dalam sidebar */
+                [data-testid="stSidebar"] * {
+                    font-size: 0.8rem !important;
+                }
+                [data-testid="stSidebar"] h2 {
+                    font-size: 1.1rem !important;
+                }
+                /* Butang lebih kecil */
                 .stButton > button {
                     width: 100% !important; 
-                    font-size: 0.85rem !important;
-                    padding: 0.5rem !important;
+                    font-size: 0.8rem !important;
+                    padding: 0.4rem !important;
                 }
+                /* Tabs lebih kecil */
                 .stTabs [data-baseweb="tab"] {
-                    font-size: 0.75rem !important; 
+                    font-size: 0.7rem !important; 
                     padding: 0.4rem 0.2rem !important;
                 }
                 h1 {font-size: 1.3rem !important;}
                 h2 {font-size: 1.1rem !important;}
                 h3 {font-size: 0.9rem !important;}
+                
+                /* Sembunyikan butang toggle asal Streamlit kat mobile */
+                [data-testid="stSidebarCollapseButton"] {display: none !important;}
+                [data-testid="collapsedControl"] {display: none !important;}
             }
             </style>
             """
@@ -146,52 +163,74 @@ if check_password():
         st.session_state.data_tersimpan = load_data()
 
     # ==========================================
-    # UI UTAMA (TANPA SIDEBAR - GUNA EXPANDER)
+    # STATE UNTUK TOGGLE SIDEBAR
+    # ==========================================
+    if "show_sidebar" not in st.session_state:
+        st.session_state.show_sidebar = False
+
+    # ==========================================
+    # SIDEBAR (Hanya papar jika state = True)
+    # ==========================================
+    if st.session_state.show_sidebar:
+        with st.sidebar:
+            if st.button("❌ Tutup Menu", use_container_width=True):
+                st.session_state.show_sidebar = False
+                st.rerun()
+                
+            if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
+                st.session_state["password_correct"] = False
+                st.session_state.show_sidebar = False
+                st.rerun()
+                
+            st.markdown("---")
+            st.header("🎯 Profil Sasaran")
+            
+            with st.container(border=True):
+                st.error(f"**Nama:** {NAMA_SUSPEK}")
+                st.warning(f"**Tel:** {NOMOR_SUSPEK}")
+                st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
+                st.info(f"**Email:** {EMAIL_SUSPEK}")
+                st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
+            
+            with st.expander("📱 Media Sosial", expanded=False):
+                st.info(f"**Kerja (FB):** {KERJA_FB}")
+                st.markdown(f"📱 [TikTok](https://www.tiktok.com/@{USERNAME_TIKTOK})")
+                st.markdown(f"📘 [Facebook]({LINK_FB})")
+                st.markdown(f"📸 [Gambar FB]({LINK_FB_PHOTOS})")
+                st.markdown(f"🎤 [Smule](https://www.smule.com/{USERNAME_SMULE})")
+                
+            with st.expander("🚗 Kenderaan", expanded=False):
+                st.warning(f"🚗 **Kereta:** {PLAT_KERETA}")
+                st.markdown(f"**Pemilik:** {KENDERAAN_1['nama']}\n**IC:** {KENDERAAN_1['ic']}")
+                st.markdown("---")
+                st.warning(f"🏍️ **Motor:** {PLAT_MOTOR}")
+                st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}\n**IC:** {KENDERAAN_2['ic']}")
+            
+            with st.expander("👥 Kawan & Keldai Akaun", expanded=False):
+                st.error("**KELDAI AKAUN**")
+                st.code(f"{NAMA_MULE}\n{BANK_MULE}\n{AKAUN_MULE}")
+                st.markdown("---")
+                st.error("**KAWAN RAPAT**")
+                for kawan in KAWAN_RAPAT:
+                    st.markdown(f"- {kawan}")
+            
+            with st.expander("🎵 MVM Music", expanded=False):
+                st.code("016-217 3665\nmvm.hadi@gmail.com")
+                st.markdown(f"🔍 [Cari MVM Music](https://www.google.com/search?q=MVM+Music+Puchong)")
+
+    # ==========================================
+    # BUTANG TOGGLE SIDEBAR (NATIVE STREAMLIT)
+    # ==========================================
+    # Butang ini sentiasa ada kat atas, tekan untuk buka sidebar
+    if not st.session_state.show_sidebar:
+        if st.button("☰ Buka Menu Suspek", use_container_width=True):
+            st.session_state.show_sidebar = True
+            st.rerun()
+
+    # ==========================================
+    # UI UTAMA
     # ==========================================
     st.title("🕵️‍♂️ Sistem Siasatan Penipu")
-    
-    # Butang Log Keluar (Letak atas sikit)
-    if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
-        st.session_state["password_correct"] = False
-        st.rerun()
-
-    st.markdown("---")
-
-    # --- KOTAK PROFIL SUSPEK (Guna Expander) ---
-    with st.expander("🎯 Tekan Sini Untuk Buka Profil Sasaran (Suspek)", expanded=False):
-        st.error(f"**Nama:** {NAMA_SUSPEK}")
-        st.warning(f"**Tel:** {NOMOR_SUSPEK}")
-        st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
-        st.info(f"**Email:** {EMAIL_SUSPEK}")
-        st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
-        
-        st.markdown("---")
-        st.subheader("📱 Media Sosial")
-        st.info(f"**Kerja (FB):** {KERJA_FB}")
-        st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
-        st.markdown(f"📘 [Facebook (Adisprinter)]({LINK_FB})")
-        st.markdown(f"📸 [Gambar Facebook]({LINK_FB_PHOTOS})")
-        st.markdown(f"🎤 [Smule (@{USERNAME_SMULE})](https://www.smule.com/{USERNAME_SMULE})")
-        
-        st.markdown("---")
-        st.subheader("🚗 Maklumat Kenderaan")
-        st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
-        st.markdown(f"**Pemilik:** {KENDERAAN_1['nama']}\n**IC:** {KENDERAAN_1['ic']}\n**Model:** {KENDERAAN_1['model']}")
-        st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
-        st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}\n**IC:** {KENDERAAN_2['ic']}\n**Model:** {KENDERAAN_2['model']}")
-        
-        st.markdown("---")
-        st.subheader("🚨 Keldai Akaun & Kawan")
-        st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
-        st.markdown("**Kawan Rapat:**")
-        for kawan in KAWAN_RAPAT:
-            st.markdown(f"- {kawan}")
-            
-        st.markdown("---")
-        st.subheader("🎵 MVM Music")
-        st.code("No. Tel: 016-217 3665\nEmail: mvm.hadi@gmail.com")
-        st.markdown(f"🔍 [Cari MVM Music](https://www.google.com/search?q=MVM+Music+Puchong)")
-
     st.markdown("---")
 
     # ==========================================
