@@ -13,7 +13,6 @@ from PIL import Image
 # ==========================================
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️")
 
-# CSS: Buang header hide, tambah style butang tengah
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -61,14 +60,6 @@ hide_st_style = """
                 h1 {font-size: 1.3rem !important;}
                 h2 {font-size: 1.1rem !important;}
                 h3 {font-size: 0.9rem !important;}
-            }
-            
-            /* Style butang toggle tengah */
-            .center-btn-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                margin: 10px 0;
             }
             </style>
             """
@@ -171,13 +162,13 @@ if check_password():
         st.session_state.data_tersimpan = load_data()
 
     # ==========================================
-    # STATE UNTUK TOGGLE SIDEBAR (GUNA BUTANG TENGAH)
+    # STATE UNTUK TOGGLE SIDEBAR
     # ==========================================
     if "show_sidebar" not in st.session_state:
         st.session_state.show_sidebar = False
 
     # ==========================================
-    # SIDEBAR (Hanya papar jika state = True)
+    # SIDEBAR
     # ==========================================
     if st.session_state.show_sidebar:
         with st.sidebar:
@@ -227,17 +218,17 @@ if check_password():
                 st.markdown(f"🔍 [Cari MVM Music](https://www.google.com/search?q=MVM+Music+Puchong)")
 
     # ==========================================
+    # BUTANG DI ATAS TAJUK (SIMPLE & CONFIRM NAMPAK)
+    # ==========================================
+    if not st.session_state.show_sidebar:
+        # Letak butang ni betul-betul di atas, tanpa columns
+        if st.button("🔍 Buka Menu Suspek", use_container_width=True, type="primary"):
+            st.session_state.show_sidebar = True
+            st.rerun()
+
+    # ==========================================
     # UI UTAMA
     # ==========================================
-    
-    # Letak butang Buka Menu di tengah-tengah atas
-    if not st.session_state.show_sidebar:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if st.button("🔍 Buka Menu Suspek", use_container_width=True, type="primary"):
-                st.session_state.show_sidebar = True
-                st.rerun()
-
     st.title("🕵️‍♂️ Sistem Siasatan Penipu")
     st.markdown("---")
 
