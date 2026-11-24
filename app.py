@@ -158,7 +158,7 @@ with tab1:
     
     # BUTANG TELEGRAM
     st.info("💡 Anda boleh lihat semua bukti (gambar, resit, chat) di channel Telegram kami.")
-    st.link_button("📢 Buka Channel Telegram Bukti", "https://t.me/+2M7Vwt8K3lQwYzE1", type="primary")
+    st.link_button("📢 Buka Channel Telegram Bukti", "https://t.me/+kDca9ANJnZBhYzM1", type="primary")
     st.markdown("---")
     
     if os.path.exists(DATA_FILE):
