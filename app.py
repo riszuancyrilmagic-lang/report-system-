@@ -13,8 +13,7 @@ from PIL import Image
 # ==========================================
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️", layout="wide")
 
-# CSS: Buang header hiding supaya butang sidebar muncul kat phone.
-# Tambah style responsif untuk mobile.
+# CSS: Tambah butang terapung (floating button) di sebelah kanan untuk toggle sidebar
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -34,6 +33,37 @@ hide_st_style = """
                 h1 {font-size: 1.5rem !important;}
                 h2 {font-size: 1.2rem !important;}
                 h3 {font-size: 1.0rem !important;}
+            }
+
+            /* FLOATING BUTTON KANAN UNTUK TOGGLE SIDEBAR */
+            /* Streamlit guna state 'collapsed' pada sidebar. Kita buat butang overlay. */
+            .floating-toggle-btn {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                z-index: 9999;
+                background-color: #ff4b4b;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+                box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+            }
+            .floating-toggle-btn:hover {
+                background-color: #e04343;
+                transform: scale(1.1);
+            }
+            /* Sembunyikan butang asal Streamlit kat mobile supaya tak berganda */
+            @media (max-width: 768px) {
+                [data-testid="stSidebarCollapseButton"] {display: none !important;}
+                [data-testid="collapsedControl"] {display: none !important;}
             }
             </style>
             """
@@ -155,13 +185,49 @@ if check_password():
         st.session_state.data_tersimpan = load_data()
 
     # ==========================================
+    # FLOATING BUTTON (KANAN) UNTUK TOGGLE SIDEBAR
+    # ==========================================
+    # Kita guna JavaScript kecil untuk simulate klik pada butang asal Streamlit
+    st.markdown(
+        """
+        <button class="floating-toggle-btn" onclick="toggleSidebar()" title="Buka/Tutup Menu">
+            ☰
+        </button>
+        <script>
+        function toggleSidebar() {
+            // Cari butang asal Streamlit untuk collapse/expand sidebar
+            var collapseBtn = document.querySelector('[data-testid="stSidebarCollapseButton"] button');
+            var expandBtn = document.querySelector('[data-testid="collapsedControl"] button');
+            
+            if (collapseBtn && collapseBtn.offsetParent !== null) {
+                // Kalau sidebar terbuka, klik butang collapse
+                collapseBtn.click();
+            } else if (expandBtn && expandBtn.offsetParent !== null) {
+                // Kalau sidebar tertutup, klik butang expand
+                expandBtn.click();
+            } else {
+                // Fallback: Streamlit kadang guna class lain. Cuba cari ikon arrow.
+                var sidebar = document.querySelector('[data-testid="stSidebar"]');
+                if (sidebar) {
+                    var isCollapsed = sidebar.getAttribute('aria-expanded') === 'false';
+                    var btn = document.querySelector('[data-testid="collapsedControl"] button') || document.querySelector('[data-testid="stSidebarCollapseButton"] button');
+                    if (btn) btn.click();
+                }
+            }
+        }
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # ==========================================
     # UI UTAMA
     # ==========================================
     st.title("🕵️‍♂️ Sistem Siasatan Penipu")
     st.markdown("---")
 
     # ==========================================
-    # SIDEBAR - DIOPTIMALKAN UNTUK PHONE
+    # SIDEBAR
     # ==========================================
     with st.sidebar:
         if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
@@ -171,7 +237,6 @@ if check_password():
         st.markdown("---")
         st.header("🎯 Profil Sasaran (Suspek)")
         
-        # Maklumat asas dalam container berbingkai (kemas kat phone)
         with st.container(border=True):
             st.error(f"**Nama:** {NAMA_SUSPEK}")
             st.warning(f"**Tel:** {NOMOR_SUSPEK}")
@@ -179,7 +244,6 @@ if check_password():
             st.info(f"**Email:** {EMAIL_SUSPEK}")
             st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
         
-        # Guna expander untuk maklumat panjang (jimat ruang kat phone)
         with st.expander("📱 Media Sosial & Pekerjaan", expanded=False):
             st.info(f"**Kerja (FB):** {KERJA_FB}")
             st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
@@ -194,16 +258,13 @@ if check_password():
             st.markdown(f"**Alamat:** {KENDERAAN_1['alamat']}")
             st.markdown(f"**Model:** {KENDERAAN_1['model']}")
             st.markdown(f"**Status:** {KENDERAAN_1['status']}")
-            
             st.markdown("---")
-            
             st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
             st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}")
             st.markdown(f"**IC:** {KENDERAAN_2['ic']}")
             st.markdown(f"**Alamat:** {KENDERAAN_2['alamat']}")
             st.markdown(f"**Model:** {KENDERAAN_2['model']}")
             st.markdown(f"**Status:** {KENDERAAN_2['status']}")
-            
             st.info("💡 **Nota:** Maklumat pemilik kenderaan di atas diperoleh daripada gambar galeri Facebook suspek.")
         
         with st.expander("📍 Check-in & Caption FB", expanded=False):
@@ -225,7 +286,7 @@ if check_password():
             st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
 
     # ==========================================
-    # TABS - SAMA MACAM ASAL (TAPI RESPONSIF)
+    # TABS
     # ==========================================
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📄 Laporan", "🔍 OSINT", "🗺️ Peta", "📧 Email", "📁 Bukti"
@@ -400,7 +461,6 @@ if check_password():
         st.markdown("---")
         st.subheader("Pautan Aduan Segera & Pangkalan Data")
         
-        # Kat phone, 4 columns akan jadi sangat kecil. Guna 2 columns je.
         col1, col2 = st.columns(2)
         with col1: 
             st.link_button("🚨 NSRC 997", "https://nfcc.jpm.gov.my/", use_container_width=True)
@@ -414,7 +474,6 @@ if check_password():
         st.header("Carian OSINT (Open Source Intelligence)")
         st.write("Klik butang di bawah untuk membuka carian di tab baru.")
         
-        # Kat phone, 2 columns akan sempit. Guna 1 column je (stack atas bawah)
         st.subheader("Jejak Suspek (Hadi)")
         st.link_button("💬 Buka WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}", use_container_width=True)
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22", use_container_width=True)
@@ -450,7 +509,6 @@ if check_password():
         folium.Marker(
             [4.7735, 101.1000], popup="Kawasan Sasaran: Kuala Kangsar / Sg Siput", tooltip="Klik untuk info", icon=folium.Icon(color='red', icon='info-sign')
         ).add_to(m)
-        # Guna use_container_width=True supaya peta responsive ikut skrin phone
         st_folium(m, use_container_width=True, height=400)
 
     # --- TAB 4: CARIAN EMAIL & DATA ---
@@ -485,7 +543,6 @@ if check_password():
         if uploaded_files:
             st.success(f"✅ {len(uploaded_files)} gambar telah berjaya dimuat naik.")
             
-            # Kat phone, 3 columns jadi kecik. Guna 2 columns je.
             cols = st.columns(2)
             for idx, file in enumerate(uploaded_files):
                 img = Image.open(file)
