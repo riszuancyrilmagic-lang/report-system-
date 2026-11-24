@@ -96,7 +96,6 @@ TEKS_DEFAULT = (
     "transaksi berjumlah RM2,083.00 yang dipindahkan ke akaun suspek dan akaun keldai (MOHAMMAD HILMI, BSN)."
 )
 
-# Fungsi load data
 def load_data():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r", encoding="utf-8") as f:
@@ -105,12 +104,10 @@ def load_data():
         "nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", "kronologi": TEKS_DEFAULT
     }
 
-# Fungsi save data
 def save_data(data):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-# Load data ke dalam session_state masa mula-mula buka
 if "data_tersimpan" not in st.session_state:
     st.session_state.data_tersimpan = load_data()
 
@@ -157,43 +154,10 @@ with tab1:
     st.header("Jana Laporan Polis")
     st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
     
-    # Papar notifikasi jika ada data yang di-load dari fail
     if os.path.exists(DATA_FILE):
         st.success("✅ Data draf sebelum ini telah dimuatkan secara automatik dari fail simpanan.")
-    
-    col_btn1, col_btn2 = st.columns([1, 1])
-    with col_btn1:
-        btn_save = st.button("💾 SAVE Draf (Kekal Walaupun Refresh)", type="primary", use_container_width=True)
-    with col_btn2:
-        btn_reset = st.button("🔄 Reset ke Teks Asal", use_container_width=True)
 
-    # Logik untuk butang Save & Reset
-    if btn_save:
-        new_data = {
-            "nama": st.session_state.get("pengadu_nama", ""),
-            "ic": st.session_state.get("pengadu_ic", ""),
-            "tel": st.session_state.get("pengadu_tel", ""),
-            "alamat": st.session_state.get("pengadu_alamat", ""),
-            "kerugian": st.session_state.get("pengadu_kerugian", ""),
-            "kronologi": st.session_state.get("kronologi_teks", TEKS_DEFAULT)
-        }
-        save_data(new_data)
-        st.session_state.data_tersimpan = new_data
-        st.success("✅ Draf berjaya disimpan ke fail! Data ini akan kekal walaupun anda refresh page.")
-
-    if btn_reset:
-        # Padam fail simpanan dan reset input
-        if os.path.exists(DATA_FILE):
-            os.remove(DATA_FILE)
-        st.session_state.pengadu_nama = ""
-        st.session_state.pengadu_ic = ""
-        st.session_state.pengadu_tel = ""
-        st.session_state.pengadu_alamat = ""
-        st.session_state.pengadu_kerugian = ""
-        st.session_state.kronologi_teks = TEKS_DEFAULT
-        st.success("🔄 Draf telah di-reset ke teks asal.")
-
-    # Set default value untuk text input berdasarkan data_tersimpan (jika belum ada dalam session_state)
+    # Set default value untuk text input berdasarkan data_tersimpan
     data = st.session_state.data_tersimpan
     if "pengadu_nama" not in st.session_state: st.session_state.pengadu_nama = data["nama"]
     if "pengadu_ic" not in st.session_state: st.session_state.pengadu_ic = data["ic"]
@@ -202,7 +166,6 @@ with tab1:
     if "pengadu_kerugian" not in st.session_state: st.session_state.pengadu_kerugian = data["kerugian"]
     if "kronologi_teks" not in st.session_state: st.session_state.kronologi_teks = data["kronologi"]
 
-    st.markdown("---")
     nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)", key="pengadu_nama")
     ic_pengadu = st.text_input("No. IC Anda", key="pengadu_ic")
     tel_pengadu = st.text_input("No. Telefon Anda", key="pengadu_tel")
@@ -213,8 +176,43 @@ with tab1:
     st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
     
     kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=320)
-    
+
+    # ==========================================
+    # BUTANG SAVE & RESET (Diletakkan rapat bawah kotak)
+    # ==========================================
+    col_btn1, col_btn2, col_space = st.columns([1, 1, 2])
+    with col_btn1:
+        btn_save = st.button("💾 SAVE Draf", type="primary", use_container_width=True)
+    with col_btn2:
+        btn_reset = st.button("🔄 Reset ke Teks Asal", use_container_width=True)
+
+    if btn_save:
+        new_data = {
+            "nama": st.session_state.pengadu_nama,
+            "ic": st.session_state.pengadu_ic,
+            "tel": st.session_state.pengadu_tel,
+            "alamat": st.session_state.pengadu_alamat,
+            "kerugian": st.session_state.pengadu_kerugian,
+            "kronologi": st.session_state.kronologi_teks
+        }
+        save_data(new_data)
+        st.session_state.data_tersimpan = new_data
+        st.success("✅ Draf berjaya disimpan ke fail! Data ini akan kekal walaupun anda refresh page.")
+
+    if btn_reset:
+        if os.path.exists(DATA_FILE):
+            os.remove(DATA_FILE)
+        st.session_state.pengadu_nama = ""
+        st.session_state.pengadu_ic = ""
+        st.session_state.pengadu_tel = ""
+        st.session_state.pengadu_alamat = ""
+        st.session_state.pengadu_kerugian = ""
+        st.session_state.kronologi_teks = TEKS_DEFAULT
+        st.success("🔄 Draf telah di-reset ke teks asal.")
+    # ==========================================
+
     st.markdown("---")
+    # Butang Jana PDF
     if st.button("📥 Jana Laporan PDF", type="secondary"):
         if not nama_pengadu or not ic_pengadu:
             st.error("Sila isi Nama dan No. IC anda dahulu!")
