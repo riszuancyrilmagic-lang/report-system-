@@ -212,6 +212,7 @@ if check_password():
         st.markdown("---")
         st.warning("🎵 **KAITAN MVM MUSIC**")
         st.info("Individu 'Hadi' (Booking Artis)")
+        st.info("Suspek mendakwa mempunyai kaitan dengan MVM Music. Saya mendapati dalam promosi rasmi MVM Music, terdapat nama 'Hadi' dengan nombor 016-217 3665 dan email mvm.hadi@gmail.com untuk urusan booking artis. Saya memohon pihak polis menyemak sama ada suspek mempunyai kaitan dengan individu ini, atau sama ada suspek menyamar menggunakan identiti tersebut."")
         st.code("No. Tel: 016-217 3665\nEmail: mvm.hadi@gmail.com")
         st.markdown(f"🔍 [Cari MVM Music di Google](https://www.google.com/search?q=MVM+Music+Puchong)")
         st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
