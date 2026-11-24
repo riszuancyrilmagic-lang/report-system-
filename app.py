@@ -7,7 +7,6 @@ import urllib.parse
 import json
 import os
 from PIL import Image
-import io
 
 # ==========================================
 # KONFIGURASI UI
@@ -116,7 +115,7 @@ if "data_tersimpan" not in st.session_state:
 # ==========================================
 # UI UTAMA
 # ==========================================
-st.title("🕵️‍♂️ Sistem Siasatan nota")
+st.title("🕵️‍♂️ Sistem Siasatan Penipu (Mega UI)")
 st.markdown("---")
 
 with st.sidebar:
@@ -127,28 +126,47 @@ with st.sidebar:
     st.info(f"**Email:** {EMAIL_SUSPEK}")
     st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
     st.info(f"**Kerja (FB):** {KERJA_FB}")
+    
     st.markdown("---")
     st.success("**Media Sosial:**")
     st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
     st.markdown(f"📘 [Facebook (Adisprinter)]({LINK_FB})")
     st.markdown(f"📸 [Gambar Facebook]({LINK_FB_PHOTOS})")
     st.markdown(f"🎤 [Smule (@{USERNAME_SMULE})](https://www.smule.com/{USERNAME_SMULE})")
+    
     st.markdown("---")
     st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
+    # Tambah info pemilik kereta dalam sidebar
+    st.caption(f"👤 **Pemilik:** {KENDERAAN_1['nama']}\n\n"
+               f"🆔 **IC:** {KENDERAAN_1['ic']}\n\n"
+               f"📍 **Alamat:** {KENDERAAN_1['alamat']}\n\n"
+               f"🚙 **Model:** {KENDERAAN_1['model']}\n\n"
+               f"⚠️ **Status:** {KENDERAAN_1['status']}")
+
     st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
+    # Tambah info pemilik motor dalam sidebar
+    st.caption(f"👤 **Pemilik:** {KENDERAAN_2['nama']}\n\n"
+               f"🆔 **IC:** {KENDERAAN_2['ic']}\n\n"
+               f"📍 **Alamat:** {KENDERAAN_2['alamat']}\n\n"
+               f"🏍️ **Model:** {KENDERAAN_2['model']}\n\n"
+               f"⚠️ **Status:** {KENDERAAN_2['status']}")
+
+    st.markdown("---")
     st.info(f"📍 **Check-in FB:** {CHECK_IN}")
     st.info(f"📝 **Caption FB:** '{CAPTION_FB}'")
+    
     st.markdown("---")
     st.error("👥 **KAWAN RAPAT / KONTAK**")
     for kawan in KAWAN_RAPAT:
         st.markdown(f"- {kawan}")
+
     st.markdown("---")
     st.error("🚨 **KELDAI AKAUN (MULE)**")
     st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
 
-# Tab Navigation
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📄 Laporan & Aduan", "🔍 Carian OSINT", "🗺️ Peta Lokasi", "📧 Carian Email & Data", "🚗 Kenderaan Suspek", "📁 Bukti & Gambar"
+# Tab Navigation (Tab Kenderaan Dah Dibuangkan)
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📄 Laporan & Aduan", "🔍 Carian OSINT", "🗺️ Peta Lokasi", "📧 Carian Email & Data", "📁 Bukti & Gambar"
 ])
 
 # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
@@ -178,7 +196,6 @@ with tab1:
     
     kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=320)
 
-    # Butang Save & Reset (Bawah Kotak Teks)
     col_btn1, col_btn2, col_space = st.columns([1, 1, 2])
     with col_btn1:
         btn_save = st.button("💾 SAVE Draf", type="primary", use_container_width=True)
@@ -208,15 +225,11 @@ with tab1:
 
     st.markdown("---")
     
-    # ==========================================
-    # BUTANG TELEGRAM & JANA PDF (BAHAGIAN BAWAH)
-    # ==========================================
     st.info("💡 Anda juga boleh lihat semua bukti (gambar, resit, chat) di channel Telegram kami.")
     
     col_pdf, col_tg = st.columns([1, 1])
     
     with col_pdf:
-        # Butang Jana PDF
         if st.button("📥 Jana Laporan PDF Utama", type="secondary", use_container_width=True):
             if not nama_pengadu or not ic_pengadu:
                 st.error("Sila isi Nama dan No. IC anda dahulu!")
@@ -311,7 +324,6 @@ with tab1:
                 st.success("✅ Laporan Utama berjaya dijana!")
 
     with col_tg:
-        # Butang Telegram
         st.link_button(
             label="📢 Buka Channel Telegram Bukti", 
             url="https://t.me/+2M7Vwt8K3lQwYzE1", 
@@ -381,30 +393,8 @@ with tab4:
         st.link_button("🎵 Cari Nama + TikTok", f"https://www.google.com/search?q=%22{nama_encoded}%22+TikTok+OR+hadimarkno")
         st.link_button("🏢 Semak Pendaftaran SSM", "https://www.ssm-einfo.my/")
 
-# --- TAB 5: MAKLUMAT KENDERAAN ---
+# --- TAB 5: BUKTI & GAMBAR (UPLOAD & JANA PDF) ---
 with tab5:
-    st.header("Maklumat Kenderaan Disyaki yang di jumpa di📘Facebook (Adisprinter) ")
-    st.write("Maklumat ini diperoleh daripada semakan rekod pendaftaran kenderaan. Berguna untuk siasatan lanjut pihak polis.")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader(f"🚗 Kereta: {KENDERAAN_1['plat']}")
-        st.info(f"**Pemilik Berdaftar:** {KENDERAAN_1['nama']}")
-        st.warning(f"**No. IC:** {KENDERAAN_1['ic']}")
-        st.write(f"**Alamat:** {KENDERAAN_1['alamat']}")
-        st.write(f"**Model:** {KENDERAAN_1['model']}")
-        st.error(f"**Status:** {KENDERAAN_1['status']}")
-    with col2:
-        st.subheader(f"🏍️ Motor: {KENDERAAN_2['plat']}")
-        st.info(f"**Pemilik Berdaftar:** {KENDERAAN_2['nama']}")
-        st.warning(f"**No. IC:** {KENDERAAN_2['ic']}")
-        st.write(f"**Alamat:** {KENDERAAN_2['alamat']}")
-        st.write(f"**Model:** {KENDERAAN_2['model']}")
-        st.error(f"**Status:** {KENDERAAN_2['status']}")
-    st.markdown("---")
-    st.warning("**Nota Siasatan:** Pemilik kenderaan mungkin bukan suspek utama. Pihak polis perlu menyiasat sama ada kenderaan ini dijual, disewa, atau digunakan oleh suspek (ABDUL HADI).")
-
-# --- TAB 6: BUKTI & GAMBAR (UPLOAD & JANA PDF) ---
-with tab6:
     st.header("Muat Naik Bukti & Jana PDF")
     st.write("Anda boleh upload gambar (resit, chat, atau bukti lain) dan jadikannya satu fail PDF untuk diserahkan kepada polis.")
     
