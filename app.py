@@ -120,22 +120,24 @@ with tab1:
         else:
             pdf = FPDF()
             pdf.add_page()
-            pdf.set_font("Arial", 'B', 16)
+            
+            # --- GUNA FONT UNICODE (fpdf2) ---
+            pdf.set_font("DejaVuSans", 'B', 16)
             pdf.cell(200, 10, txt="LAPORAN POLIS (DRAF PENGADU)", ln=True, align='C')
             pdf.ln(10)
             
-            pdf.set_font("Arial", 'B', 12)
+            pdf.set_font("DejaVuSans", 'B', 12)
             pdf.cell(200, 10, txt="A. MAKLUMAT PENGADU", ln=True)
-            pdf.set_font("Arial", size=11)
+            pdf.set_font("DejaVuSans", size=11)
             pdf.cell(200, 8, txt=f"   Nama        : {nama_pengadu}", ln=True)
             pdf.cell(200, 8, txt=f"   No. IC      : {ic_pengadu}", ln=True)
             pdf.cell(200, 8, txt=f"   No. Telefon : {tel_pengadu}", ln=True)
             pdf.multi_cell(0, 8, txt=f"   Alamat      : {alamat_pengadu}")
             pdf.ln(5)
             
-            pdf.set_font("Arial", 'B', 12)
+            pdf.set_font("DejaVuSans", 'B', 12)
             pdf.cell(200, 10, txt="B. MAKLUMAT SUSPEK & KELDAI AKAUN", ln=True)
-            pdf.set_font("Arial", size=11)
+            pdf.set_font("DejaVuSans", size=11)
             pdf.cell(200, 8, txt=f"   Suspek Utama : {NAMA_SUSPEK}", ln=True)
             pdf.cell(200, 8, txt=f"   No. Telefon  : {NOMOR_SUSPEK}", ln=True)
             pdf.cell(200, 8, txt=f"   Email        : {EMAIL_SUSPEK}", ln=True)
@@ -151,23 +153,23 @@ with tab1:
             pdf.ln(5)
             
             # Bahagian Rangkaian Sosial (Kawan)
-            pdf.set_font("Arial", 'B', 12)
+            pdf.set_font("DejaVuSans", 'B', 12)
             pdf.cell(200, 10, txt="C. RANGKAIAN SOSIAL (KAWAN RAPAT)", ln=True)
-            pdf.set_font("Arial", size=11)
+            pdf.set_font("DejaVuSans", size=11)
             pdf.multi_cell(0, 8, txt="Berdasarkan komen Facebook, suspek mempunyai hubungan rapat dengan individu berikut:")
             for kawan in KAWAN_RAPAT:
                 pdf.cell(200, 8, txt=f"   - {kawan}", ln=True)
             pdf.ln(5)
 
-            pdf.set_font("Arial", 'B', 12)
+            pdf.set_font("DejaVuSans", 'B', 12)
             pdf.cell(200, 10, txt="D. KRONOLOGI KEJADIAN", ln=True)
-            pdf.set_font("Arial", size=11)
+            pdf.set_font("DejaVuSans", size=11)
             pdf.multi_cell(0, 8, txt=kronologi_edit)
             pdf.ln(5)
             
-            pdf.set_font("Arial", 'B', 12)
+            pdf.set_font("DejaVuSans", 'B', 12)
             pdf.cell(200, 10, txt="E. LAMPIRAN BUKTI", ln=True)
-            pdf.set_font("Arial", size=11)
+            pdf.set_font("DejaVuSans", size=11)
             pdf.cell(200, 8, txt="1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow).", ln=True)
             pdf.cell(200, 8, txt="2. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang).", ln=True)
             pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok, Facebook, Smule, Gambar Kereta & Motor.", ln=True)
@@ -175,7 +177,7 @@ with tab1:
             pdf.cell(200, 8, txt="5. [ ] Tangkapan skrin Komen FB Kawan Rapat.", ln=True)
             
             pdf.ln(10)
-            pdf.set_font("Arial", 'I', 10)
+            pdf.set_font("DejaVuSans", 'I', 10)
             pdf.multi_cell(0, 8, txt="Saya bersumpah bahawa maklumat yang diberikan adalah benar.")
             
             pdf.ln(15)
@@ -183,6 +185,7 @@ with tab1:
             pdf.cell(200, 10, txt=f"Nama: {nama_pengadu}", ln=True)
             pdf.cell(200, 10, txt=f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", ln=True)
             
+            # --- SIMPAN PDF ---
             pdf.output("Laporan_Polis_UI.pdf")
             
             with open("Laporan_Polis_UI.pdf", "rb") as f:
