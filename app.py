@@ -7,14 +7,13 @@ import urllib.parse
 import json
 import os
 from PIL import Image
-import streamlit.components.v1 as components
 
 # ==========================================
 # KONFIGURASI UI
 # ==========================================
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️", layout="wide")
 
-# CSS: Buang header hide, tambah style untuk butang toggle terapung
+# CSS: Betulkan saiz sidebar, font, dan buang butang asal yang mengelirukan
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -27,39 +26,39 @@ hide_st_style = """
             
             /* MOBILE OPTIMIZATION */
             @media (max-width: 768px) {
-                .block-container {padding-left: 0.5rem !important; padding-right: 0.5rem !important;}
-                [data-testid="stSidebar"] {min-width: 85vw !important; max-width: 85vw !important;}
-                .stButton > button {width: 100% !important; font-size: 0.85rem !important;}
-                .stTabs [data-baseweb="tab"] {font-size: 0.75rem !important; padding: 0.5rem 0.3rem !important;}
-                h1 {font-size: 1.5rem !important;}
-                h2 {font-size: 1.2rem !important;}
-                h3 {font-size: 1.0rem !important;}
-            }
-            
-            /* FLOATING BUTTON KANAN UNTUK TOGGLE SIDEBAR */
-            .floating-toggle-btn {
-                position: fixed;
-                top: 15px;
-                right: 15px;
-                z-index: 999999;
-                background-color: #ff4b4b;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                padding: 10px 15px;
-                font-size: 16px;
-                font-weight: bold;
-                box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .floating-toggle-btn:hover {
-                background-color: #e04343;
-            }
-            /* Sembunyikan butang asal Streamlit kat mobile supaya tak berganda */
-            @media (max-width: 768px) {
+                .block-container {
+                    padding-left: 0.5rem !important; 
+                    padding-right: 0.5rem !important;
+                    padding-top: 1rem !important;
+                }
+                /* Kecilkan sidebar supaya tak makan seluruh skrin */
+                [data-testid="stSidebar"] {
+                    min-width: 75vw !important; 
+                    max-width: 75vw !important;
+                }
+                /* Kecilkan font dalam sidebar */
+                [data-testid="stSidebar"] * {
+                    font-size: 0.8rem !important;
+                }
+                [data-testid="stSidebar"] h2 {
+                    font-size: 1.1rem !important;
+                }
+                /* Butang lebih kecil */
+                .stButton > button {
+                    width: 100% !important; 
+                    font-size: 0.8rem !important;
+                    padding: 0.4rem !important;
+                }
+                /* Tabs lebih kecil */
+                .stTabs [data-baseweb="tab"] {
+                    font-size: 0.7rem !important; 
+                    padding: 0.4rem 0.2rem !important;
+                }
+                h1 {font-size: 1.3rem !important;}
+                h2 {font-size: 1.1rem !important;}
+                h3 {font-size: 0.9rem !important;}
+                
+                /* Sembunyikan butang toggle asal Streamlit kat mobile */
                 [data-testid="stSidebarCollapseButton"] {display: none !important;}
                 [data-testid="collapsedControl"] {display: none !important;}
             }
@@ -164,95 +163,69 @@ if check_password():
         st.session_state.data_tersimpan = load_data()
 
     # ==========================================
-    # SIDEBAR
+    # STATE UNTUK TOGGLE SIDEBAR
     # ==========================================
-    with st.sidebar:
-        if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
-            st.session_state["password_correct"] = False
-            st.rerun()
-            
-        st.markdown("---")
-        st.header("🎯 Profil Sasaran (Suspek)")
-        
-        with st.container(border=True):
-            st.error(f"**Nama:** {NAMA_SUSPEK}")
-            st.warning(f"**Tel:** {NOMOR_SUSPEK}")
-            st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
-            st.info(f"**Email:** {EMAIL_SUSPEK}")
-            st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
-        
-        with st.expander("📱 Media Sosial & Pekerjaan", expanded=False):
-            st.info(f"**Kerja (FB):** {KERJA_FB}")
-            st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
-            st.markdown(f"📘 [Facebook (Adisprinter)]({LINK_FB})")
-            st.markdown(f"📸 [Gambar Facebook]({LINK_FB_PHOTOS})")
-            st.markdown(f"🎤 [Smule (@{USERNAME_SMULE})](https://www.smule.com/{USERNAME_SMULE})")
-            
-        with st.expander("🚗 Maklumat Kenderaan", expanded=False):
-            st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
-            st.markdown(f"**Pemilik:** {KENDERAAN_1['nama']}\n**IC:** {KENDERAAN_1['ic']}\n**Alamat:** {KENDERAAN_1['alamat']}\n**Model:** {KENDERAAN_1['model']}\n**Status:** {KENDERAAN_1['status']}")
-            st.markdown("---")
-            st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
-            st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}\n**IC:** {KENDERAAN_2['ic']}\n**Alamat:** {KENDERAAN_2['alamat']}\n**Model:** {KENDERAAN_2['model']}\n**Status:** {KENDERAAN_2['status']}")
-            st.info("💡 **Nota:** Maklumat pemilik kenderaan di atas diperoleh daripada gambar galeri Facebook suspek.")
-        
-        with st.expander("📍 Check-in & Caption FB", expanded=False):
-            st.info(f"📍 **Check-in FB:** {CHECK_IN}")
-            st.info(f"📝 **Caption FB:** '{CAPTION_FB}'")
-        
-        with st.expander("👥 Kawan Rapat / Kontak", expanded=False):
-            for kawan in KAWAN_RAPAT:
-                st.markdown(f"- {kawan}")
-        
-        with st.expander("🚨 Keldai Akaun (Mule)", expanded=False):
-            st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
-        
-        with st.expander("🎵 Kaitan MVM Music", expanded=False):
-            st.info("Individu 'Hadi' (Booking Artis)")
-            st.write("Suspek mendakwa mempunyai kaitan dengan MVM Music. Saya mendapati dalam promosi rasmi MVM Music terdapat nama Hadi dengan nombor 016 217 3665 dan email mvm.hadi@gmail.com untuk urusan booking artis. Saya memohon pihak polis menyemak sama ada suspek mempunyai kaitan dengan individu ini atau sama ada suspek menyamar menggunakan identiti tersebut.")
-            st.code("No. Tel: 016-217 3665\nEmail: mvm.hadi@gmail.com")
-            st.markdown(f"🔍 [Cari MVM Music di Google](https://www.google.com/search?q=MVM+Music+Puchong)")
-            st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
+    if "show_sidebar" not in st.session_state:
+        st.session_state.show_sidebar = False
 
     # ==========================================
-    # JAVASCRIPT UNTUK TOGGLE SIDEBAR (FIXED)
+    # SIDEBAR (Hanya papar jika state = True)
     # ==========================================
-    # Kita guna st.components.v1.html untuk inject JS yang selamat
-    components.html(
-        """
-        <button onclick="toggleSidebar()" style="
-            position: fixed; top: 10px; right: 10px; z-index: 999999;
-            background-color: #ff4b4b; color: white; border: none;
-            border-radius: 8px; padding: 12px 18px; font-size: 16px;
-            font-weight: bold; box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
-            cursor: pointer; display: flex; align-items: center;
-            font-family: sans-serif;">
-            ☰ Menu
-        </button>
-        <script>
-        function toggleSidebar() {
-            // Cari butang asal Streamlit untuk toggle sidebar
-            var collapseBtn = window.parent.document.querySelector('[data-testid="stSidebarCollapseButton"] button');
-            var expandBtn = window.parent.document.querySelector('[data-testid="collapsedControl"] button');
+    if st.session_state.show_sidebar:
+        with st.sidebar:
+            if st.button("❌ Tutup Menu", use_container_width=True):
+                st.session_state.show_sidebar = False
+                st.rerun()
+                
+            if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
+                st.session_state["password_correct"] = False
+                st.session_state.show_sidebar = False
+                st.rerun()
+                
+            st.markdown("---")
+            st.header("🎯 Profil Sasaran")
             
-            if (collapseBtn) {
-                collapseBtn.click(); // Klik untuk tutup/buka
-            } else if (expandBtn) {
-                expandBtn.click(); // Klik untuk buka (jika ada)
-            } else {
-                // Cara terakhir: cari ikon arrow dalam sidebar
-                var sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
-                if (sidebar) {
-                    var btn = sidebar.querySelector('button[kind="header"]');
-                    if (btn) btn.click();
-                }
-            }
-        }
-        </script>
-        """,
-        height=0,
-        width=0,
-    )
+            with st.container(border=True):
+                st.error(f"**Nama:** {NAMA_SUSPEK}")
+                st.warning(f"**Tel:** {NOMOR_SUSPEK}")
+                st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
+                st.info(f"**Email:** {EMAIL_SUSPEK}")
+                st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
+            
+            with st.expander("📱 Media Sosial", expanded=False):
+                st.info(f"**Kerja (FB):** {KERJA_FB}")
+                st.markdown(f"📱 [TikTok](https://www.tiktok.com/@{USERNAME_TIKTOK})")
+                st.markdown(f"📘 [Facebook]({LINK_FB})")
+                st.markdown(f"📸 [Gambar FB]({LINK_FB_PHOTOS})")
+                st.markdown(f"🎤 [Smule](https://www.smule.com/{USERNAME_SMULE})")
+                
+            with st.expander("🚗 Kenderaan", expanded=False):
+                st.warning(f"🚗 **Kereta:** {PLAT_KERETA}")
+                st.markdown(f"**Pemilik:** {KENDERAAN_1['nama']}\n**IC:** {KENDERAAN_1['ic']}")
+                st.markdown("---")
+                st.warning(f"🏍️ **Motor:** {PLAT_MOTOR}")
+                st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}\n**IC:** {KENDERAAN_2['ic']}")
+            
+            with st.expander("👥 Kawan & Keldai Akaun", expanded=False):
+                st.error("**KELDAI AKAUN**")
+                st.code(f"{NAMA_MULE}\n{BANK_MULE}\n{AKAUN_MULE}")
+                st.markdown("---")
+                st.error("**KAWAN RAPAT**")
+                for kawan in KAWAN_RAPAT:
+                    st.markdown(f"- {kawan}")
+            
+            with st.expander("🎵 MVM Music", expanded=False):
+                st.code("016-217 3665\nmvm.hadi@gmail.com")
+                st.markdown(f"🔍 [Cari MVM Music](https://www.google.com/search?q=MVM+Music+Puchong)")
+
+    # ==========================================
+    # BUTANG TOGGLE SIDEBAR (NATIVE STREAMLIT)
+    # ==========================================
+    # Butang ini sentiasa ada kat atas, tekan untuk buka sidebar
+    if not st.session_state.show_sidebar:
+        if st.button("☰ Buka Menu Suspek", use_container_width=True):
+            st.session_state.show_sidebar = True
+            st.rerun()
 
     # ==========================================
     # UI UTAMA
@@ -268,10 +241,10 @@ if check_password():
     # --- TAB 1 ---
     with tab1:
         st.header("Jana Laporan Polis")
-        st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
+        st.write("Masukkan maklumat anda di bawah.")
         
         if os.path.exists(DATA_FILE):
-            st.success("✅ Data draf sebelum ini telah dimuatkan secara automatik dari fail simpanan.")
+            st.success("✅ Data draf dimuatkan dari fail simpanan.")
 
         data = st.session_state.data_tersimpan
         if "pengadu_nama" not in st.session_state: st.session_state.pengadu_nama = data["nama"]
@@ -287,8 +260,7 @@ if check_password():
         alamat_pengadu = st.text_area("Alamat Penuh Anda", key="pengadu_alamat")
         jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)", key="pengadu_kerugian")
         
-        st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
-        st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
+        st.markdown("### 📝 Teks Kronologi")
         kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=300)
 
         col_btn1, col_btn2 = st.columns(2)
@@ -305,7 +277,7 @@ if check_password():
             }
             save_data(new_data)
             st.session_state.data_tersimpan = new_data
-            st.success("✅ Draf berjaya disimpan ke fail! Data ini akan kekal walaupun anda refresh page.")
+            st.success("✅ Draf disimpan!")
 
         if btn_reset:
             if os.path.exists(DATA_FILE): os.remove(DATA_FILE)
@@ -315,16 +287,15 @@ if check_password():
             st.session_state.pengadu_alamat = ""
             st.session_state.pengadu_kerugian = ""
             st.session_state.kronologi_teks = TEKS_DEFAULT
-            st.success("🔄 Draf telah di-reset ke teks asal.")
+            st.success("🔄 Draf di-reset.")
 
         st.markdown("---")
-        st.info("💡 Anda juga boleh lihat semua bukti (gambar, resit, chat) di channel Telegram kami.")
         
         col_pdf, col_tg = st.columns(2)
         with col_pdf:
-            if st.button("📥 Jana Laporan PDF Utama", type="secondary", use_container_width=True):
+            if st.button("📥 Jana PDF Utama", type="secondary", use_container_width=True):
                 if not nama_pengadu or not ic_pengadu:
-                    st.error("Sila isi Nama dan No. IC anda dahulu!")
+                    st.error("Sila isi Nama dan No. IC anda!")
                 else:
                     pdf = FPDF()
                     pdf.add_page()
@@ -356,9 +327,8 @@ if check_password():
                         pdf.cell(40, 8, label, new_x="RIGHT", new_y="TOP"); pdf.multi_cell(0, 8, f": {value}", new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(5)
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "C. RANGKAIAN SOSIAL (KAWAN RAPAT)", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 10, "C. RANGKAIAN SOSIAL", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font("Helvetica", "", 11)
-                    pdf.multi_cell(0, 8, "Berdasarkan komen Facebook, suspek mempunyai hubungan rapat dengan individu berikut:", new_x="LMARGIN", new_y="NEXT")
                     for kawan in KAWAN_RAPAT: pdf.cell(0, 8, f"   - {kawan}", new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(5)
                     pdf.set_font("Helvetica", "B", 12)
@@ -385,85 +355,71 @@ if check_password():
                     pdf.multi_cell(0, 8, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.", new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(15)
                     pdf.set_font("Helvetica", "", 11)
-                    pdf.cell(0, 10, "Tandatangan Pengadu: _____________________", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 10, "Tandatangan: _____________________", new_x="LMARGIN", new_y="NEXT")
                     pdf.cell(0, 10, f"Nama: {nama_pengadu}", new_x="LMARGIN", new_y="NEXT")
                     pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", new_x="LMARGIN", new_y="NEXT")
                     pdf_bytes = bytes(pdf.output())
-                    st.download_button(label="📥 Download Laporan Utama", data=pdf_bytes, file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf", mime="application/pdf", use_container_width=True)
-                    st.success("✅ Laporan Utama berjaya dijana!")
+                    st.download_button(label="📥 Download Laporan PDF", data=pdf_bytes, file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf", mime="application/pdf", use_container_width=True)
+                    st.success("✅ Laporan berjaya dijana!")
         with col_tg:
-            st.link_button(label="📢 Buka Channel Telegram Bukti", url="https://t.me/+2M7Vwt8K3lQwYzE1", type="primary", use_container_width=True)
+            st.link_button(label="📢 Telegram Bukti", url="https://t.me/+2M7Vwt8K3lQwYzE1", type="primary", use_container_width=True)
 
         st.markdown("---")
-        st.subheader("Pautan Aduan Segera & Pangkalan Data")
+        st.subheader("Pautan Aduan Segera")
         col1, col2 = st.columns(2)
         with col1: 
             st.link_button("🚨 NSRC 997", "https://nfcc.jpm.gov.my/", use_container_width=True)
             st.link_button("📧 Aduan MCMC", "https://aduan.mcmc.gov.my/", use_container_width=True)
         with col2: 
-            st.link_button("📞 Semak Mule PDRM", "https://semakmule.rmp.gov.my/", use_container_width=True)
+            st.link_button("📞 Semak Mule", "https://semakmule.rmp.gov.my/", use_container_width=True)
             st.link_button("🔎 Truecaller", f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}", use_container_width=True)
 
     # --- TAB 2 ---
     with tab2:
-        st.header("Carian OSINT (Open Source Intelligence)")
-        st.write("Klik butang di bawah untuk membuka carian di tab baru.")
-        st.subheader("Jejak Suspek (Hadi)")
-        st.link_button("💬 Buka WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}", use_container_width=True)
-        st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22", use_container_width=True)
-        st.link_button("📱 Buka TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}", use_container_width=True)
-        st.link_button("📘 Buka Profil Facebook (Adisprinter)", LINK_FB, use_container_width=True)
-        st.link_button("📸 Buka Gambar Facebook (Photos)", LINK_FB_PHOTOS, use_container_width=True)
-        st.link_button("🎤 Buka Akaun Smule", f"https://www.smule.com/{USERNAME_SMULE}", use_container_width=True)
-        st.link_button("🎵 Cari 'Boyspark Band' di FB", "https://www.facebook.com/search/top?q=Boyspark+Band", use_container_width=True)
-        st.link_button("🚗 Semak Plat Kereta (WHG 8164)", "https://www.google.com/search?q=%22WHG+8164%22", use_container_width=True)
-        st.link_button("🏍️ Semak Plat Motor (WGG 4317)", "https://www.google.com/search?q=%22WGG+4317%22", use_container_width=True)
-        st.link_button("📍 Cari 'Ipoh, Perak' di Maps", "https://www.google.com/maps/search/Ipoh,+Perak", use_container_width=True)
+        st.header("Carian OSINT")
+        st.link_button("💬 WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}", use_container_width=True)
+        st.link_button("🔎 Cari Email", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22", use_container_width=True)
+        st.link_button("📱 TikTok Suspek", f"https://www.tiktok.com/@{USERNAME_TIKTOK}", use_container_width=True)
+        st.link_button("📘 Facebook Suspek", LINK_FB, use_container_width=True)
+        st.link_button("📸 Gambar Facebook", LINK_FB_PHOTOS, use_container_width=True)
+        st.link_button("🎤 Smule", f"https://www.smule.com/{USERNAME_SMULE}", use_container_width=True)
+        st.link_button("🚗 Semak Plat Kereta", "https://www.google.com/search?q=%22WHG+8164%22", use_container_width=True)
+        st.link_button("🏍️ Semak Plat Motor", "https://www.google.com/search?q=%22WGG+4317%22", use_container_width=True)
         st.markdown("---")
         st.subheader("Kaitan MVM Music")
-        st.link_button("🎵 Cari MVM Music di Google", "https://www.google.com/search?q=MVM+Music+Puchong", use_container_width=True)
-        st.link_button("🎤 Cari 'Hadi MVM Music'", "https://www.google.com/search?q=%22Hadi%22+%22MVM+Music%22", use_container_width=True)
-        st.link_button("📞 Cari No. Tel MVM (016-217 3665)", "https://www.google.com/search?q=%22016-217+3665%22", use_container_width=True)
+        st.link_button("🎵 Cari MVM Music", "https://www.google.com/search?q=MVM+Music+Puchong", use_container_width=True)
+        st.link_button("📞 Cari No. Tel MVM", "https://www.google.com/search?q=%22016-217+3665%22", use_container_width=True)
         st.markdown("---")
-        st.subheader("Jejak Keldai Akaun & Kawan")
-        st.link_button("🏦 Cari Nama Hilmi di FB", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}", use_container_width=True)
-        st.link_button("🔍 Cari Hilmi di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(NAMA_MULE)}%22", use_container_width=True)
-        st.markdown("**Cari Kawan Rapat:**")
+        st.subheader("Keldai Akaun & Kawan")
+        st.link_button("🏦 Cari Nama Hilmi", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}", use_container_width=True)
         for idx, kawan in enumerate(KAWAN_RAPAT):
-            kawan_encoded = urllib.parse.quote(kawan)
-            st.link_button(f"🔍 Cari {kawan} di FB", f"https://www.facebook.com/search/top?q={kawan_encoded}", key=f"fb_{idx}", use_container_width=True)
+            st.link_button(f"🔍 Cari {kawan}", f"https://www.facebook.com/search/top?q={urllib.parse.quote(kawan)}", key=f"fb_{idx}", use_container_width=True)
 
     # --- TAB 3 ---
     with tab3:
-        st.header("Peta Anggaran Lokasi")
-        st.write("Peta ini menunjukkan kawasan tumpuan suspek berdasarkan siasatan (Sungai Siput / Kuala Kangsar).")
+        st.header("Peta Lokasi")
         m = folium.Map(location=[4.7735, 101.1000], zoom_start=11)
-        folium.Marker([4.7735, 101.1000], popup="Kawasan Sasaran: Kuala Kangsar / Sg Siput", tooltip="Klik untuk info", icon=folium.Icon(color='red', icon='info-sign')).add_to(m)
+        folium.Marker([4.7735, 101.1000], popup="Kawasan Sasaran", icon=folium.Icon(color='red', icon='info-sign')).add_to(m)
         st_folium(m, use_container_width=True, height=400)
 
     # --- TAB 4 ---
     with tab4:
-        st.header("Carian Email & Data Bocor")
-        st.write("Klik butang di bawah untuk semak jejak email suspek.")
+        st.header("Carian Email & Data")
         email_encoded = urllib.parse.quote(EMAIL_SUSPEK)
         nama_encoded = urllib.parse.quote(NAMA_SUSPEK)
-        st.subheader("Carian Emel")
-        st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{email_encoded}%22", use_container_width=True)
-        st.link_button("📧 Semak Data Bocor (HIBP)", f"https://haveibeenpwned.com/account/{email_encoded}", use_container_width=True)
-        st.link_button("📘 Cari Emel di Facebook", f"https://www.facebook.com/search/top?q={email_encoded}", use_container_width=True)
+        st.link_button("🔎 Cari Email", f"https://www.google.com/search?q=%22{email_encoded}%22", use_container_width=True)
+        st.link_button("📧 Semak Data Bocor", f"https://haveibeenpwned.com/account/{email_encoded}", use_container_width=True)
+        st.link_button("📘 Cari Emel di FB", f"https://www.facebook.com/search/top?q={email_encoded}", use_container_width=True)
         st.markdown("---")
-        st.subheader("Carian Nama & Bisnes")
         st.link_button("🔍 Cari Nama + Black Cafe", f"https://www.google.com/search?q=%22{nama_encoded}%22+%22Black+Cafe%22", use_container_width=True)
-        st.link_button("🎵 Cari Nama + TikTok", f"https://www.google.com/search?q=%22{nama_encoded}%22+TikTok+OR+hadimarkno", use_container_width=True)
-        st.link_button("🏢 Semak Pendaftaran SSM", "https://www.ssm-einfo.my/", use_container_width=True)
+        st.link_button("🏢 Semak SSM", "https://www.ssm-einfo.my/", use_container_width=True)
 
     # --- TAB 5 ---
     with tab5:
         st.header("Muat Naik Bukti & Jana PDF")
-        st.write("Anda boleh upload gambar (resit, chat, atau bukti lain) dan jadikannya satu fail PDF untuk diserahkan kepada polis.")
-        uploaded_files = st.file_uploader("Pilih gambar bukti (Boleh pilih lebih dari satu)", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+        uploaded_files = st.file_uploader("Pilih gambar bukti", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
         if uploaded_files:
-            st.success(f"✅ {len(uploaded_files)} gambar telah berjaya dimuat naik.")
+            st.success(f"✅ {len(uploaded_files)} gambar dimuat naik.")
             cols = st.columns(2)
             for idx, file in enumerate(uploaded_files):
                 img = Image.open(file)
@@ -483,8 +439,8 @@ if check_password():
                     pdf.image(img_path, x=x, y=y, w=new_w, h=new_h)
                     os.remove(img_path)
                 pdf_bytes = bytes(pdf.output())
-                st.download_button(label="📥 Download Bukti (PDF)", data=pdf_bytes, file_name="Bukti_Kes_Penipu.pdf", mime="application/pdf", use_container_width=True)
-                st.success("✅ PDF Bukti berjaya dijana! Sila muat turun.")
+                st.download_button(label="📥 Download Bukti PDF", data=pdf_bytes, file_name="Bukti_Kes_Penipu.pdf", mime="application/pdf", use_container_width=True)
+                st.success("✅ PDF Bukti dijana!")
 
     st.markdown("---")
-    st.caption("Sistem dibangunkan untuk tujuan siasatan sah. Sila bawa laporan ke balai polis untuk tindakan lanjut.")
+    st.caption("Sistem dibangunkan untuk tujuan siasatan sah.")
