@@ -11,10 +11,9 @@ from PIL import Image
 # ==========================================
 # KONFIGURASI UI
 # ==========================================
-# BUANG layout="wide" untuk elak masalah "sangkut" bila sidebar ditutup kat phone
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️")
 
-# CSS: Betulkan isu sidebar sangkut bila ditutup
+# CSS: Buang header hide, tambah style butang tengah
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -36,13 +35,8 @@ hide_st_style = """
                 
                 /* Kecilkan sidebar supaya tak makan seluruh skrin */
                 [data-testid="stSidebar"] {
-                    min-width: 80vw !important; 
-                    max-width: 80vw !important;
-                }
-                
-                /* Pastikan main content ambil ruang penuh bila sidebar tutup */
-                [data-testid="stAppViewContainer"] > section:nth-child(1) {
-                    width: 100% !important;
+                    min-width: 85vw !important; 
+                    max-width: 85vw !important;
                 }
                 
                 /* Kecilkan font dalam sidebar */
@@ -53,22 +47,28 @@ hide_st_style = """
                     font-size: 1.1rem !important;
                 }
                 
-                /* Butang lebih kecil */
                 .stButton > button {
                     width: 100% !important; 
-                    font-size: 0.8rem !important;
-                    padding: 0.4rem !important;
+                    font-size: 0.85rem !important;
+                    padding: 0.5rem !important;
                 }
                 
-                /* Tabs lebih kecil */
                 .stTabs [data-baseweb="tab"] {
-                    font-size: 0.7rem !important; 
+                    font-size: 0.75rem !important; 
                     padding: 0.4rem 0.2rem !important;
                 }
                 
                 h1 {font-size: 1.3rem !important;}
                 h2 {font-size: 1.1rem !important;}
                 h3 {font-size: 0.9rem !important;}
+            }
+            
+            /* Style butang toggle tengah */
+            .center-btn-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 10px 0;
             }
             </style>
             """
@@ -171,54 +171,75 @@ if check_password():
         st.session_state.data_tersimpan = load_data()
 
     # ==========================================
-    # UI UTAMA
+    # STATE UNTUK TOGGLE SIDEBAR (GUNA BUTANG TENGAH)
     # ==========================================
-    st.title("🕵️‍♂️ Sistem Siasatan Penipu")
-    st.markdown("---")
+    if "show_sidebar" not in st.session_state:
+        st.session_state.show_sidebar = False
 
     # ==========================================
-    # SIDEBAR
+    # SIDEBAR (Hanya papar jika state = True)
     # ==========================================
-    with st.sidebar:
-        if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
-            st.session_state["password_correct"] = False
-            st.rerun()
-            
-        st.markdown("---")
-        st.header("🎯 Profil Sasaran")
-        
-        with st.container(border=True):
-            st.error(f"**Nama:** {NAMA_SUSPEK}")
-            st.warning(f"**Tel:** {NOMOR_SUSPEK}")
-            st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
-            st.info(f"**Email:** {EMAIL_SUSPEK}")
-            st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
-        
-        with st.expander("📱 Media Sosial", expanded=False):
-            st.info(f"**Kerja (FB):** {KERJA_FB}")
-            st.markdown(f"📱 [TikTok](https://www.tiktok.com/@{USERNAME_TIKTOK})")
-            st.markdown(f"📘 [Facebook]({LINK_FB})")
-            st.markdown(f"📸 [Gambar FB]({LINK_FB_PHOTOS})")
-            st.markdown(f"🎤 [Smule](https://www.smule.com/{USERNAME_SMULE})")
-            
-        with st.expander("🚗 Kenderaan", expanded=False):
-            st.warning(f"🚗 **Kereta:** {PLAT_KERETA}")
-            st.markdown(f"**Pemilik:** {KENDERAAN_1['nama']}\n**IC:** {KENDERAAN_1['ic']}")
+    if st.session_state.show_sidebar:
+        with st.sidebar:
+            if st.button("❌ Tutup Menu", use_container_width=True):
+                st.session_state.show_sidebar = False
+                st.rerun()
+                
+            if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
+                st.session_state["password_correct"] = False
+                st.session_state.show_sidebar = False
+                st.rerun()
+                
             st.markdown("---")
-            st.warning(f"🏍️ **Motor:** {PLAT_MOTOR}")
-            st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}\n**IC:** {KENDERAAN_2['ic']}")
-        
-        with st.expander("👥 Kawan & Keldai Akaun", expanded=False):
-            st.error("**KELDAI AKAUN**")
-            st.code(f"{NAMA_MULE}\n{BANK_MULE}\n{AKAUN_MULE}")
-            st.markdown("---")
-            st.error("**KAWAN RAPAT**")
-            for kawan in KAWAN_RAPAT:
-                st.markdown(f"- {kawan}")
-        
-        with st.expander("🎵 MVM Music", expanded=False):
-            st.code("016-217 3665\nmvm.hadi@gmail.com")
-            st.markdown(f"🔍 [Cari MVM Music](https://www.google.com/search?q=MVM+Music+Puchong)")
+            st.header("🎯 Profil Sasaran")
+            
+            with st.container(border=True):
+                st.error(f"**Nama:** {NAMA_SUSPEK}")
+                st.warning(f"**Tel:** {NOMOR_SUSPEK}")
+                st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
+                st.info(f"**Email:** {EMAIL_SUSPEK}")
+                st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
+            
+            with st.expander("📱 Media Sosial", expanded=False):
+                st.info(f"**Kerja (FB):** {KERJA_FB}")
+                st.markdown(f"📱 [TikTok](https://www.tiktok.com/@{USERNAME_TIKTOK})")
+                st.markdown(f"📘 [Facebook]({LINK_FB})")
+                st.markdown(f"📸 [Gambar FB]({LINK_FB_PHOTOS})")
+                st.markdown(f"🎤 [Smule](https://www.smule.com/{USERNAME_SMULE})")
+                
+            with st.expander("🚗 Kenderaan", expanded=False):
+                st.warning(f"🚗 **Kereta:** {PLAT_KERETA}")
+                st.markdown(f"**Pemilik:** {KENDERAAN_1['nama']}\n**IC:** {KENDERAAN_1['ic']}")
+                st.markdown("---")
+                st.warning(f"🏍️ **Motor:** {PLAT_MOTOR}")
+                st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}\n**IC:** {KENDERAAN_2['ic']}")
+            
+            with st.expander("👥 Kawan & Keldai Akaun", expanded=False):
+                st.error("**KELDAI AKAUN**")
+                st.code(f"{NAMA_MULE}\n{BANK_MULE}\n{AKAUN_MULE}")
+                st.markdown("---")
+                st.error("**KAWAN RAPAT**")
+                for kawan in KAWAN_RAPAT:
+                    st.markdown(f"- {kawan}")
+            
+            with st.expander("🎵 MVM Music", expanded=False):
+                st.code("016-217 3665\nmvm.hadi@gmail.com")
+                st.markdown(f"🔍 [Cari MVM Music](https://www.google.com/search?q=MVM+Music+Puchong)")
+
+    # ==========================================
+    # UI UTAMA
+    # ==========================================
+    
+    # Letak butang Buka Menu di tengah-tengah atas
+    if not st.session_state.show_sidebar:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("🔍 Buka Menu Suspek", use_container_width=True, type="primary"):
+                st.session_state.show_sidebar = True
+                st.rerun()
+
+    st.title("🕵️‍♂️ Sistem Siasatan Penipu")
+    st.markdown("---")
 
     # ==========================================
     # TABS
