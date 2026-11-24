@@ -116,7 +116,7 @@ if "data_tersimpan" not in st.session_state:
 # ==========================================
 # UI UTAMA
 # ==========================================
-st.title("🕵️‍♂️ Sistem Siasatan Penipu (Mega UI)")
+st.title("🕵️‍♂️ Sistem Siasatan nota")
 st.markdown("---")
 
 with st.sidebar:
