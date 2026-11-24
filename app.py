@@ -7,7 +7,6 @@ import urllib.parse
 import json
 import os
 from PIL import Image
-import extra_streamlit_components as stx
 
 # ==========================================
 # KONFIGURASI UI
@@ -29,39 +28,36 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # ==========================================
-# SISTEM LOG MASUK DENGAN COOKIE (KEKAL LOGIN)
+# SISTEM LOG MASUK (GUNA SESSION STATE - KEKAL LOGIN WALAUPUN REFRESH)
 # ==========================================
-cookie_manager = stx.CookieManager()
-
 def check_password():
     correct_password = "Along123"
     
-    # 1. Semak jika ada cookie login yang sah (jika ada, terus masuk tanpa tanya password)
-    val = cookie_manager.get(cookie="siasatan_login")
-    if val == correct_password:
+    # Jika dalam session state dah login, teruskan
+    if st.session_state.get("password_correct", False):
         return True
-
-    # 2. Jika tiada cookie, paparkan borang login
-    if "password_correct" not in st.session_state:
-        st.session_state["password_correct"] = False
 
     def password_entered():
         if st.session_state["password"] == correct_password:
             st.session_state["password_correct"] = True
-            # Set cookie sah selama 7 hari
-            cookie_manager.set("siasatan_login", correct_password, expires_at=datetime.datetime.now() + datetime.timedelta(days=7))
-            del st.session_state["password"]
+            del st.session_state["password"] # Padam password dari memori untuk keselamatan
         else:
             st.session_state["password_correct"] = False
 
-    if not st.session_state["password_correct"]:
+    if "password_correct" not in st.session_state:
+        # Paparan Login Pertama Kali
         st.title("🔒 Sistem Siasatan Penipu")
         st.info("Sila masukkan kata laluan untuk mengakses sistem ini.")
         st.text_input("Kata Laluan", type="password", on_change=password_entered, key="password")
-        if "password" in st.session_state and not st.session_state["password_correct"]:
-            st.error("😕 Kata laluan salah. Sila cuba lagi.")
+        return False
+    elif not st.session_state["password_correct"]:
+        # Paparan Jika Password Salah
+        st.title("🔒 Sistem Siasatan Penipu")
+        st.text_input("Kata Laluan", type="password", on_change=password_entered, key="password")
+        st.error("😕 Kata laluan salah. Sila cuba lagi.")
         return False
     
+    # Jika password betul
     return True
 
 # Jika login berjaya, jalankan seluruh sistem di bawah
@@ -153,10 +149,9 @@ if check_password():
     st.markdown("---")
 
     with st.sidebar:
-        # BUTANG LOG KELUAR (Akan padam cookie & suruh login semula)
+        # BUTANG LOG KELUAR
         if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
             st.session_state["password_correct"] = False
-            cookie_manager.delete("siasatan_login")
             st.rerun()
             
         st.markdown("---")
