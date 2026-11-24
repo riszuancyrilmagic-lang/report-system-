@@ -28,15 +28,14 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # ==========================================
-# SISTEM LOG MASUK (PASSWORD)
+# SISTEM LOG MASUK (PASSWORD TERUS DALAM KOD)
 # ==========================================
 def check_password():
     """Returns `True` if the user had the correct password."""
     def password_entered():
         """Checks whether a password entered by the user is correct."""
-        # Ambil password dari fail secrets.toml
-        # Jika fail tiada, ia akan guna 'admin123' sebagai default (untuk testing)
-        correct_password = st.secrets.get("PASSWORD", "admin123")
+        # PASSWORD DIKEMASKINI TERUS DI SINI
+        correct_password = "Along123" 
         
         if st.session_state["password"] == correct_password:
             st.session_state["password_correct"] = True
@@ -369,7 +368,6 @@ if check_password():
                     pdf.cell(0, 10, f"Nama: {nama_pengadu}", new_x="LMARGIN", new_y="NEXT")
                     pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", new_x="LMARGIN", new_y="NEXT")
 
-                    # Betulkan output PDF ke bytes
                     pdf_bytes = bytes(pdf.output())
 
                     st.download_button(
@@ -439,7 +437,6 @@ if check_password():
         folium.Marker(
             [4.7735, 101.1000], popup="Kawasan Sasaran: Kuala Kangsar / Sg Siput", tooltip="Klik untuk info", icon=folium.Icon(color='red', icon='info-sign')
         ).add_to(m)
-        # Tukar ke st_folium
         st_folium(m, width=800, height=500)
 
     # --- TAB 4: CARIAN EMAIL & DATA ---
@@ -505,7 +502,6 @@ if check_password():
                     
                     os.remove(img_path)
 
-                # Betulkan output PDF ke bytes
                 pdf_bytes = bytes(pdf.output())
                 
                 st.download_button(
