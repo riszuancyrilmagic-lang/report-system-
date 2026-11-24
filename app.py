@@ -115,6 +115,7 @@ if check_password():
     # ==========================================
     DATA_FILE = "simpanan_laporan.json"
 
+    # UPDATE: Ayat kronologi dibuang elemen MVM Music, diganti dengan taktik memperdaya
     TEKS_DEFAULT = (
         "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. "
         "Beliau sering menawarkan projek serta urusan jual beli barang komputer (PC).\n\n"
@@ -134,12 +135,10 @@ if check_password():
         "daripada profil Facebook beliau.\n\n"
         "6. Suspek mendakwa beliau bekerja di KDN, Putrajaya dalam profil Facebooknya. Saya juga mempunyai bukti "
         "transaksi berjumlah RM2,083.00 yang dipindahkan ke akaun suspek dan akaun keldai (MOHAMMAD HILMI, BSN).\n\n"
-        "7. Suspek juga pernah mendakwa beliau adalah seorang PENYANYI dan mempunyai kaitan dengan syarikat rakaman "
-        "MVM Music. Beliau turut memuat naik gambar di dalam studio rakaman MVM Music di Facebook untuk menyakinkan saya "
-        "bahawa beliau adalah artis yang berjaya, sekali gus membuatkan saya percaya untuk memberikan modal perniagaan.\n\n"
-        "8. Saya mendapati terdapat individu bernama 'Hadi' yang bekerja di MVM Music (bertanggungjawab urusan booking artis) "
-        "dengan nombor telefon 016-217 3665. Saya percaya ini adalah individu yang sama dengan suspek, berdasarkan gambar "
-        "dan dakwaan beliau. Sila semak sama ada nombor ini digunakan untuk berkomunikasi dengan mangsa lain."
+        "7. Suspek turut menggunakan taktik memperdaya dengan mendakwa beliau mempunyai kaitan sebagai artis/penyanyi "
+        "untuk meyakinkan saya agar memberikan modal perniagaan. Beliau mempamerkan gambar-gambar yang kononnya "
+        "menunjukkan beliau berada di dalam studio rakaman untuk menyakinkan saya. Saya percaya ini adalah taktik "
+        "penipuan untuk mendapatkan kepercayaan saya."
     )
 
     def load_data():
@@ -147,7 +146,7 @@ if check_password():
             with open(DATA_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         return {
-            "nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", "kronologi": TEKS_DEFAULT
+            "nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", "kronologi": TEKS_DEFAULT, "nota_tambahan": ""
         }
 
     def save_data(data):
@@ -238,6 +237,9 @@ if check_password():
         if "pengadu_alamat" not in st.session_state: st.session_state.pengadu_alamat = data["alamat"]
         if "pengadu_kerugian" not in st.session_state: st.session_state.pengadu_kerugian = data["kerugian"]
         if "kronologi_teks" not in st.session_state: st.session_state.kronologi_teks = data["kronologi"]
+        
+        # Update: Tambah session state untuk nota tambahan
+        if "nota_tambahan" not in st.session_state: st.session_state.nota_tambahan = data.get("nota_tambahan", "")
 
         nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)", key="pengadu_nama")
         ic_pengadu = st.text_input("No. IC Anda", key="pengadu_ic")
@@ -250,6 +252,11 @@ if check_password():
         
         kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=320)
 
+        # Update: Kotak Nota Tambahan untuk Polis
+        st.markdown("### 🗒️ Nota Tambahan / Maklumat Siasatan (Untuk Polis)")
+        st.warning("Sila masukkan maklumat MVM Music, plat kereta, atau apa-apa 'clue' di sini. Ia akan dicetak di dalam PDF.")
+        nota_edit = st.text_area("Nota Siasatan Tambahan:", key="nota_tambahan", height=150)
+
         col_btn1, col_btn2, col_space = st.columns([1, 1, 2])
         with col_btn1:
             btn_save = st.button("💾 SAVE Draf", type="primary", use_container_width=True)
@@ -260,7 +267,8 @@ if check_password():
             new_data = {
                 "nama": st.session_state.pengadu_nama, "ic": st.session_state.pengadu_ic,
                 "tel": st.session_state.pengadu_tel, "alamat": st.session_state.pengadu_alamat,
-                "kerugian": st.session_state.pengadu_kerugian, "kronologi": st.session_state.kronologi_teks
+                "kerugian": st.session_state.pengadu_kerugian, "kronologi": st.session_state.kronologi_teks,
+                "nota_tambahan": st.session_state.nota_tambahan
             }
             save_data(new_data)
             st.session_state.data_tersimpan = new_data
@@ -275,6 +283,7 @@ if check_password():
             st.session_state.pengadu_alamat = ""
             st.session_state.pengadu_kerugian = ""
             st.session_state.kronologi_teks = TEKS_DEFAULT
+            st.session_state.nota_tambahan = ""
             st.success("🔄 Draf telah di-reset ke teks asal.")
 
         st.markdown("---")
@@ -342,18 +351,30 @@ if check_password():
                     pdf.multi_cell(0, 8, kronologi_edit, new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(5)
 
+                    # Update: Cetak Nota Tambahan di dalam PDF
+                    if nota_edit.strip() != "":
+                        pdf.set_font("Helvetica", "B", 12)
+                        pdf.cell(0, 10, "E. NOTA TAMBAHAN / MAKLUMAT SIASATAN", new_x="LMARGIN", new_y="NEXT")
+                        pdf.set_font("Helvetica", "", 11)
+                        pdf.multi_cell(0, 8, nota_edit, new_x="LMARGIN", new_y="NEXT")
+                        pdf.ln(5)
+                        lampiran_title = "F. LAMPIRAN BUKTI"
+                    else:
+                        lampiran_title = "E. LAMPIRAN BUKTI"
+
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "E. LAMPIRAN BUKTI", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 10, lampiran_title, new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font("Helvetica", "", 11)
+                    
+                    # Update: Senarai Lampiran Bukti baru (Buang elemen MVM Music yang tak pasti)
                     lampiran = [
-                        "1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow).",
-                        "2. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang).",
-                        "3. [ ] Tangkapan skrin profil TikTok, Facebook, Smule, gambar kereta & motor.",
-                        "4. [ ] Tangkapan skrin tag GetContact (80 tag aduan).",
-                        "5. [ ] Tangkapan skrin komen FB kawan rapat.",
-                        "6. [ ] Tangkapan skrin maklumat kenderaan & kerja (KDN).",
-                        "7. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi.",
-                        "8. [ ] Tangkapan skrin perbualan dengan individu 'Hadi' MVM Music (jika ada).",
+                        "1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow) - Nama Abdul Hadi.",
+                        "2. [ ] Tangkapan skrin transaksi ke akaun keldai (MOHAMMAD HILMI, BSN).",
+                        "3. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang RM1783).",
+                        "4. [ ] Tangkapan skrin profil TikTok, Facebook (Adisprinter), Smule (GSR_Adi).",
+                        "5. [ ] Tangkapan skrin gambar kereta (WHG 8164), motor (WGG 4317), & gambar kemalangan.",
+                        "6. [ ] Tangkapan skrin gambar zaman persekolahan (SK Kuala Kangsar).",
+                        "7. [ ] Tangkapan skrin tag GetContact (80 tag aduan).",
                     ]
                     for item in lampiran:
                         pdf.multi_cell(0, 8, item, new_x="LMARGIN", new_y="NEXT")
@@ -425,9 +446,9 @@ if check_password():
             st.link_button("🏦 Cari Nama Hilmi di FB", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}")
             st.link_button("🔍 Cari Hilmi di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(NAMA_MULE)}%22")
             st.markdown("**Cari Kawan Rapat:**")
-            for kawan in KAWAN_RAPAT:
+            for idx, kawan in enumerate(KAWAN_RAPAT):
                 kawan_encoded = urllib.parse.quote(kawan)
-                st.link_button(f"🔍 Cari {kawan} di FB", f"https://www.facebook.com/search/top?q={kawan_encoded}")
+                st.link_button(f"🔍 Cari {kawan} di FB", f"https://www.facebook.com/search/top?q={kawan_encoded}", key=f"fb_{idx}")
 
     # --- TAB 3: PETA LOKASI ---
     with tab3:
