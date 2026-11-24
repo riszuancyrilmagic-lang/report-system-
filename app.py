@@ -5,23 +5,12 @@ from fpdf import FPDF
 import folium
 from streamlit_folium import folium_static
 import urllib.parse
-<<<<<<< HEAD
-import webbrowser
-=======
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
 
 # ==========================================
 # KONFIGURASI UI
 # ==========================================
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️", layout="wide")
 
-<<<<<<< HEAD
-# --- MAKLUMAT SUSPEK (Kekal di sini, sebab ini maklumat awam untuk diburu) ---
-NAMA_SUSPEK = "ABDUL HADI BIN MOHD NOR"
-NOMOR_SUSPEK = "+601128065526"
-EMAIL_SUSPEK = "boyspark641@gmail.com"
-USERNAME_TIKTOK = "hadimarkno"
-=======
 # --- KOD UNTUK SOROKKAN BUTANG STREAMLIT (UI BERSIH) ---
 hide_st_style = """
             <style>
@@ -52,51 +41,22 @@ PLAT_MOTOR = "WGG 4317"
 CHECK_IN = "Ipoh, Perak"
 CAPTION_FB = "Hati aku hanya pada Perak"
 
-# --- KAWAN RAPAT / KONTAK TERDEKAT (Baru) ---
+# --- KAWAN RAPAT / KONTAK TERDEKAT ---
 KAWAN_RAPAT = [
     "Faiz Badiozaman",
     "Fitri Azizi Ramli",
     "Muhd Syhmy"
 ]
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
 
 NAMA_MULE = "MOHAMMAD HILMI BIN MOHD HANIF"
 BANK_MULE = "Bank Simpanan Nasional (BSN)"
 AKAUN_MULE = "0820041100050836"
-<<<<<<< HEAD
 BAKI_HUTANG = "RM 1,783.00"
-=======
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
 
 # ==========================================
 # UI UTAMA (STREAMLIT)
 # ==========================================
-<<<<<<< HEAD
 st.title("🕵️‍♂️ Sistem Siasatan Penipu (Mega UI)")
-st.markdown("---")
-
-# Sidebar (Maklumat Suspek)
-with st.sidebar:
-    st.header("Profil Sasaran (Suspek)")
-    st.error(f"**Nama:** {NAMA_SUSPEK}")
-    st.warning(f"**Tel:** {NOMOR_SUSPEK}")
-    st.info(f"**Email:** {EMAIL_SUSPEK}")
-    st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
-    st.markdown("---")
-    st.write("**Keldai Akaun (Mule):**")
-    st.code(f"{NAMA_MULE}\n{BANK_MULE}\n{AKAUN_MULE}")
-
-# Tab Navigation
-tab1, tab2, tab3 = st.tabs(["📄 Jana Laporan Polis", "🔍 Carian OSINT (Deep Web)", "🗺️ Peta Lokasi"])
-
-# --- TAB 1: JANA LAPORAN PDF ---
-with tab1:
-    st.header("Jana Laporan Polis")
-    st.write("Masukkan maklumat anda di bawah untuk menjana draf laporan polis dalam format PDF.")
-    
-    # KOTAK INPUT MANUAL (Data peribadi anda tidak disimpan dalam kod)
-=======
-st.title("🕵️‍♂️ Sistem Siasatan Penipu")
 st.markdown("---")
 
 # ================= SIDEBAR =================
@@ -107,7 +67,9 @@ with st.sidebar:
     st.warning(f"**Tel:** {NOMOR_SUSPEK}")
     st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
     st.info(f"**Email:** {EMAIL_SUSPEK}")
+    st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
     
+    st.markdown("---")
     st.success("**Media Sosial:**")
     st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
     st.markdown(f"📘 [Facebook (Adisprinter)]({LINK_FB})")
@@ -118,6 +80,7 @@ with st.sidebar:
     st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
     st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
     st.info(f"📍 **Check-in FB:** {CHECK_IN}")
+    st.info(f"📝 **Caption FB:** '{CAPTION_FB}'")
     
     st.markdown("---")
     st.error("👥 **KAWAN RAPAT / KONTAK**")
@@ -134,32 +97,14 @@ tab1, tab2, tab3, tab4 = st.tabs(["📄 Laporan & Aduan", "🔍 Carian OSINT (De
 
 # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
 with tab1:
-    st.header("Laporan Polis")
+    st.header("Jana Laporan Polis")
     st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
     
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
     nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)")
     ic_pengadu = st.text_input("No. IC Anda")
     tel_pengadu = st.text_input("No. Telefon Anda")
     alamat_pengadu = st.text_area("Alamat Penuh Anda")
-<<<<<<< HEAD
     jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)")
-    
-    if st.button("📥 Jana Laporan PDF", type="primary"):
-        if not nama_pengadu or not ic_pengadu:
-            st.error("Sila isi Nama dan No. IC anda dahulu!")
-        else:
-            # Proses jana PDF
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.set_font("Arial", 'B', 16)
-            pdf.cell(200, 10, txt="LAPORAN POLIS (DRAF PENGADU)", ln=True, align='C')
-            pdf.ln(10)
-            
-            pdf.set_font("Arial", 'B', 12)
-            pdf.cell(200, 10, txt="A. MAKLUMAT PENGADU", ln=True)
-            pdf.set_font("Arial", size=11)
-=======
     
     st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
     st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
@@ -174,85 +119,65 @@ with tab1:
     
     kronologi_edit = st.text_area("Kronologi Kejadian:", value=teks_default, height=300)
     
-    if st.button("📥 Buat Laporan PDF", type="primary"):
+    if st.button("📥 Jana Laporan PDF", type="primary"):
         if not nama_pengadu or not ic_pengadu:
             st.error("Sila isi Nama dan No. IC anda dahulu!")
         else:
             pdf = FPDF()
             pdf.add_page()
             
-            # --- GUNA FONT UNICODE (fpdf2) ---
-            pdf.set_font("DejaVuSans", 'B', 16)
+            # --- GUNA FONT ARIAL UNICODE (fpdf2) ---
+            pdf.add_font("Arial", "", "arial.ttf", uni=True)
+            pdf.add_font("Arial", "B", "arialbd.ttf", uni=True)
+            
+            pdf.set_font("Arial", 'B', 16)
             pdf.cell(200, 10, txt="LAPORAN POLIS (DRAF PENGADU)", ln=True, align='C')
             pdf.ln(10)
             
-            pdf.set_font("DejaVuSans", 'B', 12)
+            pdf.set_font("Arial", 'B', 12)
             pdf.cell(200, 10, txt="A. MAKLUMAT PENGADU", ln=True)
-            pdf.set_font("DejaVuSans", size=11)
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
+            pdf.set_font("Arial", size=11)
             pdf.cell(200, 8, txt=f"   Nama        : {nama_pengadu}", ln=True)
             pdf.cell(200, 8, txt=f"   No. IC      : {ic_pengadu}", ln=True)
             pdf.cell(200, 8, txt=f"   No. Telefon : {tel_pengadu}", ln=True)
             pdf.multi_cell(0, 8, txt=f"   Alamat      : {alamat_pengadu}")
             pdf.ln(5)
             
-<<<<<<< HEAD
             pdf.set_font("Arial", 'B', 12)
             pdf.cell(200, 10, txt="B. MAKLUMAT SUSPEK & KELDAI AKAUN", ln=True)
             pdf.set_font("Arial", size=11)
-=======
-            pdf.set_font("DejaVuSans", 'B', 12)
-            pdf.cell(200, 10, txt="B. MAKLUMAT SUSPEK & KELDAI AKAUN", ln=True)
-            pdf.set_font("DejaVuSans", size=11)
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
             pdf.cell(200, 8, txt=f"   Suspek Utama : {NAMA_SUSPEK}", ln=True)
             pdf.cell(200, 8, txt=f"   No. Telefon  : {NOMOR_SUSPEK}", ln=True)
             pdf.cell(200, 8, txt=f"   Email        : {EMAIL_SUSPEK}", ln=True)
             pdf.cell(200, 8, txt=f"   TikTok       : @{USERNAME_TIKTOK}", ln=True)
-<<<<<<< HEAD
-=======
             pdf.cell(200, 8, txt=f"   Facebook     : {LINK_FB}", ln=True)
             pdf.cell(200, 8, txt=f"   Smule        : {USERNAME_SMULE}", ln=True)
             pdf.cell(200, 8, txt=f"   Plat Kereta  : {PLAT_KERETA}", ln=True)
             pdf.cell(200, 8, txt=f"   Plat Motor   : {PLAT_MOTOR}", ln=True) 
             pdf.cell(200, 8, txt=f"   Check-in FB  : {CHECK_IN}", ln=True)
             pdf.cell(200, 8, txt=f"   Caption FB   : '{CAPTION_FB}'", ln=True)
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
             pdf.cell(200, 8, txt=f"   Keldai Akaun : {NAMA_MULE} ({BANK_MULE})", ln=True)
             pdf.cell(200, 8, txt=f"   No. Akaun    : {AKAUN_MULE}", ln=True)
             pdf.ln(5)
             
-<<<<<<< HEAD
-            pdf.set_font("Arial", 'B', 12)
-            pdf.cell(200, 10, txt="C. KRONOLOGI & PENGAKUAN SUSPEK", ln=True)
-            pdf.set_font("Arial", size=11)
-            kronologi = (
-                f"1. Saya telah membuat transaksi pindahan wang kepada suspek dan keldai akaunnya berjumlah {jumlah_kerugian}.\n"
-                f"2. Suspek mengiktiraf berhutang baki {BAKI_HUTANG} melalui WhatsApp.\n"
-                f"3. Suspek gagal membayar dan menyekat panggilan.\n"
-                f"4. Nombor suspek ditag 'Penipu' oleh 80 mangsa lain."
-            )
-            pdf.multi_cell(0, 8, txt=kronologi)
-            
-=======
             # Bahagian Rangkaian Sosial (Kawan)
-            pdf.set_font("DejaVuSans", 'B', 12)
+            pdf.set_font("Arial", 'B', 12)
             pdf.cell(200, 10, txt="C. RANGKAIAN SOSIAL (KAWAN RAPAT)", ln=True)
-            pdf.set_font("DejaVuSans", size=11)
+            pdf.set_font("Arial", size=11)
             pdf.multi_cell(0, 8, txt="Berdasarkan komen Facebook, suspek mempunyai hubungan rapat dengan individu berikut:")
             for kawan in KAWAN_RAPAT:
                 pdf.cell(200, 8, txt=f"   - {kawan}", ln=True)
             pdf.ln(5)
 
-            pdf.set_font("DejaVuSans", 'B', 12)
+            pdf.set_font("Arial", 'B', 12)
             pdf.cell(200, 10, txt="D. KRONOLOGI KEJADIAN", ln=True)
-            pdf.set_font("DejaVuSans", size=11)
+            pdf.set_font("Arial", size=11)
             pdf.multi_cell(0, 8, txt=kronologi_edit)
             pdf.ln(5)
             
-            pdf.set_font("DejaVuSans", 'B', 12)
+            pdf.set_font("Arial", 'B', 12)
             pdf.cell(200, 10, txt="E. LAMPIRAN BUKTI", ln=True)
-            pdf.set_font("DejaVuSans", size=11)
+            pdf.set_font("Arial", size=11)
             pdf.cell(200, 8, txt="1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow).", ln=True)
             pdf.cell(200, 8, txt="2. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang).", ln=True)
             pdf.cell(200, 8, txt="3. [ ] Tangkapan skrin Profil TikTok, Facebook, Smule, Gambar Kereta & Motor.", ln=True)
@@ -260,7 +185,7 @@ with tab1:
             pdf.cell(200, 8, txt="5. [ ] Tangkapan skrin Komen FB Kawan Rapat.", ln=True)
             
             pdf.ln(10)
-            pdf.set_font("DejaVuSans", 'I', 10)
+            pdf.set_font("Arial", 'I', 10)
             pdf.multi_cell(0, 8, txt="Saya bersumpah bahawa maklumat yang diberikan adalah benar.")
             
             pdf.ln(15)
@@ -269,7 +194,6 @@ with tab1:
             pdf.cell(200, 10, txt=f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", ln=True)
             
             # --- SIMPAN PDF ---
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
             pdf.output("Laporan_Polis_UI.pdf")
             
             with open("Laporan_Polis_UI.pdf", "rb") as f:
@@ -279,54 +203,23 @@ with tab1:
                     file_name=f"Laporan_Polis_{nama_pengadu}.pdf",
                     mime="application/pdf"
                 )
-<<<<<<< HEAD
-            st.success("Laporan berjaya dijana!")
-
-    st.markdown("---")
-    st.subheader("Pautan Aduan Segera")
-    col1, col2, col3 = st.columns(3)
-=======
             st.success("Laporan berjaya dijana! Sila semak PDF anda.")
 
     st.markdown("---")
     st.subheader("Pautan Aduan Segera & Pangkalan Data")
     col1, col2, col3, col4 = st.columns(4)
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
     with col1:
         st.link_button("🚨 NSRC 997 (Sekat Bank)", "https://nfcc.jpm.gov.my/")
     with col2:
         st.link_button("📞 Semak Mule PDRM", "https://semakmule.rmp.gov.my/")
     with col3:
         st.link_button("📧 Aduan MCMC", "https://aduan.mcmc.gov.my/")
-<<<<<<< HEAD
-=======
     with col4:
         st.link_button("🔎 Truecaller (80 Tags)", f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}")
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
 
 # --- TAB 2: CARIAN OSINT ---
 with tab2:
     st.header("Carian OSINT (Open Source Intelligence)")
-<<<<<<< HEAD
-    st.write("Gunakan butang di bawah untuk mencari jejak digital suspek.")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🔎 Cari Email di Google"):
-            webbrowser.open_new_tab(f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22")
-        if st.button("📱 Buka TikTok Suspek"):
-            webbrowser.open_new_tab(f"https://www.tiktok.com/@{USERNAME_TIKTOK}")
-        if st.button("🏦 Cari Keldai Akaun (Hilmi) di FB"):
-            webbrowser.open_new_tab(f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}")
-            
-    with col2:
-        if st.button("🎵 Cari 'Boyspark Band' di FB"):
-            webbrowser.open_new_tab(f"https://www.facebook.com/search/top?q=Boyspark+Band")
-        if st.button("☕ Cari 'Black Cafe Sg Siput' di Maps"):
-            webbrowser.open_new_tab("https://www.google.com/maps/search/Black+Cafe+Sungai+Siput")
-        if st.button("📞 Cari Info Nombor (Truecaller)"):
-            webbrowser.open_new_tab(f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}")
-=======
     st.write("Klik butang di bawah untuk membuka carian di tab baru.")
     
     col1, col2 = st.columns(2)
@@ -352,7 +245,6 @@ with tab2:
         for kawan in KAWAN_RAPAT:
             kawan_encoded = urllib.parse.quote(kawan)
             st.link_button(f"🔍 Cari {kawan} di FB", f"https://www.facebook.com/search/top?q={kawan_encoded}")
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
 
 # --- TAB 3: PETA LOKASI ---
 with tab3:
@@ -369,10 +261,6 @@ with tab3:
     
     folium_static(m)
 
-<<<<<<< HEAD
-st.markdown("---")
-st.caption("Sistem dibangunkan untuk tujuan siasatan sah. Sila bawa laporan ke balai polis untuk tindakan lanjut.")
-=======
 # --- TAB 4: CARIAN EMAIL & DATA ---
 with tab4:
     st.header("Carian Email & Data Bocor")
@@ -396,4 +284,3 @@ with tab4:
 
 st.markdown("---")
 st.caption("Sistem dibangunkan untuk tujuan siasatan sah. Sila bawa laporan ke balai polis untuk tindakan lanjut.")
->>>>>>> 4e06b3303e346b8ac4411317941cc76f93b997aa
