@@ -28,36 +28,36 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # ==========================================
-# SISTEM LOG MASUK (GUNA SESSION STATE - KEKAL LOGIN WALAUPUN REFRESH)
+# SISTEM LOG MASUK (GUNA URL QUERY PARAMS - KEKAL LOGIN WALAUPUN REFRESH)
 # ==========================================
 def check_password():
     correct_password = "Along123"
     
-    # Jika dalam session state dah login, teruskan
-    if st.session_state.get("password_correct", False):
+    # Semak jika URL ada parameter login=berjaya
+    query_params = st.query_params
+    if query_params.get("login") == "berjaya":
         return True
+
+    # Jika tiada, paparkan borang login
+    if "password_correct" not in st.session_state:
+        st.session_state["password_correct"] = False
 
     def password_entered():
         if st.session_state["password"] == correct_password:
             st.session_state["password_correct"] = True
-            del st.session_state["password"] # Padam password dari memori untuk keselamatan
+            st.query_params["login"] = "berjaya"
+            del st.session_state["password"]
         else:
             st.session_state["password_correct"] = False
 
-    if "password_correct" not in st.session_state:
-        # Paparan Login Pertama Kali
+    if not st.session_state["password_correct"]:
         st.title("🔒 Sistem Siasatan Penipu")
         st.info("Sila masukkan kata laluan untuk mengakses sistem ini.")
         st.text_input("Kata Laluan", type="password", on_change=password_entered, key="password")
-        return False
-    elif not st.session_state["password_correct"]:
-        # Paparan Jika Password Salah
-        st.title("🔒 Sistem Siasatan Penipu")
-        st.text_input("Kata Laluan", type="password", on_change=password_entered, key="password")
-        st.error("😕 Kata laluan salah. Sila cuba lagi.")
+        if "password" in st.session_state and not st.session_state["password_correct"]:
+            st.error("😕 Kata laluan salah. Sila cuba lagi.")
         return False
     
-    # Jika password betul
     return True
 
 # Jika login berjaya, jalankan seluruh sistem di bawah
@@ -152,8 +152,16 @@ if check_password():
         # BUTANG LOG KELUAR
         if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
             st.session_state["password_correct"] = False
+            st.query_params.clear()
             st.rerun()
             
+        # PAUTAN TELEGRAM DIPINDAHKAN KE SINI (SIDEBAR)
+        st.link_button(
+            "📢 Buka Channel Telegram Bukti", 
+            "https://t.me/+2M7Vwt8K3lQwYzE1", 
+            use_container_width=True
+        )
+        
         st.markdown("---")
         st.header("🎯 Profil Sasaran (Suspek)")
         st.error(f"**Nama:** {NAMA_SUSPEK}")
@@ -258,6 +266,7 @@ if check_password():
 
         st.markdown("---")
         
+        # BUTANG PDF SAHAJA DI SINI (TELEGRAM DAH PINDAH KE SIDEBAR)
         if st.button("📥 Jana Laporan PDF Utama", type="secondary", use_container_width=True):
             if not nama_pengadu or not ic_pengadu:
                 st.error("Sila isi Nama dan No. IC anda dahulu!")
