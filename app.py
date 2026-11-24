@@ -1,6 +1,5 @@
 import streamlit as st
 import datetime
-import os
 from fpdf import FPDF
 import folium
 from streamlit_folium import folium_static
@@ -127,42 +126,59 @@ with tab1:
     st.header("Jana Laporan Polis")
     st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
     
-    nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)")
-    ic_pengadu = st.text_input("No. IC Anda")
-    tel_pengadu = st.text_input("No. Telefon Anda")
-    alamat_pengadu = st.text_area("Alamat Penuh Anda")
-    jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)")
+    # Guna session_state untuk pastikan data kekal bila page rerun
+    if "pengadu_nama" not in st.session_state:
+        st.session_state["pengadu_nama"] = ""
+    if "pengadu_ic" not in st.session_state:
+        st.session_state["pengadu_ic"] = ""
+    if "pengadu_tel" not in st.session_state:
+        st.session_state["pengadu_tel"] = ""
+    if "pengadu_alamat" not in st.session_state:
+        st.session_state["pengadu_alamat"] = ""
+    if "pengadu_kerugian" not in st.session_state:
+        st.session_state["pengadu_kerugian"] = ""
+    if "kronologi_teks" not in st.session_state:
+        st.session_state["kronologi_teks"] = (
+            "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. "
+            "Beliau sering menawarkan projek serta urusan jual beli barang komputer (PC).\n\n"
+
+            "2. KES PERTAMA (Barang PC - RAM 16GB x2): Suspek menawarkan barang tersebut dengan harga murah. "
+            "Saya telah membuat pembayaran lebih RM500. Namun, sehingga ke hari ini, barang fizikal yang saya pesan "
+            "(RAM 16GB x2) tidak diserahkan dan wang tidak dipulangkan.\n\n"
+
+            "3. KES KEDUA (Modal Perniagaan): Ketika menunggu barang PC saya, suspek meminta saya menampung modal "
+            "RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar "
+            "RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 "
+            "(termasuk RM160 hutang servis game).\n\n"
+
+            "4. Suspek telah MENGIKTIRAF beliau berhutang melalui WhatsApp dan menulis: "
+            "'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
+
+            "5. Saya juga mendapati suspek mempunyai pelbagai rekod digital yang mengaitkannya dengan kawasan Perak "
+            "(Check-in Facebook di Ipoh, video TikTok di Sg Siput, tag 'Adi Ipoh' di GetContact, dan caption FB "
+            "'Hati aku hanya pada Perak'). Nombor telefon suspek juga telah ditag sebagai penipu oleh 80 mangsa lain. "
+            "Saya turut mempunyai bukti gambar kenderaan suspek (Kereta: WHG 8164, Motor: WGG 4317) yang saya peroleh "
+            "daripada profil Facebook beliau.\n\n"
+
+            "6. Suspek mendakwa beliau bekerja di KDN, Putrajaya dalam profil Facebooknya. Saya juga mempunyai bukti "
+            "transaksi berjumlah RM2,083.00 yang dipindahkan ke akaun suspek dan akaun keldai (MOHAMMAD HILMI, BSN)."
+        )
+
+    nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)", key="pengadu_nama")
+    ic_pengadu = st.text_input("No. IC Anda", key="pengadu_ic")
+    tel_pengadu = st.text_input("No. Telefon Anda", key="pengadu_tel")
+    alamat_pengadu = st.text_area("Alamat Penuh Anda", key="pengadu_alamat")
+    jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)", key="pengadu_kerugian")
     
     st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
     st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
     
-    teks_default = (
-        "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. "
-        "Beliau sering menawarkan projek serta urusan jual beli barang komputer (PC).\n\n"
-
-        "2. KES PERTAMA (Barang PC - RAM 16GB x2): Suspek menawarkan barang tersebut dengan harga murah. "
-        "Saya telah membuat pembayaran lebih RM500. Namun, sehingga ke hari ini, barang fizikal yang saya pesan "
-        "(RAM 16GB x2) tidak diserahkan dan wang tidak dipulangkan.\n\n"
-
-        "3. KES KEDUA (Modal Perniagaan): Ketika menunggu barang PC saya, suspek meminta saya menampung modal "
-        "RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar "
-        "RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 "
-        "(termasuk RM160 hutang servis game).\n\n"
-
-        "4. Suspek telah MENGIKTIRAF beliau berhutang melalui WhatsApp dan menulis: "
-        "'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
-
-        "5. Saya juga mendapati suspek mempunyai pelbagai rekod digital yang mengaitkannya dengan kawasan Perak "
-        "(Check-in Facebook di Ipoh, video TikTok di Sg Siput, tag 'Adi Ipoh' di GetContact, dan caption FB "
-        "'Hati aku hanya pada Perak'). Nombor telefon suspek juga telah ditag sebagai penipu oleh 80 mangsa lain. "
-        "Saya turut mempunyai bukti gambar kenderaan suspek (Kereta: WHG 8164, Motor: WGG 4317) yang saya peroleh "
-        "daripada profil Facebook beliau.\n\n"
-
-        "6. Suspek mendakwa beliau bekerja di KDN, Putrajaya dalam profil Facebooknya. Saya juga mempunyai bukti "
-        "transaksi berjumlah RM2,083.00 yang dipindahkan ke akaun suspek dan akaun keldai (MOHAMMAD HILMI, BSN)."
+    # Guna session_state untuk text_area supaya teks kekal
+    kronologi_edit = st.text_area(
+        "Kronologi Kejadian:", 
+        key="kronologi_teks", 
+        height=320
     )
-    
-    kronologi_edit = st.text_area("Kronologi Kejadian:", value=teks_default, height=320)
     
     if st.button("📥 Jana Laporan PDF", type="primary"):
         if not nama_pengadu or not ic_pengadu:
@@ -260,7 +276,7 @@ with tab1:
             pdf.cell(0, 10, f"Nama: {nama_pengadu}", new_x="LMARGIN", new_y="NEXT")
             pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", new_x="LMARGIN", new_y="NEXT")
 
-            # --- OUTPUT KE BYTES (TAK PERLU SAVE FILE) ---
+            # --- OUTPUT KE BYTES ---
             pdf_bytes = pdf.output()
 
             st.download_button(
