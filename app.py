@@ -7,13 +7,14 @@ import urllib.parse
 import json
 import os
 from PIL import Image
+import streamlit.components.v1 as components
 
 # ==========================================
 # KONFIGURASI UI
 # ==========================================
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️", layout="wide")
 
-# CSS: Buang header hide, tambah style untuk butang toggle
+# CSS: Buang header hide, tambah style untuk butang toggle terapung
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -34,12 +35,40 @@ hide_st_style = """
                 h2 {font-size: 1.2rem !important;}
                 h3 {font-size: 1.0rem !important;}
             }
+            
+            /* FLOATING BUTTON KANAN UNTUK TOGGLE SIDEBAR */
+            .floating-toggle-btn {
+                position: fixed;
+                top: 15px;
+                right: 15px;
+                z-index: 999999;
+                background-color: #ff4b4b;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 10px 15px;
+                font-size: 16px;
+                font-weight: bold;
+                box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .floating-toggle-btn:hover {
+                background-color: #e04343;
+            }
+            /* Sembunyikan butang asal Streamlit kat mobile supaya tak berganda */
+            @media (max-width: 768px) {
+                [data-testid="stSidebarCollapseButton"] {display: none !important;}
+                [data-testid="collapsedControl"] {display: none !important;}
+            }
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # ==========================================
-# SISTEM LOG MASUK (PASSWORD TERUS DALAM KOD)
+# SISTEM LOG MASUK
 # ==========================================
 def check_password():
     def password_entered():
@@ -53,15 +82,11 @@ def check_password():
     if "password_correct" not in st.session_state:
         st.title("🔒 Sistem Siasatan Penipu")
         st.info("Sila masukkan kata laluan untuk mengakses sistem ini.")
-        st.text_input(
-            "Kata Laluan", type="password", on_change=password_entered, key="password"
-        )
+        st.text_input("Kata Laluan", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
         st.title("🔒 Sistem Siasatan Penipu")
-        st.text_input(
-            "Kata Laluan", type="password", on_change=password_entered, key="password"
-        )
+        st.text_input("Kata Laluan", type="password", on_change=password_entered, key="password")
         st.error("😕 Kata laluan salah. Sila cuba lagi.")
         return False
     else:
@@ -83,40 +108,27 @@ if check_password():
     CAPTION_FB = "Hati aku hanya pada Perak"
     KERJA_FB = "KDN, Putrajaya"
 
-    KAWAN_RAPAT = [
-        "Faiz Badiozaman",
-        "Fitri Azizi Ramli",
-        "Muhd Syhmy"
-    ]
-
+    KAWAN_RAPAT = ["Faiz Badiozaman", "Fitri Azizi Ramli", "Muhd Syhmy"]
     NAMA_MULE = "MOHAMMAD HILMI BIN MOHD HANIF"
     BANK_MULE = "Bank Simpanan Nasional (BSN)"
     AKAUN_MULE = "0820041100050836"
     BAKI_HUTANG = "RM 1,783.00"
 
     KENDERAAN_1 = {
-        "plat": "WHG 8164",
-        "nama": "MOHAMAD SYAFIQ B BADRUL HISHAM",
-        "ic": "020114081039",
-        "alamat": "NO 14 RUMAH AWAM 5, JLN KENAS, 33000 PERAK",
-        "model": "PROTON SATRIA 1.4 GLI M",
-        "status": "1 Rekod Kemalangan"
+        "plat": "WHG 8164", "nama": "MOHAMAD SYAFIQ B BADRUL HISHAM",
+        "ic": "020114081039", "alamat": "NO 14 RUMAH AWAM 5, JLN KENAS, 33000 PERAK",
+        "model": "PROTON SATRIA 1.4 GLI M", "status": "1 Rekod Kemalangan"
     }
-
     KENDERAAN_2 = {
-        "plat": "WGG 4317",
-        "nama": "MOHD FAZLIN BIN LAH",
-        "ic": "740728085339",
-        "alamat": "NO 18 LALUAN CHEPOR DAMAIN 12, 31200 PERAK",
-        "model": "YAMAHA TZM 150",
-        "status": "1 Rekod Kemalangan"
+        "plat": "WGG 4317", "nama": "MOHD FAZLIN BIN LAH",
+        "ic": "740728085339", "alamat": "NO 18 LALUAN CHEPOR DAMAIN 12, 31200 PERAK",
+        "model": "YAMAHA TZM 150", "status": "1 Rekod Kemalangan"
     }
 
     # ==========================================
     # SISTEM SIMPAN & LOAD DATA (JSON)
     # ==========================================
     DATA_FILE = "simpanan_laporan.json"
-
     TEKS_DEFAULT = (
         "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. "
         "Beliau sering menawarkan projek serta urusan jual beli barang komputer (PC).\n\n"
@@ -142,9 +154,7 @@ if check_password():
         if os.path.exists(DATA_FILE):
             with open(DATA_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        return {
-            "nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", "kronologi": TEKS_DEFAULT
-        }
+        return {"nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", "kronologi": TEKS_DEFAULT}
 
     def save_data(data):
         with open(DATA_FILE, "w", encoding="utf-8") as f:
@@ -154,7 +164,7 @@ if check_password():
         st.session_state.data_tersimpan = load_data()
 
     # ==========================================
-    # SIDEBAR (Diletak paling atas supaya state betul)
+    # SIDEBAR
     # ==========================================
     with st.sidebar:
         if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
@@ -180,18 +190,10 @@ if check_password():
             
         with st.expander("🚗 Maklumat Kenderaan", expanded=False):
             st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
-            st.markdown(f"**Pemilik:** {KENDERAAN_1['nama']}")
-            st.markdown(f"**IC:** {KENDERAAN_1['ic']}")
-            st.markdown(f"**Alamat:** {KENDERAAN_1['alamat']}")
-            st.markdown(f"**Model:** {KENDERAAN_1['model']}")
-            st.markdown(f"**Status:** {KENDERAAN_1['status']}")
+            st.markdown(f"**Pemilik:** {KENDERAAN_1['nama']}\n**IC:** {KENDERAAN_1['ic']}\n**Alamat:** {KENDERAAN_1['alamat']}\n**Model:** {KENDERAAN_1['model']}\n**Status:** {KENDERAAN_1['status']}")
             st.markdown("---")
             st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
-            st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}")
-            st.markdown(f"**IC:** {KENDERAAN_2['ic']}")
-            st.markdown(f"**Alamat:** {KENDERAAN_2['alamat']}")
-            st.markdown(f"**Model:** {KENDERAAN_2['model']}")
-            st.markdown(f"**Status:** {KENDERAAN_2['status']}")
+            st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}\n**IC:** {KENDERAAN_2['ic']}\n**Alamat:** {KENDERAAN_2['alamat']}\n**Model:** {KENDERAAN_2['model']}\n**Status:** {KENDERAAN_2['status']}")
             st.info("💡 **Nota:** Maklumat pemilik kenderaan di atas diperoleh daripada gambar galeri Facebook suspek.")
         
         with st.expander("📍 Check-in & Caption FB", expanded=False):
@@ -213,33 +215,57 @@ if check_password():
             st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
 
     # ==========================================
-    # BUTANG TOGGLE SIDEBAR (GUNA ST.BUTTON)
+    # JAVASCRIPT UNTUK TOGGLE SIDEBAR (FIXED)
     # ==========================================
-    # Butang ini akan sentiasa ada kat atas, senang tekan kat phone
-    # Bila tekan, ia set state 'show_sidebar' dan kita guna CSS untuk manipulate
-    
-    # Cara paling mudah: Guna butang yang render di atas tajuk
-    col_btn, col_title = st.columns([1, 4])
-    with col_btn:
-        # Butang ni takkan buat apa-apa selain trigger rerun. 
-        # Kita guna CSS untuk buat ia nampak macam butang toggle.
-        st.button("☰ Menu", key="toggle_menu_btn", help="Buka/Tutup Menu Suspek")
+    # Kita guna st.components.v1.html untuk inject JS yang selamat
+    components.html(
+        """
+        <button onclick="toggleSidebar()" style="
+            position: fixed; top: 10px; right: 10px; z-index: 999999;
+            background-color: #ff4b4b; color: white; border: none;
+            border-radius: 8px; padding: 12px 18px; font-size: 16px;
+            font-weight: bold; box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+            cursor: pointer; display: flex; align-items: center;
+            font-family: sans-serif;">
+            ☰ Menu
+        </button>
+        <script>
+        function toggleSidebar() {
+            // Cari butang asal Streamlit untuk toggle sidebar
+            var collapseBtn = window.parent.document.querySelector('[data-testid="stSidebarCollapseButton"] button');
+            var expandBtn = window.parent.document.querySelector('[data-testid="collapsedControl"] button');
+            
+            if (collapseBtn) {
+                collapseBtn.click(); // Klik untuk tutup/buka
+            } else if (expandBtn) {
+                expandBtn.click(); // Klik untuk buka (jika ada)
+            } else {
+                // Cara terakhir: cari ikon arrow dalam sidebar
+                var sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
+                if (sidebar) {
+                    var btn = sidebar.querySelector('button[kind="header"]');
+                    if (btn) btn.click();
+                }
+            }
+        }
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
 
-    with col_title:
-        st.title("🕵️‍♂️ Sistem Siasatan Penipu")
-
+    # ==========================================
+    # UI UTAMA
+    # ==========================================
+    st.title("🕵️‍♂️ Sistem Siasatan Penipu")
     st.markdown("---")
 
     # ==========================================
     # TABS
     # ==========================================
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📄 Laporan", "🔍 OSINT", "🗺️ Peta", "📧 Email", "📁 Bukti"
-    ])
-    
-    # ... (Bahagian tab1 hingga tab5 kekal sama macam kod sebelum ni) ...
-    
-    # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📄 Laporan", "🔍 OSINT", "🗺️ Peta", "📧 Email", "📁 Bukti"])
+
+    # --- TAB 1 ---
     with tab1:
         st.header("Jana Laporan Polis")
         st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
@@ -263,7 +289,6 @@ if check_password():
         
         st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
         st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
-        
         kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=300)
 
         col_btn1, col_btn2 = st.columns(2)
@@ -283,8 +308,7 @@ if check_password():
             st.success("✅ Draf berjaya disimpan ke fail! Data ini akan kekal walaupun anda refresh page.")
 
         if btn_reset:
-            if os.path.exists(DATA_FILE):
-                os.remove(DATA_FILE)
+            if os.path.exists(DATA_FILE): os.remove(DATA_FILE)
             st.session_state.pengadu_nama = ""
             st.session_state.pengadu_ic = ""
             st.session_state.pengadu_tel = ""
@@ -294,11 +318,9 @@ if check_password():
             st.success("🔄 Draf telah di-reset ke teks asal.")
 
         st.markdown("---")
-        
         st.info("💡 Anda juga boleh lihat semua bukti (gambar, resit, chat) di channel Telegram kami.")
         
         col_pdf, col_tg = st.columns(2)
-        
         with col_pdf:
             if st.button("📥 Jana Laporan PDF Utama", type="secondary", use_container_width=True):
                 if not nama_pengadu or not ic_pengadu:
@@ -307,31 +329,21 @@ if check_password():
                     pdf = FPDF()
                     pdf.add_page()
                     pdf.set_auto_page_break(auto=True, margin=15)
-
                     pdf.set_font("Helvetica", "B", 16)
                     pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", new_x="LMARGIN", new_y="NEXT", align="C")
                     pdf.ln(8)
-
                     pdf.set_font("Helvetica", "B", 12)
                     pdf.cell(0, 10, "A. MAKLUMAT PENGADU", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font("Helvetica", "", 11)
-
-                    pdf.cell(35, 8, "Nama", new_x="RIGHT", new_y="TOP")
-                    pdf.cell(0, 8, f": {nama_pengadu}", new_x="LMARGIN", new_y="NEXT")
-                    pdf.cell(35, 8, "No. IC", new_x="RIGHT", new_y="TOP")
-                    pdf.cell(0, 8, f": {ic_pengadu}", new_x="LMARGIN", new_y="NEXT")
-                    pdf.cell(35, 8, "No. Telefon", new_x="RIGHT", new_y="TOP")
-                    pdf.cell(0, 8, f": {tel_pengadu}", new_x="LMARGIN", new_y="NEXT")
-                    pdf.cell(35, 8, "Alamat", new_x="RIGHT", new_y="TOP")
-                    pdf.multi_cell(0, 8, f": {alamat_pengadu}", new_x="LMARGIN", new_y="NEXT")
-                    pdf.cell(35, 8, "Jumlah Kerugian", new_x="RIGHT", new_y="TOP")
-                    pdf.cell(0, 8, f": {jumlah_kerugian}", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(35, 8, "Nama", new_x="RIGHT", new_y="TOP"); pdf.cell(0, 8, f": {nama_pengadu}", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(35, 8, "No. IC", new_x="RIGHT", new_y="TOP"); pdf.cell(0, 8, f": {ic_pengadu}", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(35, 8, "No. Telefon", new_x="RIGHT", new_y="TOP"); pdf.cell(0, 8, f": {tel_pengadu}", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(35, 8, "Alamat", new_x="RIGHT", new_y="TOP"); pdf.multi_cell(0, 8, f": {alamat_pengadu}", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(35, 8, "Jumlah Kerugian", new_x="RIGHT", new_y="TOP"); pdf.cell(0, 8, f": {jumlah_kerugian}", new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(5)
-
                     pdf.set_font("Helvetica", "B", 12)
                     pdf.cell(0, 10, "B. MAKLUMAT SUSPEK & KELDAI AKAUN", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font("Helvetica", "", 11)
-
                     suspek_data = [
                         ("Suspek Utama", NAMA_SUSPEK), ("No. Telefon", NOMOR_SUSPEK), ("Email", EMAIL_SUSPEK),
                         ("TikTok", f"@{USERNAME_TIKTOK}"), ("Facebook", LINK_FB), ("Smule", USERNAME_SMULE),
@@ -341,28 +353,22 @@ if check_password():
                         ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
                     ]
                     for label, value in suspek_data:
-                        pdf.cell(40, 8, label, new_x="RIGHT", new_y="TOP")
-                        pdf.multi_cell(0, 8, f": {value}", new_x="LMARGIN", new_y="NEXT")
+                        pdf.cell(40, 8, label, new_x="RIGHT", new_y="TOP"); pdf.multi_cell(0, 8, f": {value}", new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(5)
-
                     pdf.set_font("Helvetica", "B", 12)
                     pdf.cell(0, 10, "C. RANGKAIAN SOSIAL (KAWAN RAPAT)", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font("Helvetica", "", 11)
                     pdf.multi_cell(0, 8, "Berdasarkan komen Facebook, suspek mempunyai hubungan rapat dengan individu berikut:", new_x="LMARGIN", new_y="NEXT")
-                    for kawan in KAWAN_RAPAT:
-                        pdf.cell(0, 8, f"   - {kawan}", new_x="LMARGIN", new_y="NEXT")
+                    for kawan in KAWAN_RAPAT: pdf.cell(0, 8, f"   - {kawan}", new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(5)
-
                     pdf.set_font("Helvetica", "B", 12)
                     pdf.cell(0, 10, "D. KRONOLOGI KEJADIAN", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font("Helvetica", "", 11)
                     pdf.multi_cell(0, 8, kronologi_edit, new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(5)
-
                     pdf.set_font("Helvetica", "B", 12)
                     pdf.cell(0, 10, "E. LAMPIRAN BUKTI", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font("Helvetica", "", 11)
-                    
                     lampiran = [
                         "1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow) - Nama Abdul Hadi.",
                         "2. [ ] Tangkapan skrin transaksi ke akaun keldai (MOHAMMAD HILMI, BSN).",
@@ -373,41 +379,23 @@ if check_password():
                         "7. [ ] Tangkapan skrin tag GetContact (80 tag aduan).",
                         "8. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi.",
                     ]
-                    for item in lampiran:
-                        pdf.multi_cell(0, 8, item, new_x="LMARGIN", new_y="NEXT")
-
+                    for item in lampiran: pdf.multi_cell(0, 8, item, new_x="LMARGIN", new_y="NEXT")
                     pdf.ln(10)
                     pdf.set_font("Helvetica", "I", 10)
                     pdf.multi_cell(0, 8, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.", new_x="LMARGIN", new_y="NEXT")
-
                     pdf.ln(15)
                     pdf.set_font("Helvetica", "", 11)
                     pdf.cell(0, 10, "Tandatangan Pengadu: _____________________", new_x="LMARGIN", new_y="NEXT")
                     pdf.cell(0, 10, f"Nama: {nama_pengadu}", new_x="LMARGIN", new_y="NEXT")
                     pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", new_x="LMARGIN", new_y="NEXT")
-
                     pdf_bytes = bytes(pdf.output())
-
-                    st.download_button(
-                        label="📥 Download Laporan Utama",
-                        data=pdf_bytes,
-                        file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf",
-                        mime="application/pdf",
-                        use_container_width=True
-                    )
+                    st.download_button(label="📥 Download Laporan Utama", data=pdf_bytes, file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf", mime="application/pdf", use_container_width=True)
                     st.success("✅ Laporan Utama berjaya dijana!")
-
         with col_tg:
-            st.link_button(
-                label="📢 Buka Channel Telegram Bukti", 
-                url="https://t.me/+2M7Vwt8K3lQwYzE1", 
-                type="primary", 
-                use_container_width=True
-            )
+            st.link_button(label="📢 Buka Channel Telegram Bukti", url="https://t.me/+2M7Vwt8K3lQwYzE1", type="primary", use_container_width=True)
 
         st.markdown("---")
         st.subheader("Pautan Aduan Segera & Pangkalan Data")
-        
         col1, col2 = st.columns(2)
         with col1: 
             st.link_button("🚨 NSRC 997", "https://nfcc.jpm.gov.my/", use_container_width=True)
@@ -416,11 +404,10 @@ if check_password():
             st.link_button("📞 Semak Mule PDRM", "https://semakmule.rmp.gov.my/", use_container_width=True)
             st.link_button("🔎 Truecaller", f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}", use_container_width=True)
 
-    # --- TAB 2: CARIAN OSINT ---
+    # --- TAB 2 ---
     with tab2:
         st.header("Carian OSINT (Open Source Intelligence)")
         st.write("Klik butang di bawah untuk membuka carian di tab baru.")
-        
         st.subheader("Jejak Suspek (Hadi)")
         st.link_button("💬 Buka WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}", use_container_width=True)
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22", use_container_width=True)
@@ -432,13 +419,11 @@ if check_password():
         st.link_button("🚗 Semak Plat Kereta (WHG 8164)", "https://www.google.com/search?q=%22WHG+8164%22", use_container_width=True)
         st.link_button("🏍️ Semak Plat Motor (WGG 4317)", "https://www.google.com/search?q=%22WGG+4317%22", use_container_width=True)
         st.link_button("📍 Cari 'Ipoh, Perak' di Maps", "https://www.google.com/maps/search/Ipoh,+Perak", use_container_width=True)
-        
         st.markdown("---")
         st.subheader("Kaitan MVM Music")
         st.link_button("🎵 Cari MVM Music di Google", "https://www.google.com/search?q=MVM+Music+Puchong", use_container_width=True)
         st.link_button("🎤 Cari 'Hadi MVM Music'", "https://www.google.com/search?q=%22Hadi%22+%22MVM+Music%22", use_container_width=True)
         st.link_button("📞 Cari No. Tel MVM (016-217 3665)", "https://www.google.com/search?q=%22016-217+3665%22", use_container_width=True)
-            
         st.markdown("---")
         st.subheader("Jejak Keldai Akaun & Kawan")
         st.link_button("🏦 Cari Nama Hilmi di FB", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}", use_container_width=True)
@@ -448,88 +433,57 @@ if check_password():
             kawan_encoded = urllib.parse.quote(kawan)
             st.link_button(f"🔍 Cari {kawan} di FB", f"https://www.facebook.com/search/top?q={kawan_encoded}", key=f"fb_{idx}", use_container_width=True)
 
-    # --- TAB 3: PETA LOKASI ---
+    # --- TAB 3 ---
     with tab3:
         st.header("Peta Anggaran Lokasi")
         st.write("Peta ini menunjukkan kawasan tumpuan suspek berdasarkan siasatan (Sungai Siput / Kuala Kangsar).")
         m = folium.Map(location=[4.7735, 101.1000], zoom_start=11)
-        folium.Marker(
-            [4.7735, 101.1000], popup="Kawasan Sasaran: Kuala Kangsar / Sg Siput", tooltip="Klik untuk info", icon=folium.Icon(color='red', icon='info-sign')
-        ).add_to(m)
+        folium.Marker([4.7735, 101.1000], popup="Kawasan Sasaran: Kuala Kangsar / Sg Siput", tooltip="Klik untuk info", icon=folium.Icon(color='red', icon='info-sign')).add_to(m)
         st_folium(m, use_container_width=True, height=400)
 
-    # --- TAB 4: CARIAN EMAIL & DATA ---
+    # --- TAB 4 ---
     with tab4:
         st.header("Carian Email & Data Bocor")
         st.write("Klik butang di bawah untuk semak jejak email suspek.")
         email_encoded = urllib.parse.quote(EMAIL_SUSPEK)
         nama_encoded = urllib.parse.quote(NAMA_SUSPEK)
-        
         st.subheader("Carian Emel")
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{email_encoded}%22", use_container_width=True)
         st.link_button("📧 Semak Data Bocor (HIBP)", f"https://haveibeenpwned.com/account/{email_encoded}", use_container_width=True)
         st.link_button("📘 Cari Emel di Facebook", f"https://www.facebook.com/search/top?q={email_encoded}", use_container_width=True)
-        
         st.markdown("---")
         st.subheader("Carian Nama & Bisnes")
         st.link_button("🔍 Cari Nama + Black Cafe", f"https://www.google.com/search?q=%22{nama_encoded}%22+%22Black+Cafe%22", use_container_width=True)
         st.link_button("🎵 Cari Nama + TikTok", f"https://www.google.com/search?q=%22{nama_encoded}%22+TikTok+OR+hadimarkno", use_container_width=True)
         st.link_button("🏢 Semak Pendaftaran SSM", "https://www.ssm-einfo.my/", use_container_width=True)
 
-    # --- TAB 5: BUKTI & GAMBAR (UPLOAD & JANA PDF) ---
+    # --- TAB 5 ---
     with tab5:
         st.header("Muat Naik Bukti & Jana PDF")
         st.write("Anda boleh upload gambar (resit, chat, atau bukti lain) dan jadikannya satu fail PDF untuk diserahkan kepada polis.")
-        
-        uploaded_files = st.file_uploader(
-            "Pilih gambar bukti (Boleh pilih lebih dari satu)", 
-            type=["jpg", "jpeg", "png"], 
-            accept_multiple_files=True
-        )
-
+        uploaded_files = st.file_uploader("Pilih gambar bukti (Boleh pilih lebih dari satu)", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
         if uploaded_files:
             st.success(f"✅ {len(uploaded_files)} gambar telah berjaya dimuat naik.")
-            
             cols = st.columns(2)
             for idx, file in enumerate(uploaded_files):
                 img = Image.open(file)
-                with cols[idx % 2]:
-                    st.image(img, caption=f"Gambar {idx+1}", use_container_width=True)
-
+                with cols[idx % 2]: st.image(img, caption=f"Gambar {idx+1}", use_container_width=True)
             if st.button("📄 Jana PDF Bukti", type="primary", use_container_width=True):
                 pdf = FPDF()
-                
                 for idx, file in enumerate(uploaded_files):
                     pdf.add_page()
-                    
                     img = Image.open(file)
                     img_path = f"temp_img_{idx}.jpg"
-                    img = img.convert("RGB")
-                    img.save(img_path, "JPEG")
-
+                    img = img.convert("RGB"); img.save(img_path, "JPEG")
                     img_w, img_h = img.size
                     page_w, page_h = 210, 297
-                    
                     ratio = min((page_w - 20) / img_w, (page_h - 20) / img_h)
-                    new_w = img_w * ratio
-                    new_h = img_h * ratio
-                    
-                    x = (page_w - new_w) / 2
-                    y = (page_h - new_h) / 2
-                    
+                    new_w = img_w * ratio; new_h = img_h * ratio
+                    x = (page_w - new_w) / 2; y = (page_h - new_h) / 2
                     pdf.image(img_path, x=x, y=y, w=new_w, h=new_h)
-                    
                     os.remove(img_path)
-
                 pdf_bytes = bytes(pdf.output())
-                
-                st.download_button(
-                    label="📥 Download Bukti (PDF)",
-                    data=pdf_bytes,
-                    file_name="Bukti_Kes_Penipu.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
-                )
+                st.download_button(label="📥 Download Bukti (PDF)", data=pdf_bytes, file_name="Bukti_Kes_Penipu.pdf", mime="application/pdf", use_container_width=True)
                 st.success("✅ PDF Bukti berjaya dijana! Sila muat turun.")
 
     st.markdown("---")
