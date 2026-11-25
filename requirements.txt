@@ -1,7 +1,5 @@
-app.py
-requirements.txt
-fonts/
-  DejaVuSans.ttf
-  DejaVuSans-Bold.ttf
-  DejaVuSans-Oblique.ttf
-simpanan_laporan.json
+streamlit 
+fpdf2 
+folium 
+streamlit-folium 
+Pillow
