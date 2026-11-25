@@ -39,16 +39,9 @@ st.markdown(hide_st_style, unsafe_allow_html=True)
 # ==========================================
 # FONT UNICODE (untuk fpdf2) — FIX FPDFUnicodeEncodingException
 # ==========================================
-FONT_DIRS = [
-    "fonts",
-    "/usr/share/fonts/truetype/dejavu",
-    "/usr/share/fonts/dejavu",
-    "/Library/Fonts",
-    "C:\\Windows\\Fonts",
-]
+FONT_DIRS = ["fonts", "/usr/share/fonts/truetype/dejavu", "/usr/share/fonts/dejavu", "/Library/Fonts", "C:\\Windows\\Fonts"]
 
 def _find_font(*filenames):
-    """Cari fail font dalam beberapa folder & nama alternatif."""
     for d in FONT_DIRS:
         for fn in filenames:
             p = os.path.join(d, fn)
@@ -57,21 +50,18 @@ def _find_font(*filenames):
     return None
 
 def add_unicode_font(pdf):
-    """Daftar font DejaVu supaya fpdf2 boleh encode Unicode (—, ", ', …)."""
     regular = _find_font("DejaVuSans.ttf", "arial.ttf", "Arial.ttf", "calibri.ttf")
     bold    = _find_font("DejaVuSans-Bold.ttf", "arialbd.ttf", "Arial Bold.ttf", "calibrib.ttf")
     italic  = _find_font("DejaVuSans-Oblique.ttf", "ariali.ttf", "Arial Italic.ttf", "calibrii.ttf")
 
     if not regular:
-        raise FileNotFoundError(
-            "Font Unicode tidak dijumpai. Sila letak 'DejaVuSans.ttf' dalam folder 'fonts/'."
-        )
+        raise FileNotFoundError("Font Unicode tidak dijumpai. Sila letak 'DejaVuSans.ttf' dalam folder 'fonts/'.")
 
     pdf.add_font("DejaVu", "", regular)
     pdf.add_font("DejaVu", "B", bold if bold else regular)
     pdf.add_font("DejaVu", "I", italic if italic else regular)
 
-def set_font(pdf, style="", size=11):
+def set_font(pdf, style="", size=10):
     pdf.set_font("DejaVu", style, size)
 
 # ==========================================
@@ -305,36 +295,40 @@ if check_password():
                 else:
                     try:
                         pdf = FPDF()
-                        add_unicode_font(pdf)          # <-- DAFTAR FONT UNICODE DULU
+                        add_unicode_font(pdf)
                         pdf.add_page()
                         pdf.set_auto_page_break(auto=True, margin=15)
 
-                        set_font(pdf, "B", 16)
+                        # Saiz baris dikurangkan (6) supaya lebih padat
+                        line_h = 6
+
+                        set_font(pdf, "B", 14)
                         pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", align="C")
-                        pdf.ln(10)
+                        pdf.ln(8)
 
                         # BAHAGIAN A: MAKLUMAT PENGADU
-                        set_font(pdf, "B", 12)
-                        pdf.cell(0, 10, "A. MAKLUMAT PENGADU")
-                        pdf.ln(8)
-                        set_font(pdf, "", 11)
+                        set_font(pdf, "B", 11)
+                        pdf.cell(0, 8, "A. MAKLUMAT PENGADU")
+                        pdf.ln(6)
+                        set_font(pdf, "", 10)
 
                         pengadu_data = [
                             ("Nama", nama_pengadu), ("No. IC", ic_pengadu), ("No. Telefon", tel_pengadu),
                             ("Alamat", alamat_pengadu), ("Jumlah Kerugian", jumlah_kerugian)
                         ]
                         for label, value in pengadu_data:
-                            pdf.cell(40, 8, label)
-                            pdf.cell(5, 8, ":")
-                            pdf.multi_cell(0, 8, str(value))
-                            pdf.ln(8)
-                        pdf.ln(5)
+                            pdf.cell(35, line_h, label)
+                            pdf.cell(4, line_h, ":")
+                            pdf.multi_cell(0, line_h, str(value))
+                            # Jarak kecil antara baris
+                            pdf.ln(2)
+                        pdf.ln(3)
 
                         # BAHAGIAN B: MAKLUMAT SUSPEK
-                        set_font(pdf, "B", 12)
-                        pdf.cell(0, 10, "B. MAKLUMAT SUSPEK & KELDAI AKAUN")
-                        pdf.ln(8)
-                        set_font(pdf, "", 11)
+                        set_font(pdf, "B", 11)
+                        pdf.cell(0, 8, "B. MAKLUMAT SUSPEK & KELDAI AKAUN")
+                        pdf.ln(6)
+                        set_font(pdf, "", 10)
 
                         suspek_data = [
                             ("Suspek Utama", NAMA_SUSPEK),
@@ -354,26 +348,26 @@ if check_password():
                         ]
 
                         for label, value in suspek_data:
-                            pdf.cell(40, 8, label)
-                            pdf.cell(5, 8, ":")
-                            pdf.multi_cell(0, 8, str(value))
-                            pdf.ln(8)
+                            pdf.cell(35, line_h, label)
+                            pdf.cell(4, line_h, ":")
+                            pdf.multi_cell(0, line_h, str(value))
+                            pdf.ln(2)
 
-                        pdf.ln(5)
+                        pdf.ln(3)
 
                         # BAHAGIAN C: KRONOLOGI
-                        set_font(pdf, "B", 12)
-                        pdf.cell(0, 10, "C. KRONOLOGI KEJADIAN")
-                        pdf.ln(8)
-                        set_font(pdf, "", 11)
-                        pdf.multi_cell(0, 8, kronologi_edit)
-                        pdf.ln(8)
+                        set_font(pdf, "B", 11)
+                        pdf.cell(0, 8, "C. KRONOLOGI KEJADIAN")
+                        pdf.ln(6)
+                        set_font(pdf, "", 10)
+                        pdf.multi_cell(0, line_h, kronologi_edit)
+                        pdf.ln(4)
 
                         # BAHAGIAN D: LAMPIRAN
-                        set_font(pdf, "B", 12)
-                        pdf.cell(0, 10, "D. LAMPIRAN BUKTI")
-                        pdf.ln(8)
-                        set_font(pdf, "", 11)
+                        set_font(pdf, "B", 11)
+                        pdf.cell(0, 8, "D. LAMPIRAN BUKTI")
+                        pdf.ln(6)
+                        set_font(pdf, "", 10)
 
                         lampiran = [
                             "1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow) - Nama Abdul Hadi.",
@@ -386,23 +380,22 @@ if check_password():
                             "8. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi.",
                         ]
                         for item in lampiran:
-                            pdf.multi_cell(0, 8, item)
-                            pdf.ln(8)
+                            pdf.multi_cell(0, line_h, item)
+                            pdf.ln(1) # Jarak sangat kecil untuk senarai
 
-                        pdf.ln(10)
-                        set_font(pdf, "I", 10)
-                        pdf.multi_cell(0, 8, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.")
-                        pdf.ln(8)
-
-                        pdf.ln(15)
-                        set_font(pdf, "", 11)
-                        pdf.cell(0, 10, "Tandatangan Pengadu: _____________________")
-                        pdf.ln(10)
-                        pdf.cell(0, 10, f"Nama: {nama_pengadu}")
-                        pdf.ln(10)
-                        pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}")
+                        pdf.ln(6)
+                        set_font(pdf, "I", 9)
+                        pdf.multi_cell(0, line_h, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.")
                         pdf.ln(10)
 
+                        set_font(pdf, "", 10)
+                        pdf.cell(0, line_h, "Tandatangan Pengadu: _____________________")
+                        pdf.ln(6)
+                        pdf.cell(0, line_h, f"Nama: {nama_pengadu}")
+                        pdf.ln(6)
+                        pdf.cell(0, line_h, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}")
+                        
+                        # Guna pdf_bytes untuk download tanpa simpan fail fizikal
                         pdf_bytes = bytes(pdf.output())
 
                         st.download_button(
@@ -507,7 +500,7 @@ if check_password():
             if st.button("📄 Jana PDF Bukti", type="primary", use_container_width=True):
                 try:
                     pdf = FPDF()
-                    add_unicode_font(pdf)   # <-- DAFTAR FONT UNICODE
+                    add_unicode_font(pdf)
 
                     for idx, file in enumerate(uploaded_files):
                         pdf.add_page()
