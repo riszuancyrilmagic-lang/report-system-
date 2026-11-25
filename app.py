@@ -126,26 +126,8 @@ if check_password():
     # ==========================================
     DATA_FILE = "simpanan_laporan.json"
 
-    TEKS_DEFAULT = (
-        "1. Saya mengenali suspek sebagai pelanggan perniagaan saya sejak awal tahun lepas. "
-        "Beliau sering menawarkan projek serta urusan jual beli barang komputer (PC).\n\n"
-        "2. KES PERTAMA (Barang PC - RAM 16GB x2): Suspek menawarkan barang tersebut dengan harga murah. "
-        "Saya telah membuat pembayaran lebih RM500. Namun, sehingga ke hari ini, barang fizikal yang saya pesan "
-        "(RAM 16GB x2) tidak diserahkan dan wang tidak dipulangkan.\n\n"
-        "3. KES KEDUA (Modal Perniagaan): Ketika menunggu barang PC saya, suspek meminta saya menampung modal "
-        "RM1,500 untuk pelanggannya, dengan janji akan memulangkan modal beserta keuntungan. Suspek hanya membayar "
-        "RM800 (RM500 keuntungan + RM300 modal). Baki hutang yang belum dijelaskan ialah RM1,443 "
-        "(termasuk RM160 hutang servis game).\n\n"
-        "4. Suspek telah MENGIKTIRAF beliau berhutang melalui WhatsApp dan menulis: "
-        "'Total baki aku hg belum settle RM1783'. Namun, beliau kini gagal membayar dan cuba mengelak.\n\n"
-        "5. Saya juga mendapati suspek mempunyai pelbagai rekod digital yang mengaitkannya dengan kawasan Perak "
-        "(Check-in Facebook di Ipoh, video TikTok di Sg Siput, tag 'Adi Ipoh' di GetContact, dan caption FB "
-        "'Hati aku hanya pada Perak'). Nombor telefon suspek juga telah ditag sebagai penipu oleh 80 mangsa lain. "
-        "Saya turut mempunyai bukti gambar kenderaan suspek (Kereta: WHG 8164, Motor: WGG 4317) yang saya peroleh "
-        "daripada profil Facebook beliau.\n\n"
-        "6. Suspek mendakwa beliau bekerja di KDN, Putrajaya dalam profil Facebooknya. Saya juga mempunyai bukti "
-        "transaksi berjumlah RM2,083.00 yang dipindahkan ke akaun suspek dan akaun keldai (MOHAMMAD HILMI, BSN)."
-    )
+    # TEKS DEFAULT DIKOSONGAN (MANUAL)
+    TEKS_DEFAULT = ""
 
     def load_data():
         if os.path.exists(DATA_FILE):
@@ -248,9 +230,9 @@ if check_password():
         jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)", key="pengadu_kerugian")
 
         st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
-        st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
+        st.info("Sila taip atau paste kronologi kejadian anda di dalam kotak ini. PDF akan jana mengikut teks ini sahaja.")
 
-        kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=300)
+        kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=400)
 
         col_btn1, col_btn2 = st.columns(2)
         with col_btn1:
@@ -277,7 +259,7 @@ if check_password():
             st.session_state.pengadu_alamat = ""
             st.session_state.pengadu_kerugian = ""
             st.session_state.kronologi_teks = TEKS_DEFAULT
-            st.success("🔄 Draf telah di-reset ke teks asal.")
+            st.success("🔄 Draf telah di-reset.")
 
         st.markdown("---")
         st.info("💡 Anda juga boleh lihat semua bukti (gambar, resit, chat) di channel Telegram kami.")
@@ -297,6 +279,7 @@ if check_password():
 
                         line_h = 6
 
+                        # TAJUK UTAMA
                         set_font(pdf, "B", 14)
                         pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", align="C")
                         pdf.ln(8)
@@ -318,7 +301,7 @@ if check_password():
                             pdf.ln(2)
                         pdf.ln(3)
 
-                        # BAHAGIAN B: MAKLUMAT SUSPEK (HANYA 4 PERKARA DIBUANG)
+                        # BAHAGIAN B: MAKLUMAT SUSPEK
                         set_font(pdf, "B", 11)
                         pdf.cell(0, 8, "B. MAKLUMAT SUSPEK & KELDAI AKAUN")
                         pdf.ln(6)
@@ -330,15 +313,11 @@ if check_password():
                             ("Email", EMAIL_SUSPEK),
                             ("TikTok", f"@{USERNAME_TIKTOK}"),
                             ("Facebook", LINK_FB),
-                            # ("Smule", USERNAME_SMULE),        <-- DIBUANG
-                            # ("Kerja (FB)", KERJA_FB),         <-- DIBUANG
                             ("Plat Kereta", PLAT_KERETA),
                             ("Plat Motor", PLAT_MOTOR),
-                            # ("Check-in FB", CHECK_IN),        <-- DIBUANG
-                            # ("Caption FB", f"'{CAPTION_FB}'"),<-- DIBUANG
                             ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"),
                             ("No. Akaun", AKAUN_MULE),
-                            ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)") # Dikekalkan
+                            ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
                         ]
 
                         for label, value in suspek_data:
@@ -349,7 +328,7 @@ if check_password():
 
                         pdf.ln(3)
 
-                        # BAHAGIAN C: KRONOLOGI
+                        # BAHAGIAN C: KRONOLOGI (Print manual input)
                         set_font(pdf, "B", 11)
                         pdf.cell(0, 8, "C. KRONOLOGI KEJADIAN")
                         pdf.ln(6)
