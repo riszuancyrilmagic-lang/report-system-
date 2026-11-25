@@ -1,6 +1,7 @@
 import streamlit as st
 import datetime
 from fpdf import FPDF
+from fpdf.enums import XPos, YPos  # <-- TAMBAHAN UNTUK FIX ERROR
 import folium
 from streamlit_folium import st_folium
 import urllib.parse
@@ -301,27 +302,27 @@ if check_password():
                     pdf.set_auto_page_break(auto=True, margin=15)
 
                     pdf.set_font("Helvetica", "B", 16)
-                    pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", new_x="LMARGIN", new_y="NEXT", align="C")
+                    pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
                     pdf.ln(8)
 
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "A. MAKLUMAT PENGADU", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 10, "A. MAKLUMAT PENGADU", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.set_font("Helvetica", "", 11)
 
-                    pdf.cell(35, 8, "Nama", new_x="RIGHT", new_y="TOP")
-                    pdf.cell(0, 8, f": {nama_pengadu}", new_x="LMARGIN", new_y="NEXT")
-                    pdf.cell(35, 8, "No. IC", new_x="RIGHT", new_y="TOP")
-                    pdf.cell(0, 8, f": {ic_pengadu}", new_x="LMARGIN", new_y="NEXT")
-                    pdf.cell(35, 8, "No. Telefon", new_x="RIGHT", new_y="TOP")
-                    pdf.cell(0, 8, f": {tel_pengadu}", new_x="LMARGIN", new_y="NEXT")
-                    pdf.cell(35, 8, "Alamat", new_x="RIGHT", new_y="TOP")
-                    pdf.multi_cell(0, 8, f": {alamat_pengadu}", new_x="LMARGIN", new_y="NEXT")
-                    pdf.cell(35, 8, "Jumlah Kerugian", new_x="RIGHT", new_y="TOP")
-                    pdf.cell(0, 8, f": {jumlah_kerugian}", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(35, 8, "Nama", new_x=XPos.RIGHT, new_y=YPos.TOP)
+                    pdf.cell(0, 8, f": {nama_pengadu}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(35, 8, "No. IC", new_x=XPos.RIGHT, new_y=YPos.TOP)
+                    pdf.cell(0, 8, f": {ic_pengadu}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(35, 8, "No. Telefon", new_x=XPos.RIGHT, new_y=YPos.TOP)
+                    pdf.cell(0, 8, f": {tel_pengadu}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(35, 8, "Alamat", new_x=XPos.RIGHT, new_y=YPos.TOP)
+                    pdf.multi_cell(0, 8, f": {alamat_pengadu}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(35, 8, "Jumlah Kerugian", new_x=XPos.RIGHT, new_y=YPos.TOP)
+                    pdf.cell(0, 8, f": {jumlah_kerugian}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.ln(5)
 
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "B. MAKLUMAT SUSPEK & KELDAI AKAUN", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 10, "B. MAKLUMAT SUSPEK & KELDAI AKAUN", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.set_font("Helvetica", "", 11)
 
                     suspek_data = [
@@ -333,26 +334,26 @@ if check_password():
                         ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
                     ]
                     for label, value in suspek_data:
-                        pdf.cell(40, 8, label, new_x="RIGHT", new_y="TOP")
-                        pdf.multi_cell(0, 8, f": {value}", new_x="LMARGIN", new_y="NEXT")
+                        pdf.cell(40, 8, label, new_x=XPos.RIGHT, new_y=YPos.TOP)
+                        pdf.multi_cell(0, 8, f": {value}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.ln(5)
 
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "C. RANGKAIAN SOSIAL (KAWAN RAPAT)", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 10, "C. RANGKAIAN SOSIAL (KAWAN RAPAT)", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.set_font("Helvetica", "", 11)
-                    pdf.multi_cell(0, 8, "Berdasarkan komen Facebook, suspek mempunyai hubungan rapat dengan individu berikut:", new_x="LMARGIN", new_y="NEXT")
+                    pdf.multi_cell(0, 8, "Berdasarkan komen Facebook, suspek mempunyai hubungan rapat dengan individu berikut:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     for kawan in KAWAN_RAPAT:
-                        pdf.cell(0, 8, f"   - {kawan}", new_x="LMARGIN", new_y="NEXT")
+                        pdf.cell(0, 8, f"   - {kawan}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.ln(5)
 
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "D. KRONOLOGI KEJADIAN", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 10, "D. KRONOLOGI KEJADIAN", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.set_font("Helvetica", "", 11)
-                    pdf.multi_cell(0, 8, kronologi_edit, new_x="LMARGIN", new_y="NEXT")
+                    pdf.multi_cell(0, 8, kronologi_edit, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.ln(5)
 
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "E. LAMPIRAN BUKTI", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 10, "E. LAMPIRAN BUKTI", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.set_font("Helvetica", "", 11)
                     
                     lampiran = [
@@ -366,17 +367,17 @@ if check_password():
                         "8. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi.",
                     ]
                     for item in lampiran:
-                        pdf.multi_cell(0, 8, item, new_x="LMARGIN", new_y="NEXT")
+                        pdf.multi_cell(0, 8, item, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
                     pdf.ln(10)
                     pdf.set_font("Helvetica", "I", 10)
-                    pdf.multi_cell(0, 8, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.", new_x="LMARGIN", new_y="NEXT")
+                    pdf.multi_cell(0, 8, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
                     pdf.ln(15)
                     pdf.set_font("Helvetica", "", 11)
-                    pdf.cell(0, 10, "Tandatangan Pengadu: _____________________", new_x="LMARGIN", new_y="NEXT")
-                    pdf.cell(0, 10, f"Nama: {nama_pengadu}", new_x="LMARGIN", new_y="NEXT")
-                    pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 10, "Tandatangan Pengadu: _____________________", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(0, 10, f"Nama: {nama_pengadu}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
                     pdf_bytes = bytes(pdf.output())
 
