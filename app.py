@@ -370,8 +370,7 @@ if check_password():
                             "4. [ ] Tangkapan skrin profil TikTok, Facebook (Adisprinter), Smule (GSR_Adi).",
                             "5. [ ] Tangkapan skrin gambar kereta (WHG 8164), motor (WGG 4317), & gambar kemalangan.",
                             "6. [ ] Tangkapan skrin gambar zaman persekolahan (SK Kuala Kangsar).",
-                            "7. [ ] Tangkapan skrin tag GetContact (80 tag aduan).",
-                            "8. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi."
+                            "7. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi."
                         ]
                         for item in lampiran:
                             pdf.multi_cell(0, line_h, item)
