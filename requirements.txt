@@ -1,7 +1,7 @@
-streamlit
-fpdf2
-folium
-streamlit-folium
-Pillow
-phonenumbers
-opencage
+app.py
+requirements.txt
+fonts/
+  DejaVuSans.ttf
+  DejaVuSans-Bold.ttf
+  DejaVuSans-Oblique.ttf
+simpanan_laporan.json
