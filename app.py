@@ -37,11 +37,49 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # ==========================================
+# FONT UNICODE (untuk fpdf2) — FIX FPDFUnicodeEncodingException
+# ==========================================
+FONT_DIRS = [
+    "fonts",
+    "/usr/share/fonts/truetype/dejavu",
+    "/usr/share/fonts/dejavu",
+    "/Library/Fonts",
+    "C:\\Windows\\Fonts",
+]
+
+def _find_font(*filenames):
+    """Cari fail font dalam beberapa folder & nama alternatif."""
+    for d in FONT_DIRS:
+        for fn in filenames:
+            p = os.path.join(d, fn)
+            if os.path.exists(p):
+                return p
+    return None
+
+def add_unicode_font(pdf):
+    """Daftar font DejaVu supaya fpdf2 boleh encode Unicode (—, ", ', …)."""
+    regular = _find_font("DejaVuSans.ttf", "arial.ttf", "Arial.ttf", "calibri.ttf")
+    bold    = _find_font("DejaVuSans-Bold.ttf", "arialbd.ttf", "Arial Bold.ttf", "calibrib.ttf")
+    italic  = _find_font("DejaVuSans-Oblique.ttf", "ariali.ttf", "Arial Italic.ttf", "calibrii.ttf")
+
+    if not regular:
+        raise FileNotFoundError(
+            "Font Unicode tidak dijumpai. Sila letak 'DejaVuSans.ttf' dalam folder 'fonts/'."
+        )
+
+    pdf.add_font("DejaVu", "", regular)
+    pdf.add_font("DejaVu", "B", bold if bold else regular)
+    pdf.add_font("DejaVu", "I", italic if italic else regular)
+
+def set_font(pdf, style="", size=11):
+    pdf.set_font("DejaVu", style, size)
+
+# ==========================================
 # SISTEM LOG MASUK
 # ==========================================
 def check_password():
     def password_entered():
-        correct_password = "Along123" 
+        correct_password = "Along123"
         if st.session_state["password"] == correct_password:
             st.session_state["password_correct"] = True
             del st.session_state["password"]
@@ -145,24 +183,24 @@ if check_password():
         if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
             st.session_state["password_correct"] = False
             st.rerun()
-            
+
         st.markdown("---")
         st.header("🎯 Profil Sasaran (Suspek)")
-        
+
         with st.container(border=True):
             st.error(f"**Nama:** {NAMA_SUSPEK}")
             st.warning(f"**Tel:** {NOMOR_SUSPEK}")
             st.markdown(f"💬 [Buka WhatsApp](https://wa.me/{NOMOR_WA})")
             st.info(f"**Email:** {EMAIL_SUSPEK}")
             st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
-        
+
         with st.expander("📱 Media Sosial & Pekerjaan", expanded=False):
             st.info(f"**Kerja (FB):** {KERJA_FB}")
             st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
             st.markdown(f"📘 [Facebook (Adisprinter)]({LINK_FB})")
             st.markdown(f"📸 [Gambar Facebook]({LINK_FB_PHOTOS})")
             st.markdown(f"🎤 [Smule (@{USERNAME_SMULE})](https://www.smule.com/{USERNAME_SMULE})")
-            
+
         with st.expander("🚗 Maklumat Kenderaan", expanded=False):
             st.warning(f"🚗 **Plat Kereta:** {PLAT_KERETA}")
             st.markdown(f"**Pemilik:** {KENDERAAN_1['nama']}")
@@ -170,25 +208,25 @@ if check_password():
             st.markdown(f"**Alamat:** {KENDERAAN_1['alamat']}")
             st.markdown(f"**Model:** {KENDERAAN_1['model']}")
             st.markdown(f"**Status:** {KENDERAAN_1['status']}")
-            
+
             st.markdown("---")
-            
+
             st.warning(f"🏍️ **Plat Motor:** {PLAT_MOTOR}")
             st.markdown(f"**Pemilik:** {KENDERAAN_2['nama']}")
             st.markdown(f"**IC:** {KENDERAAN_2['ic']}")
             st.markdown(f"**Alamat:** {KENDERAAN_2['alamat']}")
             st.markdown(f"**Model:** {KENDERAAN_2['model']}")
             st.markdown(f"**Status:** {KENDERAAN_2['status']}")
-            
+
             st.info("💡 **Nota:** Maklumat pemilik kenderaan di atas diperoleh daripada gambar galeri Facebook suspek.")
-        
+
         with st.expander("📍 Check-in & Caption FB", expanded=False):
             st.info(f"📍 **Check-in FB:** {CHECK_IN}")
             st.info(f"📝 **Caption FB:** '{CAPTION_FB}'")
-        
+
         with st.expander("🚨 Keldai Akaun (Mule)", expanded=False):
             st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
-        
+
         with st.expander("🎵 Kaitan MVM Music", expanded=False):
             st.info("Individu 'Hadi' (Booking Artis)")
             st.write("Suspek mendakwa mempunyai kaitan dengan MVM Music. Saya mendapati dalam promosi rasmi MVM Music terdapat nama Hadi dengan nombor 016 217 3665 dan email mvm.hadi@gmail.com untuk urusan booking artis. Saya memohon pihak polis menyemak sama ada suspek mempunyai kaitan dengan individu ini atau sama ada suspek menyamar menggunakan identiti tersebut.")
@@ -205,7 +243,7 @@ if check_password():
     with tab1:
         st.header("Jana Laporan Polis")
         st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
-        
+
         if os.path.exists(DATA_FILE):
             st.success("✅ Data draf sebelum ini telah dimuatkan secara automatik dari fail simpanan.")
 
@@ -222,10 +260,10 @@ if check_password():
         tel_pengadu = st.text_input("No. Telefon Anda", key="pengadu_tel")
         alamat_pengadu = st.text_area("Alamat Penuh Anda", key="pengadu_alamat")
         jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)", key="pengadu_kerugian")
-        
+
         st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
         st.info("Sila edit atau tambah ayat di dalam kotak ini mengikut kes anda.")
-        
+
         kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=300)
 
         col_btn1, col_btn2 = st.columns(2)
@@ -257,134 +295,140 @@ if check_password():
 
         st.markdown("---")
         st.info("💡 Anda juga boleh lihat semua bukti (gambar, resit, chat) di channel Telegram kami.")
-        
+
         col_pdf, col_tg = st.columns(2)
-        
+
         with col_pdf:
             if st.button("📥 Jana Laporan PDF Utama", type="secondary", use_container_width=True):
                 if not nama_pengadu or not ic_pengadu:
                     st.error("Sila isi Nama dan No. IC anda dahulu!")
                 else:
-                    pdf = FPDF()
-                    pdf.add_page()
-                    pdf.set_auto_page_break(auto=True, margin=15)
+                    try:
+                        pdf = FPDF()
+                        add_unicode_font(pdf)          # <-- DAFTAR FONT UNICODE DULU
+                        pdf.add_page()
+                        pdf.set_auto_page_break(auto=True, margin=15)
 
-                    pdf.set_font("Helvetica", "B", 16)
-                    pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", align="C")
-                    pdf.ln(10)
+                        set_font(pdf, "B", 16)
+                        pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", align="C")
+                        pdf.ln(10)
 
-                    # BAHAGIAN A: MAKLUMAT PENGADU
-                    pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "A. MAKLUMAT PENGADU")
-                    pdf.ln(8)
-                    pdf.set_font("Helvetica", "", 11)
-
-                    pengadu_data = [
-                        ("Nama", nama_pengadu), ("No. IC", ic_pengadu), ("No. Telefon", tel_pengadu),
-                        ("Alamat", alamat_pengadu), ("Jumlah Kerugian", jumlah_kerugian)
-                    ]
-                    for label, value in pengadu_data:
-                        pdf.cell(40, 8, label) # Label kiri
-                        pdf.cell(5, 8, ":")    # Titik noktah
-                        pdf.multi_cell(0, 8, str(value)) # Value kanan
+                        # BAHAGIAN A: MAKLUMAT PENGADU
+                        set_font(pdf, "B", 12)
+                        pdf.cell(0, 10, "A. MAKLUMAT PENGADU")
                         pdf.ln(8)
-                    pdf.ln(5)
+                        set_font(pdf, "", 11)
 
-                    # BAHAGIAN B: MAKLUMAT SUSPEK (Dah dikemaskan align)
-                    pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "B. MAKLUMAT SUSPEK & KELDAI AKAUN")
-                    pdf.ln(8)
-                    pdf.set_font("Helvetica", "", 11)
+                        pengadu_data = [
+                            ("Nama", nama_pengadu), ("No. IC", ic_pengadu), ("No. Telefon", tel_pengadu),
+                            ("Alamat", alamat_pengadu), ("Jumlah Kerugian", jumlah_kerugian)
+                        ]
+                        for label, value in pengadu_data:
+                            pdf.cell(40, 8, label)
+                            pdf.cell(5, 8, ":")
+                            pdf.multi_cell(0, 8, str(value))
+                            pdf.ln(8)
+                        pdf.ln(5)
 
-                    suspek_data = [
-                        ("Suspek Utama", NAMA_SUSPEK), 
-                        ("No. Telefon", NOMOR_SUSPEK), 
-                        ("Email", EMAIL_SUSPEK),
-                        ("TikTok", f"@{USERNAME_TIKTOK}"), 
-                        ("Facebook", LINK_FB), 
-                        ("Smule", USERNAME_SMULE),
-                        ("Kerja (FB)", KERJA_FB), 
-                        ("Plat Kereta", PLAT_KERETA), 
-                        ("Plat Motor", PLAT_MOTOR),
-                        ("Check-in FB", CHECK_IN), 
-                        ("Caption FB", f"'{CAPTION_FB}'"),
-                        ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"), 
-                        ("No. Akaun", AKAUN_MULE),
-                        ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
-                    ]
-                    
-                    for label, value in suspek_data:
-                        pdf.cell(40, 8, label) # Label kiri (lebar 40)
-                        pdf.cell(5, 8, ":")    # Titik noktah (lebar 5)
-                        pdf.multi_cell(0, 8, str(value)) # Value kanan (auto wrap)
-                        pdf.ln(8) # Jarak antara baris
-                        
-                    pdf.ln(5)
+                        # BAHAGIAN B: MAKLUMAT SUSPEK
+                        set_font(pdf, "B", 12)
+                        pdf.cell(0, 10, "B. MAKLUMAT SUSPEK & KELDAI AKAUN")
+                        pdf.ln(8)
+                        set_font(pdf, "", 11)
 
-                    # BAHAGIAN C: KRONOLOGI
-                    pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "C. KRONOLOGI KEJADIAN")
-                    pdf.ln(8)
-                    pdf.set_font("Helvetica", "", 11)
-                    pdf.multi_cell(0, 8, kronologi_edit)
-                    pdf.ln(8)
+                        suspek_data = [
+                            ("Suspek Utama", NAMA_SUSPEK),
+                            ("No. Telefon", NOMOR_SUSPEK),
+                            ("Email", EMAIL_SUSPEK),
+                            ("TikTok", f"@{USERNAME_TIKTOK}"),
+                            ("Facebook", LINK_FB),
+                            ("Smule", USERNAME_SMULE),
+                            ("Kerja (FB)", KERJA_FB),
+                            ("Plat Kereta", PLAT_KERETA),
+                            ("Plat Motor", PLAT_MOTOR),
+                            ("Check-in FB", CHECK_IN),
+                            ("Caption FB", f"'{CAPTION_FB}'"),
+                            ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"),
+                            ("No. Akaun", AKAUN_MULE),
+                            ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
+                        ]
 
-                    # BAHAGIAN D: LAMPIRAN
-                    pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "D. LAMPIRAN BUKTI")
-                    pdf.ln(8)
-                    pdf.set_font("Helvetica", "", 11)
-                    
-                    lampiran = [
-                        "1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow) - Nama Abdul Hadi.",
-                        "2. [ ] Tangkapan skrin transaksi ke akaun keldai (MOHAMMAD HILMI, BSN).",
-                        "3. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang RM1783).",
-                        "4. [ ] Tangkapan skrin profil TikTok, Facebook (Adisprinter), Smule (GSR_Adi).",
-                        "5. [ ] Tangkapan skrin gambar kereta (WHG 8164), motor (WGG 4317), & gambar kemalangan.",
-                        "6. [ ] Tangkapan skrin gambar zaman persekolahan (SK Kuala Kangsar).",
-                        "7. [ ] Tangkapan skrin tag GetContact (80 tag aduan).",
-                        "8. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi.",
-                    ]
-                    for item in lampiran:
-                        pdf.multi_cell(0, 8, item)
+                        for label, value in suspek_data:
+                            pdf.cell(40, 8, label)
+                            pdf.cell(5, 8, ":")
+                            pdf.multi_cell(0, 8, str(value))
+                            pdf.ln(8)
+
+                        pdf.ln(5)
+
+                        # BAHAGIAN C: KRONOLOGI
+                        set_font(pdf, "B", 12)
+                        pdf.cell(0, 10, "C. KRONOLOGI KEJADIAN")
+                        pdf.ln(8)
+                        set_font(pdf, "", 11)
+                        pdf.multi_cell(0, 8, kronologi_edit)
                         pdf.ln(8)
 
-                    pdf.ln(10)
-                    pdf.set_font("Helvetica", "I", 10)
-                    pdf.multi_cell(0, 8, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.")
-                    pdf.ln(8)
+                        # BAHAGIAN D: LAMPIRAN
+                        set_font(pdf, "B", 12)
+                        pdf.cell(0, 10, "D. LAMPIRAN BUKTI")
+                        pdf.ln(8)
+                        set_font(pdf, "", 11)
 
-                    pdf.ln(15)
-                    pdf.set_font("Helvetica", "", 11)
-                    pdf.cell(0, 10, "Tandatangan Pengadu: _____________________")
-                    pdf.ln(10)
-                    pdf.cell(0, 10, f"Nama: {nama_pengadu}")
-                    pdf.ln(10)
-                    pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}")
-                    pdf.ln(10)
+                        lampiran = [
+                            "1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow) - Nama Abdul Hadi.",
+                            "2. [ ] Tangkapan skrin transaksi ke akaun keldai (MOHAMMAD HILMI, BSN).",
+                            "3. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang RM1783).",
+                            "4. [ ] Tangkapan skrin profil TikTok, Facebook (Adisprinter), Smule (GSR_Adi).",
+                            "5. [ ] Tangkapan skrin gambar kereta (WHG 8164), motor (WGG 4317), & gambar kemalangan.",
+                            "6. [ ] Tangkapan skrin gambar zaman persekolahan (SK Kuala Kangsar).",
+                            "7. [ ] Tangkapan skrin tag GetContact (80 tag aduan).",
+                            "8. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi.",
+                        ]
+                        for item in lampiran:
+                            pdf.multi_cell(0, 8, item)
+                            pdf.ln(8)
 
-                    pdf_bytes = bytes(pdf.output())
+                        pdf.ln(10)
+                        set_font(pdf, "I", 10)
+                        pdf.multi_cell(0, 8, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.")
+                        pdf.ln(8)
 
-                    st.download_button(
-                        label="📥 Download Laporan Utama",
-                        data=pdf_bytes,
-                        file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf",
-                        mime="application/pdf",
-                        use_container_width=True
-                    )
-                    st.success("✅ Laporan Utama berjaya dijana!")
+                        pdf.ln(15)
+                        set_font(pdf, "", 11)
+                        pdf.cell(0, 10, "Tandatangan Pengadu: _____________________")
+                        pdf.ln(10)
+                        pdf.cell(0, 10, f"Nama: {nama_pengadu}")
+                        pdf.ln(10)
+                        pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}")
+                        pdf.ln(10)
+
+                        pdf_bytes = bytes(pdf.output())
+
+                        st.download_button(
+                            label="📥 Download Laporan Utama",
+                            data=pdf_bytes,
+                            file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf",
+                            mime="application/pdf",
+                            use_container_width=True
+                        )
+                        st.success("✅ Laporan Utama berjaya dijana!")
+                    except FileNotFoundError as e:
+                        st.error(f"❌ {e}")
+                    except Exception as e:
+                        st.error(f"❌ Ralat jana PDF: {e}")
 
         with col_tg:
             st.link_button("📢 Buka Channel Telegram Bukti", "https://t.me/+2M7Vwt8K3lQwYzE1", type="primary", use_container_width=True)
 
         st.markdown("---")
         st.subheader("Pautan Aduan Segera & Pangkalan Data")
-        
+
         col1, col2 = st.columns(2)
-        with col1: 
+        with col1:
             st.link_button("🚨 NSRC 997", "https://nfcc.jpm.gov.my/", use_container_width=True)
             st.link_button("📧 Aduan MCMC", "https://aduan.mcmc.gov.my/", use_container_width=True)
-        with col2: 
+        with col2:
             st.link_button("📞 Semak Mule PDRM", "https://semakmule.rmp.gov.my/", use_container_width=True)
             st.link_button("🔎 Truecaller", f"https://www.truecaller.com/search/my/{NOMOR_SUSPEK.replace('+', '')}", use_container_width=True)
 
@@ -392,7 +436,7 @@ if check_password():
     with tab2:
         st.header("Carian OSINT (Open Source Intelligence)")
         st.write("Klik butang di bawah untuk membuka carian di tab baru.")
-        
+
         st.subheader("Jejak Suspek (Hadi)")
         st.link_button("💬 Buka WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}", use_container_width=True)
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22", use_container_width=True)
@@ -404,13 +448,13 @@ if check_password():
         st.link_button("🚗 Semak Plat Kereta (WHG 8164)", "https://www.google.com/search?q=%22WHG+8164%22", use_container_width=True)
         st.link_button("🏍️ Semak Plat Motor (WGG 4317)", "https://www.google.com/search?q=%22WGG+4317%22", use_container_width=True)
         st.link_button("📍 Cari 'Ipoh, Perak' di Maps", "https://www.google.com/maps/search/Ipoh,+Perak", use_container_width=True)
-        
+
         st.markdown("---")
         st.subheader("Kaitan MVM Music")
         st.link_button("🎵 Cari MVM Music di Google", "https://www.google.com/search?q=MVM+Music+Puchong", use_container_width=True)
         st.link_button("🎤 Cari 'Hadi MVM Music'", "https://www.google.com/search?q=%22Hadi%22+%22MVM+Music%22", use_container_width=True)
         st.link_button("📞 Cari No. Tel MVM (016-217 3665)", "https://www.google.com/search?q=%22016-217+3665%22", use_container_width=True)
-            
+
         st.markdown("---")
         st.subheader("Jejak Keldai Akaun")
         st.link_button("🏦 Cari Nama Hilmi di FB", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}", use_container_width=True)
@@ -432,12 +476,12 @@ if check_password():
         st.write("Klik butang di bawah untuk semak jejak email suspek.")
         email_encoded = urllib.parse.quote(EMAIL_SUSPEK)
         nama_encoded = urllib.parse.quote(NAMA_SUSPEK)
-        
+
         st.subheader("Carian Emel")
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{email_encoded}%22", use_container_width=True)
         st.link_button("📧 Semak Data Bocor (HIBP)", f"https://haveibeenpwned.com/account/{email_encoded}", use_container_width=True)
         st.link_button("📘 Cari Emel di Facebook", f"https://www.facebook.com/search/top?q={email_encoded}", use_container_width=True)
-        
+
         st.markdown("---")
         st.subheader("Carian Nama & Bisnes")
         st.link_button("🔍 Cari Nama + Black Cafe", f"https://www.google.com/search?q=%22{nama_encoded}%22+%22Black+Cafe%22", use_container_width=True)
@@ -448,12 +492,12 @@ if check_password():
     with tab5:
         st.header("Muat Naik Bukti & Jana PDF")
         st.write("Anda boleh upload gambar (resit, chat, atau bukti lain) dan jadikannya satu fail PDF untuk diserahkan kepada polis.")
-        
+
         uploaded_files = st.file_uploader("Pilih gambar bukti (Boleh pilih lebih dari satu)", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
         if uploaded_files:
             st.success(f"✅ {len(uploaded_files)} gambar telah berjaya dimuat naik.")
-            
+
             cols = st.columns(2)
             for idx, file in enumerate(uploaded_files):
                 img = Image.open(file)
@@ -461,40 +505,46 @@ if check_password():
                     st.image(img, caption=f"Gambar {idx+1}", use_container_width=True)
 
             if st.button("📄 Jana PDF Bukti", type="primary", use_container_width=True):
-                pdf = FPDF()
-                
-                for idx, file in enumerate(uploaded_files):
-                    pdf.add_page()
-                    
-                    img = Image.open(file)
-                    img_path = f"temp_img_{idx}.jpg"
-                    img = img.convert("RGB")
-                    img.save(img_path, "JPEG")
+                try:
+                    pdf = FPDF()
+                    add_unicode_font(pdf)   # <-- DAFTAR FONT UNICODE
 
-                    img_w, img_h = img.size
-                    page_w, page_h = 210, 297
-                    
-                    ratio = min((page_w - 20) / img_w, (page_h - 20) / img_h)
-                    new_w = img_w * ratio
-                    new_h = img_h * ratio
-                    
-                    x = (page_w - new_w) / 2
-                    y = (page_h - new_h) / 2
-                    
-                    pdf.image(img_path, x=x, y=y, w=new_w, h=new_h)
-                    
-                    os.remove(img_path)
+                    for idx, file in enumerate(uploaded_files):
+                        pdf.add_page()
 
-                pdf_bytes = bytes(pdf.output())
-                
-                st.download_button(
-                    label="📥 Download Bukti (PDF)",
-                    data=pdf_bytes,
-                    file_name="Bukti_Kes_Penipu.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
-                )
-                st.success("✅ PDF Bukti berjaya dijana! Sila muat turun.")
+                        img = Image.open(file)
+                        img_path = f"temp_img_{idx}.jpg"
+                        img = img.convert("RGB")
+                        img.save(img_path, "JPEG")
+
+                        img_w, img_h = img.size
+                        page_w, page_h = 210, 297
+
+                        ratio = min((page_w - 20) / img_w, (page_h - 20) / img_h)
+                        new_w = img_w * ratio
+                        new_h = img_h * ratio
+
+                        x = (page_w - new_w) / 2
+                        y = (page_h - new_h) / 2
+
+                        pdf.image(img_path, x=x, y=y, w=new_w, h=new_h)
+
+                        os.remove(img_path)
+
+                    pdf_bytes = bytes(pdf.output())
+
+                    st.download_button(
+                        label="📥 Download Bukti (PDF)",
+                        data=pdf_bytes,
+                        file_name="Bukti_Kes_Penipu.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
+                    st.success("✅ PDF Bukti berjaya dijana! Sila muat turun.")
+                except FileNotFoundError as e:
+                    st.error(f"❌ {e}")
+                except Exception as e:
+                    st.error(f"❌ Ralat jana PDF Bukti: {e}")
 
     st.markdown("---")
     st.caption("Sistem dibangunkan untuk tujuan siasatan sah. Sila bawa laporan ke balai polis untuk tindakan lanjut.")
