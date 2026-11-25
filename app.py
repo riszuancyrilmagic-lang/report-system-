@@ -126,14 +126,14 @@ if check_password():
     # ==========================================
     DATA_FILE = "simpanan_laporan.json"
 
-    # TEKS DEFAULT DIKOSONGAN (MANUAL)
-    TEKS_DEFAULT = ""
-
     def load_data():
         if os.path.exists(DATA_FILE):
             with open(DATA_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        return {"nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", "kronologi": TEKS_DEFAULT}
+        return {
+            "nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", 
+            "kronologi_polis": "", "kronologi_mahkamah": ""
+        }
 
     def save_data(data):
         with open(DATA_FILE, "w", encoding="utf-8") as f:
@@ -209,8 +209,8 @@ if check_password():
 
     # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
     with tab1:
-        st.header("Jana Laporan Polis")
-        st.write("Masukkan maklumat anda di bawah. Anda boleh edit teks kronologi mengikut kes anda sendiri sebelum jana PDF.")
+        st.header("Jana Laporan (Polis & Mahkamah)")
+        st.write("Masukkan maklumat anda di bawah. Sila isi teks kronologi yang berasingan untuk Laporan Polis dan Laporan Mahkamah.")
 
         if os.path.exists(DATA_FILE):
             st.success("✅ Data draf sebelum ini telah dimuatkan secara automatik dari fail simpanan.")
@@ -221,7 +221,10 @@ if check_password():
         if "pengadu_tel" not in st.session_state: st.session_state.pengadu_tel = data["tel"]
         if "pengadu_alamat" not in st.session_state: st.session_state.pengadu_alamat = data["alamat"]
         if "pengadu_kerugian" not in st.session_state: st.session_state.pengadu_kerugian = data["kerugian"]
-        if "kronologi_teks" not in st.session_state: st.session_state.kronologi_teks = data["kronologi"]
+        
+        # Tambah state untuk dua kronologi berasingan
+        if "kronologi_polis" not in st.session_state: st.session_state.kronologi_polis = data.get("kronologi_polis", "")
+        if "kronologi_mahkamah" not in st.session_state: st.session_state.kronologi_mahkamah = data.get("kronologi_mahkamah", "")
 
         nama_pengadu = st.text_input("Nama Penuh Anda (Pengadu)", key="pengadu_nama")
         ic_pengadu = st.text_input("No. IC Anda", key="pengadu_ic")
@@ -230,9 +233,15 @@ if check_password():
         jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)", key="pengadu_kerugian")
 
         st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
-        st.info("Sila taip atau paste kronologi kejadian anda di dalam kotak ini. PDF akan jana mengikut teks ini sahaja.")
-
-        kronologi_edit = st.text_area("Kronologi Kejadian:", key="kronologi_teks", height=400)
+        
+        # Dua kotak teks berasingan
+        col_kron1, col_kron2 = st.columns(2)
+        with col_kron1:
+            st.warning("🚨 **Kronologi untuk Laporan Polis** (Fokus pada ugutan/gangguan/penipuan)")
+            kronologi_polis = st.text_area("Kronologi Polis:", key="kronologi_polis", height=350)
+        with col_kron2:
+            st.info("⚖️ **Kronologi untuk Mahkamah** (Fokus pada aliran wang & hutang)")
+            kronologi_mahkamah = st.text_area("Kronologi Mahkamah:", key="kronologi_mahkamah", height=350)
 
         col_btn1, col_btn2 = st.columns(2)
         with col_btn1:
@@ -244,30 +253,28 @@ if check_password():
             new_data = {
                 "nama": st.session_state.pengadu_nama, "ic": st.session_state.pengadu_ic,
                 "tel": st.session_state.pengadu_tel, "alamat": st.session_state.pengadu_alamat,
-                "kerugian": st.session_state.pengadu_kerugian, "kronologi": st.session_state.kronologi_teks
+                "kerugian": st.session_state.pengadu_kerugian, 
+                "kronologi_polis": st.session_state.kronologi_polis,
+                "kronologi_mahkamah": st.session_state.kronologi_mahkamah
             }
             save_data(new_data)
             st.session_state.data_tersimpan = new_data
-            st.success("✅ Draf berjaya disimpan ke fail! Data ini akan kekal walaupun anda refresh page.")
+            st.success("✅ Draf berjaya disimpan ke fail!")
 
         if btn_reset:
             if os.path.exists(DATA_FILE):
                 os.remove(DATA_FILE)
-            st.session_state.pengadu_nama = ""
-            st.session_state.pengadu_ic = ""
-            st.session_state.pengadu_tel = ""
-            st.session_state.pengadu_alamat = ""
-            st.session_state.pengadu_kerugian = ""
-            st.session_state.kronologi_teks = TEKS_DEFAULT
+            for key in ["pengadu_nama", "pengadu_ic", "pengadu_tel", "pengadu_alamat", "pengadu_kerugian", "kronologi_polis", "kronologi_mahkamah"]:
+                st.session_state[key] = ""
             st.success("🔄 Draf telah di-reset.")
 
         st.markdown("---")
-        st.info("💡 Anda juga boleh lihat semua bukti (gambar, resit, chat) di channel Telegram kami.")
+        
+        # Butang Jana PDF (Dua pilihan)
+        col_pdf_polis, col_pdf_mahkamah = st.columns(2)
 
-        col_pdf, col_tg = st.columns(2)
-
-        with col_pdf:
-            if st.button("📥 Jana Laporan PDF Utama", type="secondary", use_container_width=True):
+        with col_pdf_polis:
+            if st.button("📥 Jana Laporan POLIS (PDF)", type="secondary", use_container_width=True):
                 if not nama_pengadu or not ic_pengadu:
                     st.error("Sila isi Nama dan No. IC anda dahulu!")
                 else:
@@ -276,118 +283,117 @@ if check_password():
                         add_unicode_font(pdf)
                         pdf.add_page()
                         pdf.set_auto_page_break(auto=True, margin=15)
-
                         line_h = 6
 
-                        # TAJUK UTAMA
                         set_font(pdf, "B", 14)
                         pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", align="C")
                         pdf.ln(8)
 
-                        # BAHAGIAN A: MAKLUMAT PENGADU
+                        # Bahagian A
                         set_font(pdf, "B", 11)
                         pdf.cell(0, 8, "A. MAKLUMAT PENGADU")
                         pdf.ln(6)
                         set_font(pdf, "", 10)
-
-                        pengadu_data = [
-                            ("Nama", nama_pengadu), ("No. IC", ic_pengadu), ("No. Telefon", tel_pengadu),
-                            ("Alamat", alamat_pengadu), ("Jumlah Kerugian", jumlah_kerugian)
-                        ]
+                        pengadu_data = [("Nama", nama_pengadu), ("No. IC", ic_pengadu), ("No. Telefon", tel_pengadu), ("Alamat", alamat_pengadu)]
                         for label, value in pengadu_data:
-                            pdf.cell(35, line_h, label)
-                            pdf.cell(4, line_h, ":")
-                            pdf.multi_cell(0, line_h, str(value))
-                            pdf.ln(2)
+                            pdf.cell(35, line_h, label); pdf.cell(4, line_h, ":"); pdf.multi_cell(0, line_h, str(value)); pdf.ln(2)
+                        
                         pdf.ln(3)
-
-                        # BAHAGIAN B: MAKLUMAT SUSPEK
+                        # Bahagian B (Suspek)
                         set_font(pdf, "B", 11)
-                        pdf.cell(0, 8, "B. MAKLUMAT SUSPEK & KELDAI AKAUN")
+                        pdf.cell(0, 8, "B. MAKLUMAT SUSPEK")
                         pdf.ln(6)
                         set_font(pdf, "", 10)
-
-                        suspek_data = [
-                            ("Suspek Utama", NAMA_SUSPEK),
-                            ("No. Telefon", NOMOR_SUSPEK),
-                            ("Email", EMAIL_SUSPEK),
-                            ("TikTok", f"@{USERNAME_TIKTOK}"),
-                            ("Facebook", LINK_FB),
-                            ("Plat Kereta", PLAT_KERETA),
-                            ("Plat Motor", PLAT_MOTOR),
-                            ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"),
-                            ("No. Akaun", AKAUN_MULE),
-                            ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
-                        ]
-
+                        suspek_data = [("Nama", NAMA_SUSPEK), ("No. Tel", NOMOR_SUSPEK), ("Email", EMAIL_SUSPEK)]
                         for label, value in suspek_data:
-                            pdf.cell(35, line_h, label)
-                            pdf.cell(4, line_h, ":")
-                            pdf.multi_cell(0, line_h, str(value))
-                            pdf.ln(2)
+                            pdf.cell(35, line_h, label); pdf.cell(4, line_h, ":"); pdf.multi_cell(0, line_h, str(value)); pdf.ln(2)
 
                         pdf.ln(3)
-
-                        # BAHAGIAN C: KRONOLOGI (Print manual input)
+                        # Bahagian C (Kronologi POLIS)
                         set_font(pdf, "B", 11)
-                        pdf.cell(0, 8, "C. KRONOLOGI KEJADIAN")
+                        pdf.cell(0, 8, "C. KRONOLOGI KEJADIAN (JENAYAH)")
                         pdf.ln(6)
                         set_font(pdf, "", 10)
-                        pdf.multi_cell(0, line_h, kronologi_edit)
+                        pdf.multi_cell(0, line_h, kronologi_polis)
                         pdf.ln(4)
 
-                        # BAHAGIAN D: LAMPIRAN
-                        set_font(pdf, "B", 11)
-                        pdf.cell(0, 8, "D. LAMPIRAN BUKTI")
-                        pdf.ln(6)
-                        set_font(pdf, "", 10)
-
-                        lampiran = [
-                            "1. [ ] Tangkapan skrin transaksi (Touch 'n Go / DuitNow) - Nama Abdul Hadi.",
-                            "2. [ ] Tangkapan skrin transaksi ke akaun keldai (MOHAMMAD HILMI, BSN).",
-                            "3. [ ] Tangkapan skrin perbualan WhatsApp (Pengakuan hutang RM1783).",
-                            "4. [ ] Tangkapan skrin profil TikTok, Facebook (Adisprinter), Smule (GSR_Adi).",
-                            "5. [ ] Tangkapan skrin gambar kereta (WHG 8164), motor (WGG 4317), & gambar kemalangan.",
-                            "6. [ ] Tangkapan skrin gambar zaman persekolahan (SK Kuala Kangsar).",
-                            "7. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi."
-                        ]
-                        for item in lampiran:
-                            pdf.multi_cell(0, line_h, item)
-                            pdf.ln(1)
-
-                        pdf.ln(6)
                         set_font(pdf, "I", 9)
                         pdf.multi_cell(0, line_h, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.")
                         pdf.ln(10)
-
                         set_font(pdf, "", 10)
-                        pdf.cell(0, line_h, "Tandatangan Pengadu: _____________________")
-                        pdf.ln(6)
-                        pdf.cell(0, line_h, f"Nama: {nama_pengadu}")
+                        pdf.cell(0, line_h, "Tandatangan: _____________________")
                         pdf.ln(6)
                         pdf.cell(0, line_h, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}")
-                        
+
                         pdf_bytes = bytes(pdf.output())
-
-                        st.download_button(
-                            label="📥 Download Laporan Utama",
-                            data=pdf_bytes,
-                            file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf",
-                            mime="application/pdf",
-                            use_container_width=True
-                        )
-                        st.success("✅ Laporan Utama berjaya dijana!")
-                    except FileNotFoundError as e:
-                        st.error(f"❌ {e}")
+                        st.download_button(label="📥 Download Laporan Polis", data=pdf_bytes, file_name=f"Laporan_Polis_{nama_pengadu.replace(' ', '_')}.pdf", mime="application/pdf", use_container_width=True)
                     except Exception as e:
-                        st.error(f"❌ Ralat jana PDF: {e}")
+                        st.error(f"❌ Ralat: {e}")
 
-        with col_tg:
-            st.link_button("📢 Buka Channel Telegram Bukti", "https://t.me/+2M7Vwt8K3lQwYzE1", type="primary", use_container_width=True)
+        with col_pdf_mahkamah:
+            if st.button("⚖️ Jana Laporan MAHKAMAH (PDF)", type="secondary", use_container_width=True):
+                if not nama_pengadu or not ic_pengadu:
+                    st.error("Sila isi Nama dan No. IC anda dahulu!")
+                else:
+                    try:
+                        pdf = FPDF()
+                        add_unicode_font(pdf)
+                        pdf.add_page()
+                        pdf.set_auto_page_break(auto=True, margin=15)
+                        line_h = 6
+
+                        set_font(pdf, "B", 14)
+                        pdf.cell(0, 10, "TUNTUTAN SIVIL (MAHKAMAH)", align="C")
+                        pdf.ln(8)
+
+                        # Bahagian A
+                        set_font(pdf, "B", 11)
+                        pdf.cell(0, 8, "A. MAKLUMAT PENGADU (PLAINTIFF)")
+                        pdf.ln(6)
+                        set_font(pdf, "", 10)
+                        pengadu_data = [("Nama", nama_pengadu), ("No. IC", ic_pengadu), ("No. Telefon", tel_pengadu), ("Alamat", alamat_pengadu)]
+                        for label, value in pengadu_data:
+                            pdf.cell(35, line_h, label); pdf.cell(4, line_h, ":"); pdf.multi_cell(0, line_h, str(value)); pdf.ln(2)
+
+                        pdf.ln(3)
+                        # Bahagian B (Defendan)
+                        set_font(pdf, "B", 11)
+                        pdf.cell(0, 8, "B. MAKLUMAT DEFENDAN & KELDAI AKAUN")
+                        pdf.ln(6)
+                        set_font(pdf, "", 10)
+                        suspek_data = [("Defendan", NAMA_SUSPEK), ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"), ("No. Akaun", AKAUN_MULE)]
+                        for label, value in suspek_data:
+                            pdf.cell(35, line_h, label); pdf.cell(4, line_h, ":"); pdf.multi_cell(0, line_h, str(value)); pdf.ln(2)
+
+                        pdf.ln(3)
+                        # Bahagian C (Kronologi MAHKAMAH)
+                        set_font(pdf, "B", 11)
+                        pdf.cell(0, 8, "C. KRONOLOGI TRANSAKSI & HUTANG")
+                        pdf.ln(6)
+                        set_font(pdf, "", 10)
+                        pdf.multi_cell(0, line_h, kronologi_mahkamah)
+                        pdf.ln(4)
+
+                        # Bahagian D (Tuntutan)
+                        set_font(pdf, "B", 11)
+                        pdf.cell(0, 8, "D. TUNTUTAN")
+                        pdf.ln(6)
+                        set_font(pdf, "", 10)
+                        pdf.multi_cell(0, line_h, f"Saya menuntut bayaran balik sejumlah {jumlah_kerugian} daripada Defendan berserta kos guaman.")
+                        
+                        pdf.ln(10)
+                        set_font(pdf, "", 10)
+                        pdf.cell(0, line_h, "Tandatangan Plaintif: _____________________")
+                        pdf.ln(6)
+                        pdf.cell(0, line_h, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}")
+
+                        pdf_bytes = bytes(pdf.output())
+                        st.download_button(label="📥 Download Laporan Mahkamah", data=pdf_bytes, file_name=f"Tuntutan_Mahkamah_{nama_pengadu.replace(' ', '_')}.pdf", mime="application/pdf", use_container_width=True)
+                    except Exception as e:
+                        st.error(f"❌ Ralat: {e}")
 
         st.markdown("---")
         st.subheader("Pautan Aduan Segera & Pangkalan Data")
-
         col1, col2 = st.columns(2)
         with col1:
             st.link_button("🚨 NSRC 997", "https://nfcc.jpm.gov.my/", use_container_width=True)
