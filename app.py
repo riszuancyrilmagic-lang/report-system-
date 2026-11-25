@@ -37,7 +37,7 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # ==========================================
-# FONT UNICODE (untuk fpdf2) — FIX FPDFUnicodeEncodingException
+# FONT UNICODE
 # ==========================================
 FONT_DIRS = ["fonts", "/usr/share/fonts/truetype/dejavu", "/usr/share/fonts/dejavu", "/Library/Fonts", "C:\\Windows\\Fonts"]
 
@@ -208,8 +208,6 @@ if check_password():
             st.markdown(f"**Model:** {KENDERAAN_2['model']}")
             st.markdown(f"**Status:** {KENDERAAN_2['status']}")
 
-            st.info("💡 **Nota:** Maklumat pemilik kenderaan di atas diperoleh daripada gambar galeri Facebook suspek.")
-
         with st.expander("📍 Check-in & Caption FB", expanded=False):
             st.info(f"📍 **Check-in FB:** {CHECK_IN}")
             st.info(f"📝 **Caption FB:** '{CAPTION_FB}'")
@@ -221,8 +219,6 @@ if check_password():
             st.info("Individu 'Hadi' (Booking Artis)")
             st.write("Suspek mendakwa mempunyai kaitan dengan MVM Music. Saya mendapati dalam promosi rasmi MVM Music terdapat nama Hadi dengan nombor 016 217 3665 dan email mvm.hadi@gmail.com untuk urusan booking artis. Saya memohon pihak polis menyemak sama ada suspek mempunyai kaitan dengan individu ini atau sama ada suspek menyamar menggunakan identiti tersebut.")
             st.code("No. Tel: 016-217 3665\nEmail: mvm.hadi@gmail.com")
-            st.markdown(f"🔍 [Cari MVM Music di Google](https://www.google.com/search?q=MVM+Music+Puchong)")
-            st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
 
     # ==========================================
     # TABS
@@ -299,7 +295,6 @@ if check_password():
                         pdf.add_page()
                         pdf.set_auto_page_break(auto=True, margin=15)
 
-                        # Saiz baris dikurangkan (6) supaya lebih padat
                         line_h = 6
 
                         set_font(pdf, "B", 14)
@@ -320,11 +315,10 @@ if check_password():
                             pdf.cell(35, line_h, label)
                             pdf.cell(4, line_h, ":")
                             pdf.multi_cell(0, line_h, str(value))
-                            # Jarak kecil antara baris
                             pdf.ln(2)
                         pdf.ln(3)
 
-                        # BAHAGIAN B: MAKLUMAT SUSPEK
+                        # BAHAGIAN B: MAKLUMAT SUSPEK (HANYA 4 PERKARA DIBUANG)
                         set_font(pdf, "B", 11)
                         pdf.cell(0, 8, "B. MAKLUMAT SUSPEK & KELDAI AKAUN")
                         pdf.ln(6)
@@ -336,15 +330,15 @@ if check_password():
                             ("Email", EMAIL_SUSPEK),
                             ("TikTok", f"@{USERNAME_TIKTOK}"),
                             ("Facebook", LINK_FB),
-                            ("Smule", USERNAME_SMULE),
-                            ("Kerja (FB)", KERJA_FB),
+                            # ("Smule", USERNAME_SMULE),        <-- DIBUANG
+                            # ("Kerja (FB)", KERJA_FB),         <-- DIBUANG
                             ("Plat Kereta", PLAT_KERETA),
                             ("Plat Motor", PLAT_MOTOR),
-                            ("Check-in FB", CHECK_IN),
-                            ("Caption FB", f"'{CAPTION_FB}'"),
+                            # ("Check-in FB", CHECK_IN),        <-- DIBUANG
+                            # ("Caption FB", f"'{CAPTION_FB}'"),<-- DIBUANG
                             ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"),
                             ("No. Akaun", AKAUN_MULE),
-                            ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
+                            ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)") # Dikekalkan
                         ]
 
                         for label, value in suspek_data:
@@ -377,11 +371,11 @@ if check_password():
                             "5. [ ] Tangkapan skrin gambar kereta (WHG 8164), motor (WGG 4317), & gambar kemalangan.",
                             "6. [ ] Tangkapan skrin gambar zaman persekolahan (SK Kuala Kangsar).",
                             "7. [ ] Tangkapan skrin tag GetContact (80 tag aduan).",
-                            "8. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi.",
+                            "8. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi."
                         ]
                         for item in lampiran:
                             pdf.multi_cell(0, line_h, item)
-                            pdf.ln(1) # Jarak sangat kecil untuk senarai
+                            pdf.ln(1)
 
                         pdf.ln(6)
                         set_font(pdf, "I", 9)
@@ -395,7 +389,6 @@ if check_password():
                         pdf.ln(6)
                         pdf.cell(0, line_h, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}")
                         
-                        # Guna pdf_bytes untuk download tanpa simpan fail fizikal
                         pdf_bytes = bytes(pdf.output())
 
                         st.download_button(
