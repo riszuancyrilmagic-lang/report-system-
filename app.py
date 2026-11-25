@@ -1,7 +1,6 @@
 import streamlit as st
 import datetime
 from fpdf import FPDF
-from fpdf.enums import XPos, YPos  # <-- TAMBAHAN UNTUK FIX ERROR
 import folium
 from streamlit_folium import st_folium
 import urllib.parse
@@ -14,8 +13,6 @@ from PIL import Image
 # ==========================================
 st.set_page_config(page_title="Sistem Siasatan Penipu", page_icon="🕵️‍♂️", layout="wide")
 
-# CSS: Buang header hiding supaya butang sidebar muncul kat phone.
-# Tambah style responsif untuk mobile.
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -26,7 +23,6 @@ hide_st_style = """
             [data-testid="stDecoration"] {visibility: hidden;}
             .viewerBadge_container__1QSob {visibility: hidden !important;}
             
-            /* MOBILE OPTIMIZATION */
             @media (max-width: 768px) {
                 .block-container {padding-left: 0.5rem !important; padding-right: 0.5rem !important;}
                 [data-testid="stSidebar"] {min-width: 85vw !important; max-width: 85vw !important;}
@@ -41,7 +37,7 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # ==========================================
-# SISTEM LOG MASUK (PASSWORD TERUS DALAM KOD)
+# SISTEM LOG MASUK
 # ==========================================
 def check_password():
     def password_entered():
@@ -55,15 +51,11 @@ def check_password():
     if "password_correct" not in st.session_state:
         st.title("🔒 Sistem Siasatan Penipu")
         st.info("Sila masukkan kata laluan untuk mengakses sistem ini.")
-        st.text_input(
-            "Kata Laluan", type="password", on_change=password_entered, key="password"
-        )
+        st.text_input("Kata Laluan", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
         st.title("🔒 Sistem Siasatan Penipu")
-        st.text_input(
-            "Kata Laluan", type="password", on_change=password_entered, key="password"
-        )
+        st.text_input("Kata Laluan", type="password", on_change=password_entered, key="password")
         st.error("😕 Kata laluan salah. Sila cuba lagi.")
         return False
     else:
@@ -85,33 +77,20 @@ if check_password():
     CAPTION_FB = "Hati aku hanya pada Perak"
     KERJA_FB = "KDN, Putrajaya"
 
-    KAWAN_RAPAT = [
-        "Faiz Badiozaman",
-        "Fitri Azizi Ramli",
-        "Muhd Syhmy"
-    ]
-
     NAMA_MULE = "MOHAMMAD HILMI BIN MOHD HANIF"
     BANK_MULE = "Bank Simpanan Nasional (BSN)"
     AKAUN_MULE = "0820041100050836"
     BAKI_HUTANG = "RM 1,783.00"
 
     KENDERAAN_1 = {
-        "plat": "WHG 8164",
-        "nama": "MOHAMAD SYAFIQ B BADRUL HISHAM",
-        "ic": "020114081039",
-        "alamat": "NO 14 RUMAH AWAM 5, JLN KENAS, 33000 PERAK",
-        "model": "PROTON SATRIA 1.4 GLI M",
-        "status": "1 Rekod Kemalangan"
+        "plat": "WHG 8164", "nama": "MOHAMAD SYAFIQ B BADRUL HISHAM",
+        "ic": "020114081039", "alamat": "NO 14 RUMAH AWAM 5, JLN KENAS, 33000 PERAK",
+        "model": "PROTON SATRIA 1.4 GLI M", "status": "1 Rekod Kemalangan"
     }
-
     KENDERAAN_2 = {
-        "plat": "WGG 4317",
-        "nama": "MOHD FAZLIN BIN LAH",
-        "ic": "740728085339",
-        "alamat": "NO 18 LALUAN CHEPOR DAMAIN 12, 31200 PERAK",
-        "model": "YAMAHA TZM 150",
-        "status": "1 Rekod Kemalangan"
+        "plat": "WGG 4317", "nama": "MOHD FAZLIN BIN LAH",
+        "ic": "740728085339", "alamat": "NO 18 LALUAN CHEPOR DAMAIN 12, 31200 PERAK",
+        "model": "YAMAHA TZM 150", "status": "1 Rekod Kemalangan"
     }
 
     # ==========================================
@@ -144,9 +123,7 @@ if check_password():
         if os.path.exists(DATA_FILE):
             with open(DATA_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        return {
-            "nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", "kronologi": TEKS_DEFAULT
-        }
+        return {"nama": "", "ic": "", "tel": "", "alamat": "", "kerugian": "", "kronologi": TEKS_DEFAULT}
 
     def save_data(data):
         with open(DATA_FILE, "w", encoding="utf-8") as f:
@@ -162,7 +139,7 @@ if check_password():
     st.markdown("---")
 
     # ==========================================
-    # SIDEBAR - DIOPTIMALKAN UNTUK PHONE
+    # SIDEBAR
     # ==========================================
     with st.sidebar:
         if st.button("🚪 Log Keluar", type="primary", use_container_width=True):
@@ -172,7 +149,6 @@ if check_password():
         st.markdown("---")
         st.header("🎯 Profil Sasaran (Suspek)")
         
-        # Maklumat asas dalam container berbingkai (kemas kat phone)
         with st.container(border=True):
             st.error(f"**Nama:** {NAMA_SUSPEK}")
             st.warning(f"**Tel:** {NOMOR_SUSPEK}")
@@ -180,7 +156,6 @@ if check_password():
             st.info(f"**Email:** {EMAIL_SUSPEK}")
             st.success(f"**Baki Hutang:** {BAKI_HUTANG}")
         
-        # Guna expander untuk maklumat panjang (jimat ruang kat phone)
         with st.expander("📱 Media Sosial & Pekerjaan", expanded=False):
             st.info(f"**Kerja (FB):** {KERJA_FB}")
             st.markdown(f"📱 [TikTok (@{USERNAME_TIKTOK})](https://www.tiktok.com/@{USERNAME_TIKTOK})")
@@ -211,10 +186,6 @@ if check_password():
             st.info(f"📍 **Check-in FB:** {CHECK_IN}")
             st.info(f"📝 **Caption FB:** '{CAPTION_FB}'")
         
-        with st.expander("👥 Kawan Rapat / Kontak", expanded=False):
-            for kawan in KAWAN_RAPAT:
-                st.markdown(f"- {kawan}")
-        
         with st.expander("🚨 Keldai Akaun (Mule)", expanded=False):
             st.code(f"Nama : {NAMA_MULE}\nBank : {BANK_MULE}\nAkaun: {AKAUN_MULE}")
         
@@ -226,11 +197,9 @@ if check_password():
             st.markdown(f"📞 [Cari No. Tel MVM](https://www.google.com/search?q=%22016-217+3665%22)")
 
     # ==========================================
-    # TABS - SAMA MACAM ASAL (TAPI RESPONSIF)
+    # TABS
     # ==========================================
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📄 Laporan", "🔍 OSINT", "🗺️ Peta", "📧 Email", "📁 Bukti"
-    ])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📄 Laporan", "🔍 OSINT", "🗺️ Peta", "📧 Email", "📁 Bukti"])
 
     # --- TAB 1: BUAT LAPORAN PDF & ADUAN ---
     with tab1:
@@ -287,7 +256,6 @@ if check_password():
             st.success("🔄 Draf telah di-reset ke teks asal.")
 
         st.markdown("---")
-        
         st.info("💡 Anda juga boleh lihat semua bukti (gambar, resit, chat) di channel Telegram kami.")
         
         col_pdf, col_tg = st.columns(2)
@@ -302,27 +270,33 @@ if check_password():
                     pdf.set_auto_page_break(auto=True, margin=15)
 
                     pdf.set_font("Helvetica", "B", 16)
-                    pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
-                    pdf.ln(8)
+                    pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", align="C")
+                    pdf.ln(10)
 
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "A. MAKLUMAT PENGADU", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(0, 10, "A. MAKLUMAT PENGADU")
+                    pdf.ln(8)
                     pdf.set_font("Helvetica", "", 11)
 
-                    pdf.cell(35, 8, "Nama", new_x=XPos.RIGHT, new_y=YPos.TOP)
-                    pdf.cell(0, 8, f": {nama_pengadu}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    pdf.cell(35, 8, "No. IC", new_x=XPos.RIGHT, new_y=YPos.TOP)
-                    pdf.cell(0, 8, f": {ic_pengadu}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    pdf.cell(35, 8, "No. Telefon", new_x=XPos.RIGHT, new_y=YPos.TOP)
-                    pdf.cell(0, 8, f": {tel_pengadu}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    pdf.cell(35, 8, "Alamat", new_x=XPos.RIGHT, new_y=YPos.TOP)
-                    pdf.multi_cell(0, 8, f": {alamat_pengadu}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    pdf.cell(35, 8, "Jumlah Kerugian", new_x=XPos.RIGHT, new_y=YPos.TOP)
-                    pdf.cell(0, 8, f": {jumlah_kerugian}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    pdf.ln(5)
+                    pdf.cell(35, 8, "Nama")
+                    pdf.cell(0, 8, f": {nama_pengadu}")
+                    pdf.ln(8)
+                    pdf.cell(35, 8, "No. IC")
+                    pdf.cell(0, 8, f": {ic_pengadu}")
+                    pdf.ln(8)
+                    pdf.cell(35, 8, "No. Telefon")
+                    pdf.cell(0, 8, f": {tel_pengadu}")
+                    pdf.ln(8)
+                    pdf.cell(35, 8, "Alamat")
+                    pdf.multi_cell(0, 8, f": {alamat_pengadu}")
+                    pdf.ln(8)
+                    pdf.cell(35, 8, "Jumlah Kerugian")
+                    pdf.cell(0, 8, f": {jumlah_kerugian}")
+                    pdf.ln(10)
 
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "B. MAKLUMAT SUSPEK & KELDAI AKAUN", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(0, 10, "B. MAKLUMAT SUSPEK & KELDAI AKAUN")
+                    pdf.ln(8)
                     pdf.set_font("Helvetica", "", 11)
 
                     suspek_data = [
@@ -334,26 +308,23 @@ if check_password():
                         ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
                     ]
                     for label, value in suspek_data:
-                        pdf.cell(40, 8, label, new_x=XPos.RIGHT, new_y=YPos.TOP)
-                        pdf.multi_cell(0, 8, f": {value}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                        pdf.cell(40, 8, label)
+                        pdf.multi_cell(0, 8, f": {value}")
+                        pdf.ln(8)
                     pdf.ln(5)
 
+                    # BAHAGIAN C (Kawan Rapat) TELAH DIBUANG SEPERTI DIMINTA
+
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "C. RANGKAIAN SOSIAL (KAWAN RAPAT)", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(0, 10, "C. KRONOLOGI KEJADIAN") # Label ditukar dari D ke C
+                    pdf.ln(8)
                     pdf.set_font("Helvetica", "", 11)
-                    pdf.multi_cell(0, 8, "Berdasarkan komen Facebook, suspek mempunyai hubungan rapat dengan individu berikut:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    for kawan in KAWAN_RAPAT:
-                        pdf.cell(0, 8, f"   - {kawan}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    pdf.ln(5)
+                    pdf.multi_cell(0, 8, kronologi_edit)
+                    pdf.ln(8)
 
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "D. KRONOLOGI KEJADIAN", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    pdf.set_font("Helvetica", "", 11)
-                    pdf.multi_cell(0, 8, kronologi_edit, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    pdf.ln(5)
-
-                    pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "E. LAMPIRAN BUKTI", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(0, 10, "D. LAMPIRAN BUKTI") # Label ditukar dari E ke D
+                    pdf.ln(8)
                     pdf.set_font("Helvetica", "", 11)
                     
                     lampiran = [
@@ -367,17 +338,22 @@ if check_password():
                         "8. [ ] Tangkapan skrin gambar di studio MVM Music & dakwaan sebagai penyanyi.",
                     ]
                     for item in lampiran:
-                        pdf.multi_cell(0, 8, item, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                        pdf.multi_cell(0, 8, item)
+                        pdf.ln(8)
 
                     pdf.ln(10)
                     pdf.set_font("Helvetica", "I", 10)
-                    pdf.multi_cell(0, 8, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.multi_cell(0, 8, "Saya bersumpah bahawa maklumat yang diberikan adalah benar.")
+                    pdf.ln(8)
 
                     pdf.ln(15)
                     pdf.set_font("Helvetica", "", 11)
-                    pdf.cell(0, 10, "Tandatangan Pengadu: _____________________", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    pdf.cell(0, 10, f"Nama: {nama_pengadu}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-                    pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.cell(0, 10, "Tandatangan Pengadu: _____________________")
+                    pdf.ln(10)
+                    pdf.cell(0, 10, f"Nama: {nama_pengadu}")
+                    pdf.ln(10)
+                    pdf.cell(0, 10, f"Tarikh: {datetime.datetime.now().strftime('%d/%m/%Y')}")
+                    pdf.ln(10)
 
                     pdf_bytes = bytes(pdf.output())
 
@@ -391,17 +367,11 @@ if check_password():
                     st.success("✅ Laporan Utama berjaya dijana!")
 
         with col_tg:
-            st.link_button(
-                label="📢 Buka Channel Telegram Bukti", 
-                url="https://t.me/+2M7Vwt8K3lQwYzE1", 
-                type="primary", 
-                use_container_width=True
-            )
+            st.link_button("📢 Buka Channel Telegram Bukti", "https://t.me/+2M7Vwt8K3lQwYzE1", type="primary", use_container_width=True)
 
         st.markdown("---")
         st.subheader("Pautan Aduan Segera & Pangkalan Data")
         
-        # Kat phone, 4 columns akan jadi sangat kecil. Guna 2 columns je.
         col1, col2 = st.columns(2)
         with col1: 
             st.link_button("🚨 NSRC 997", "https://nfcc.jpm.gov.my/", use_container_width=True)
@@ -415,7 +385,6 @@ if check_password():
         st.header("Carian OSINT (Open Source Intelligence)")
         st.write("Klik butang di bawah untuk membuka carian di tab baru.")
         
-        # Kat phone, 2 columns akan sempit. Guna 1 column je (stack atas bawah)
         st.subheader("Jejak Suspek (Hadi)")
         st.link_button("💬 Buka WhatsApp Suspek", f"https://wa.me/{NOMOR_WA}", use_container_width=True)
         st.link_button("🔎 Cari Email di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(EMAIL_SUSPEK)}%22", use_container_width=True)
@@ -435,13 +404,9 @@ if check_password():
         st.link_button("📞 Cari No. Tel MVM (016-217 3665)", "https://www.google.com/search?q=%22016-217+3665%22", use_container_width=True)
             
         st.markdown("---")
-        st.subheader("Jejak Keldai Akaun & Kawan")
+        st.subheader("Jejak Keldai Akaun")
         st.link_button("🏦 Cari Nama Hilmi di FB", f"https://www.facebook.com/search/top?q={urllib.parse.quote(NAMA_MULE)}", use_container_width=True)
         st.link_button("🔍 Cari Hilmi di Google", f"https://www.google.com/search?q=%22{urllib.parse.quote(NAMA_MULE)}%22", use_container_width=True)
-        st.markdown("**Cari Kawan Rapat:**")
-        for idx, kawan in enumerate(KAWAN_RAPAT):
-            kawan_encoded = urllib.parse.quote(kawan)
-            st.link_button(f"🔍 Cari {kawan} di FB", f"https://www.facebook.com/search/top?q={kawan_encoded}", key=f"fb_{idx}", use_container_width=True)
 
     # --- TAB 3: PETA LOKASI ---
     with tab3:
@@ -451,7 +416,6 @@ if check_password():
         folium.Marker(
             [4.7735, 101.1000], popup="Kawasan Sasaran: Kuala Kangsar / Sg Siput", tooltip="Klik untuk info", icon=folium.Icon(color='red', icon='info-sign')
         ).add_to(m)
-        # Guna use_container_width=True supaya peta responsive ikut skrin phone
         st_folium(m, use_container_width=True, height=400)
 
     # --- TAB 4: CARIAN EMAIL & DATA ---
@@ -477,16 +441,11 @@ if check_password():
         st.header("Muat Naik Bukti & Jana PDF")
         st.write("Anda boleh upload gambar (resit, chat, atau bukti lain) dan jadikannya satu fail PDF untuk diserahkan kepada polis.")
         
-        uploaded_files = st.file_uploader(
-            "Pilih gambar bukti (Boleh pilih lebih dari satu)", 
-            type=["jpg", "jpeg", "png"], 
-            accept_multiple_files=True
-        )
+        uploaded_files = st.file_uploader("Pilih gambar bukti (Boleh pilih lebih dari satu)", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
         if uploaded_files:
             st.success(f"✅ {len(uploaded_files)} gambar telah berjaya dimuat naik.")
             
-            # Kat phone, 3 columns jadi kecik. Guna 2 columns je.
             cols = st.columns(2)
             for idx, file in enumerate(uploaded_files):
                 img = Image.open(file)
