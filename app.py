@@ -273,57 +273,65 @@ if check_password():
                     pdf.cell(0, 10, "LAPORAN POLIS (DRAF PENGADU)", align="C")
                     pdf.ln(10)
 
+                    # BAHAGIAN A: MAKLUMAT PENGADU
                     pdf.set_font("Helvetica", "B", 12)
                     pdf.cell(0, 10, "A. MAKLUMAT PENGADU")
                     pdf.ln(8)
                     pdf.set_font("Helvetica", "", 11)
 
-                    pdf.cell(35, 8, "Nama")
-                    pdf.cell(0, 8, f": {nama_pengadu}")
-                    pdf.ln(8)
-                    pdf.cell(35, 8, "No. IC")
-                    pdf.cell(0, 8, f": {ic_pengadu}")
-                    pdf.ln(8)
-                    pdf.cell(35, 8, "No. Telefon")
-                    pdf.cell(0, 8, f": {tel_pengadu}")
-                    pdf.ln(8)
-                    pdf.cell(35, 8, "Alamat")
-                    pdf.multi_cell(0, 8, f": {alamat_pengadu}")
-                    pdf.ln(8)
-                    pdf.cell(35, 8, "Jumlah Kerugian")
-                    pdf.cell(0, 8, f": {jumlah_kerugian}")
-                    pdf.ln(10)
+                    pengadu_data = [
+                        ("Nama", nama_pengadu), ("No. IC", ic_pengadu), ("No. Telefon", tel_pengadu),
+                        ("Alamat", alamat_pengadu), ("Jumlah Kerugian", jumlah_kerugian)
+                    ]
+                    for label, value in pengadu_data:
+                        pdf.cell(40, 8, label) # Label kiri
+                        pdf.cell(5, 8, ":")    # Titik noktah
+                        pdf.multi_cell(0, 8, str(value)) # Value kanan
+                        pdf.ln(8)
+                    pdf.ln(5)
 
+                    # BAHAGIAN B: MAKLUMAT SUSPEK (Dah dikemaskan align)
                     pdf.set_font("Helvetica", "B", 12)
                     pdf.cell(0, 10, "B. MAKLUMAT SUSPEK & KELDAI AKAUN")
                     pdf.ln(8)
                     pdf.set_font("Helvetica", "", 11)
 
                     suspek_data = [
-                        ("Suspek Utama", NAMA_SUSPEK), ("No. Telefon", NOMOR_SUSPEK), ("Email", EMAIL_SUSPEK),
-                        ("TikTok", f"@{USERNAME_TIKTOK}"), ("Facebook", LINK_FB), ("Smule", USERNAME_SMULE),
-                        ("Kerja (FB)", KERJA_FB), ("Plat Kereta", PLAT_KERETA), ("Plat Motor", PLAT_MOTOR),
-                        ("Check-in FB", CHECK_IN), ("Caption FB", f"'{CAPTION_FB}'"),
-                        ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"), ("No. Akaun", AKAUN_MULE),
+                        ("Suspek Utama", NAMA_SUSPEK), 
+                        ("No. Telefon", NOMOR_SUSPEK), 
+                        ("Email", EMAIL_SUSPEK),
+                        ("TikTok", f"@{USERNAME_TIKTOK}"), 
+                        ("Facebook", LINK_FB), 
+                        ("Smule", USERNAME_SMULE),
+                        ("Kerja (FB)", KERJA_FB), 
+                        ("Plat Kereta", PLAT_KERETA), 
+                        ("Plat Motor", PLAT_MOTOR),
+                        ("Check-in FB", CHECK_IN), 
+                        ("Caption FB", f"'{CAPTION_FB}'"),
+                        ("Keldai Akaun", f"{NAMA_MULE} ({BANK_MULE})"), 
+                        ("No. Akaun", AKAUN_MULE),
                         ("Kaitan MVM", "Hadi (016-217 3665 / mvm.hadi@gmail.com)")
                     ]
+                    
                     for label, value in suspek_data:
-                        pdf.cell(40, 8, label)
-                        pdf.multi_cell(0, 8, f": {value}")
-                        pdf.ln(8)
+                        pdf.cell(40, 8, label) # Label kiri (lebar 40)
+                        pdf.cell(5, 8, ":")    # Titik noktah (lebar 5)
+                        pdf.multi_cell(0, 8, str(value)) # Value kanan (auto wrap)
+                        pdf.ln(8) # Jarak antara baris
+                        
                     pdf.ln(5)
 
-                    # BAHAGIAN C (Kawan Rapat) TELAH DIBUANG SEPERTI DIMINTA
-
+                    # BAHAGIAN C: KRONOLOGI
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "C. KRONOLOGI KEJADIAN") # Label ditukar dari D ke C
+                    pdf.cell(0, 10, "C. KRONOLOGI KEJADIAN")
                     pdf.ln(8)
                     pdf.set_font("Helvetica", "", 11)
                     pdf.multi_cell(0, 8, kronologi_edit)
                     pdf.ln(8)
 
+                    # BAHAGIAN D: LAMPIRAN
                     pdf.set_font("Helvetica", "B", 12)
-                    pdf.cell(0, 10, "D. LAMPIRAN BUKTI") # Label ditukar dari E ke D
+                    pdf.cell(0, 10, "D. LAMPIRAN BUKTI")
                     pdf.ln(8)
                     pdf.set_font("Helvetica", "", 11)
                     
