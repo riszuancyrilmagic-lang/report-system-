@@ -1,6 +1,7 @@
 streamlit
-fpdf
+fpdf2
 folium
 streamlit-folium
+Pillow
 phonenumbers
 opencage
