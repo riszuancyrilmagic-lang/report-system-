@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import datetime
 from fpdf import FPDF
 import folium
@@ -63,6 +64,154 @@ def add_unicode_font(pdf):
 
 def set_font(pdf, style="", size=10):
     pdf.set_font("DejaVu", style, size)
+
+# ==========================================
+# BACAAN SUARA (Teks-ke-Suara pelayar)
+# Percuma, tiada had aksara, tiada API/duit.
+# ==========================================
+def baca_suara_ui(nama, ic, tel, alamat, kerugian, kron_polis, kron_mahkamah):
+    data = {
+        "nama": nama or "",
+        "ic": ic or "",
+        "tel": tel or "",
+        "alamat": alamat or "",
+        "kerugian": kerugian or "",
+        "polis": kron_polis or "",
+        "mahkamah": kron_mahkamah or "",
+    }
+    payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+
+    html_code = r"""
+    <style>
+      .tts{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#0f172a}
+      .tts .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+      .tts button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;font-size:14px;font-weight:600}
+      .tts .play{background:#1d4ed8;color:#fff}
+      .tts .stop{background:#b91c1c;color:#fff}
+      .tts .ghost{background:#e2e8f0;color:#0f172a}
+      .tts textarea{width:100%;min-height:90px;border-radius:10px;border:1px solid #cbd5e1;padding:10px;font:inherit}
+      .tts .note{font-size:12px;color:#475569;margin-top:8px}
+      .tts .status{font-size:13px;font-weight:600;color:#1d4ed8;margin-top:8px;min-height:18px}
+    </style>
+    <div class="tts">
+      <div class="row">
+        <button class="play" id="b-polis">🔊 Baca Kronologi Polis</button>
+        <button class="play" id="b-mahkamah">🔊 Baca Kronologi Mahkamah</button>
+        <button class="stop" id="b-henti">⏹ Henti</button>
+      </div>
+      <div class="row">
+        <textarea id="teks-bebas" placeholder="Tampal apa-apa teks di sini (chat WhatsApp, mesej suspek, nota) untuk dibaca…"></textarea>
+      </div>
+      <div class="row">
+        <button class="ghost" id="b-teks">🔊 Baca teks ini</button>
+      </div>
+      <div class="status" id="tts-status"></div>
+      <div class="note">Percuma dan tiada had aksara. Suara dibaca oleh enjin Teks-ke-Suara dalam pelayar/peranti anda. Bacaan berhenti sendiri bila teks habis.</div>
+    </div>
+    <script>
+    var DATA = __DATA__;
+    var synth = window.speechSynthesis;
+    var statusEl = document.getElementById('tts-status');
+    var queue = [];
+    var idx = 0;
+
+    function speakable(t){
+      return String(t || '')
+        .replace(/(\d),(?=\d{3})/g, '$1')
+        .replace(/\bRM\s*/gi, 'Ringgit ')
+        .replace(/\bNo\.\s*/gi, 'Nombor ')
+        .replace(/&/g, ' dan ')
+        .replace(/[•·►▶]/g, ', ')
+        .replace(/[ \t]+/g, ' ')
+        .trim();
+    }
+
+    function laporan(kind){
+      var isPolis = (kind === 'polis');
+      var kron = isPolis ? DATA.polis : DATA.mahkamah;
+      if(!kron || !kron.trim()){
+        statusEl.textContent = isPolis ? 'Isi Kronologi Polis dahulu.' : 'Isi Kronologi Mahkamah dahulu.';
+        return '';
+      }
+      var rows = [isPolis ? 'Laporan Polis berkenaan kes penipuan.' : 'Laporan Mahkamah berkenaan tuntutan balik wang.'];
+      if(DATA.nama) rows.push('Nama pengadu: ' + DATA.nama + '.');
+      if(DATA.ic) rows.push('Nombor kad pengenalan: ' + DATA.ic + '.');
+      if(DATA.tel) rows.push('Nombor telefon: ' + DATA.tel + '.');
+      if(DATA.alamat) rows.push('Alamat: ' + DATA.alamat + '.');
+      if(DATA.kerugian) rows.push('Jumlah kerugian: ' + DATA.kerugian + '.');
+      rows.push(kron);
+      return rows.join('. ');
+    }
+
+    function pecah(text, max){
+      var bersih = String(text).replace(/\s+/g, ' ').trim();
+      var out = [];
+      var rest = bersih;
+      while(rest.length > max){
+        var cut = Math.max(rest.lastIndexOf('. ', max), rest.lastIndexOf('? ', max), rest.lastIndexOf('! ', max));
+        if(cut < max * 0.4) cut = rest.lastIndexOf(' ', max);
+        if(cut <= 0) cut = max;
+        out.push(rest.slice(0, cut + 1).trim());
+        rest = rest.slice(cut + 1).trim();
+      }
+      if(rest) out.push(rest);
+      return out;
+    }
+
+    function suaraMelayu(){
+      var senarai = synth.getVoices() || [];
+      for(var i = 0; i < senarai.length; i++){
+        if(/^ms/i.test(senarai[i].lang)) return senarai[i];
+      }
+      return null;
+    }
+
+    function berhenti(){
+      queue = [];
+      idx = 0;
+      try { synth.cancel(); } catch (e) {}
+      statusEl.textContent = '';
+    }
+
+    function seterusnya(){
+      if(idx >= queue.length){
+        statusEl.textContent = '✅ Selesai.';
+        return;
+      }
+      var u = new SpeechSynthesisUtterance(queue[idx]);
+      var v = suaraMelayu();
+      if(v){ u.voice = v; u.lang = v.lang; } else { u.lang = 'ms-MY'; }
+      u.rate = 1.0;
+      u.pitch = 1.0;
+      u.onend = function(){ idx++; seterusnya(); };
+      u.onerror = function(){ statusEl.textContent = 'Suara tidak tersedia pada peranti ini. Pasang suara Bahasa Melayu di tetapan sistem.'; };
+      synth.speak(u);
+    }
+
+    function main(teks){
+      var t = speakable(teks);
+      if(!t) return;
+      berhenti();
+      queue = pecah(t, 180);
+      idx = 0;
+      statusEl.textContent = '🔊 Membaca…';
+      seterusnya();
+    }
+
+    document.getElementById('b-polis').addEventListener('click', function(){ main(laporan('polis')); });
+    document.getElementById('b-mahkamah').addEventListener('click', function(){ main(laporan('mahkamah')); });
+    document.getElementById('b-teks').addEventListener('click', function(){
+      var box = document.getElementById('teks-bebas');
+      if(!box.value.trim()){ statusEl.textContent = 'Tampal atau taip teks dahulu.'; return; }
+      main(box.value);
+    });
+    document.getElementById('b-henti').addEventListener('click', berhenti);
+    if(synth && typeof synth.getVoices === 'function'){ synth.getVoices(); }
+    </script>
+    """
+    html_code = html_code.replace("__DATA__", payload)
+    components.html(html_code, height=330, scrolling=False)
+
 
 # ==========================================
 # SISTEM LOG MASUK
@@ -242,6 +391,13 @@ if check_password():
         with col_kron2:
             st.info("⚖️ **Kronologi untuk Mahkamah** (Fokus pada aliran wang & hutang)")
             kronologi_mahkamah = st.text_area("Kronologi Mahkamah:", key="kronologi_mahkamah", height=350)
+
+        # ==========================================
+        # BACAAN SUARA (PERCUMA, TIADA HAD)
+        # ==========================================
+        st.markdown("### 🔊 Baca dengan Suara")
+        st.caption("Tekan butang di bawah untuk mendengar kronologi anda. Percuma, tiada had aksara, dan tiada akaun diperlukan.")
+        baca_suara_ui(nama_pengadu, ic_pengadu, tel_pengadu, alamat_pengadu, jumlah_kerugian, kronologi_polis, kronologi_mahkamah)
 
         col_btn1, col_btn2 = st.columns(2)
         with col_btn1:
