@@ -65,63 +65,63 @@ def add_unicode_font(pdf):
 def set_font(pdf, style="", size=10):
     pdf.set_font("DejaVu", style, size)
 
-# ==========================================
-# BACAAN SUARA (Teks-ke-Suara pelayar)
-# Percuma, tiada had aksara, tiada API/duit.
-# ==========================================
-def baca_suara_ui(nama, ic, tel, alamat, kerugian, kron_polis, kron_mahkamah):
-    """Pemain suara + penanda karaoke: baris dan perkataan disorot semasa dibaca."""
-    data = {
-        "nama": nama or "",
-        "ic": ic or "",
-        "tel": tel or "",
-        "alamat": alamat or "",
-        "kerugian": kerugian or "",
-        "polis": kron_polis or "",
-        "mahkamah": kron_mahkamah or "",
-    }
+def suara_seksyen(teks, label="Baca seksyen ini", tinggi=86):
+    """Butang suara kecil + jalur karaoke satu baris (macam ikon pembaca ChatGPT)."""
+    data = {"t": teks or "", "label": label}
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
 
     html_code = r"""
     <style>
-      .tts{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#0f172a}
-      .tts .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-      .tts button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;font-size:14px;font-weight:600}
-      .tts .play{background:#1d4ed8;color:#fff}
-      .tts .stop{background:#b91c1c;color:#fff}
-      .tts .ghost{background:#e2e8f0;color:#0f172a}
-      .tts textarea{width:100%;min-height:72px;border-radius:10px;border:1px solid #cbd5e1;padding:10px;font:inherit}
-      .tts .note{font-size:12px;color:#475569;margin-top:8px}
-      .tts .status{font-size:13px;font-weight:600;color:#1d4ed8;margin-top:6px;min-height:18px}
-      .tts .skrin{position:relative;margin-top:8px;max-height:190px;overflow-y:auto;border:1px solid #cbd5e1;border-radius:10px;padding:10px;background:#f8fafc;line-height:2;font-size:15px}
-      .tts .baris{display:block;border-radius:6px;padding:1px 6px;transition:background .2s,color .2s}
-      .tts .baris.aktif{background:#fef08a;font-weight:700;color:#0f172a}
-      .tts .baris.aktif::before{content:'\25B6  ';color:#b45309}
-      .tts .baris.siap{color:#64748b}
-      .tts .kata.penanda{background:#ea580c;color:#fff;border-radius:4px;box-shadow:0 0 0 2px #fdba74}
+      .pl{font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+      .pl .row{display:flex;align-items:center;gap:6px}
+      .pl .btn{cursor:pointer;border:0;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;background:#1d4ed8;color:#fff;white-space:nowrap}
+      .pl .btn.on{background:#0f766e}
+      .pl .stop{cursor:pointer;border:0;border-radius:999px;padding:6px 10px;font-size:12.5px;font-weight:700;background:#b91c1c;color:#fff}
+      .pl .bar{position:relative;margin-top:5px;height:24px;line-height:24px;overflow:hidden;white-space:nowrap;font-size:12.5px;color:#334155;border:1px dashed #cbd5e1;border-radius:8px;padding:0 8px;background:#f8fafc}
+      .pl .bar .k{border-radius:4px;padding:0 2px}
+      .pl .bar .k.p{background:#ea580c;color:#fff}
+      .pl .msg{font-size:11.5px;color:#b91c1c;margin-top:3px;line-height:14px}
     </style>
-    <div class="tts">
+    <div class="pl">
       <div class="row">
-        <button class="play" id="b-polis">🔊 Baca Kronologi Polis</button>
-        <button class="play" id="b-mahkamah">🔊 Baca Kronologi Mahkamah</button>
-        <button class="stop" id="b-henti">⏹ Henti</button>
+        <button class="btn" id="main">🔊 Baca</button>
+        <button class="stop" id="henti" title="Henti bacaan">⏹</button>
       </div>
-      <div class="skrin" id="skrin"><span style="color:#64748b">Teks yang dibaca akan muncul di sini. Penanda bergerak pada setiap baris dan perkataan, macam lirik lagu.</span></div>
-      <div class="status" id="tts-status"></div>
-      <div class="row">
-        <textarea id="teks-bebas" placeholder="Tampal apa-apa teks di sini (chat WhatsApp, mesej suspek, nota) untuk dibaca…"></textarea>
-      </div>
-      <div class="row"><button class="ghost" id="b-teks">🔊 Baca teks ini</button></div>
-      <div class="note">Percuma, tiada had aksara. Kuning = baris yang sedang dibaca, oren = perkataan yang sedang disebut. Tekan ⏹ untuk berhenti.</div>
+      <div class="bar" id="bar">Tekan 🔊 untuk baca.</div>
+      <div class="msg" id="msg"></div>
     </div>
     <script>
-    var DATA = __DATA__;
-    var synth = window.speechSynthesis;
-    var skrin = document.getElementById('skrin');
-    var statusEl = document.getElementById('tts-status');
-    var senarai = [];
-    var barisAktif = null;
+    var D = __DATA__;
+    var mainBtn = document.getElementById('main');
+    var stopBtn = document.getElementById('henti');
+    var barEl = document.getElementById('bar');
+    var msgEl = document.getElementById('msg');
+    var ayat = [];
     var kataAktif = null;
+
+    mainBtn.textContent = '🔊 ' + (D.label || 'Baca');
+
+    function enjin(){
+      try {
+        if(window.parent && window.parent !== window && window.parent.speechSynthesis) return window.parent.speechSynthesis;
+      } catch (e) {}
+      return window.speechSynthesis;
+    }
+
+    function senaraiSuara(){
+      var s = enjin();
+      if(!s || !s.getVoices) return [];
+      try { return s.getVoices() || []; } catch (e) { return []; }
+    }
+
+    function suaraTerbaik(){
+      var v = senaraiSuara();
+      var i;
+      for(i = 0; i < v.length; i++){ if(/^ms/i.test(v[i].lang)) return v[i]; }
+      for(i = 0; i < v.length; i++){ if(/^id/i.test(v[i].lang)) return v[i]; }
+      for(i = 0; i < v.length; i++){ if(/^en/i.test(v[i].lang)) return v[i]; }
+      return v.length ? v[0] : null;
+    }
 
     function kataSebut(w){
       var s = String(w).replace(/[•·►▶]/g, ',').replace(/&/g, 'dan');
@@ -146,154 +146,128 @@ def baca_suara_ui(nama, ic, tel, alamat, kerugian, kron_polis, kron_mahkamah):
       return hasil;
     }
 
-    function binaBaris(teks){
-      return pecahAyat(teks, 170).map(function(ayat){
-        var kata = ayat.split(' ').filter(function(x){ return x.length > 0; });
+    function bina(teks){
+      return pecahAyat(teks, 160).map(function(a){
+        var kata = a.split(' ').filter(function(x){ return x.length > 0; });
         var peta = [];
-        var sebutKata = [];
+        var sebut = [];
         var offset = 0;
         kata.forEach(function(k){
-          var sebut = kataSebut(k);
-          peta.push({ w: k, s: offset, e: offset + sebut.length });
-          sebutKata.push(sebut);
-          offset += sebut.length + 1;
+          var s = kataSebut(k);
+          peta.push({ w: k, s: offset, e: offset + s.length });
+          sebut.push(s);
+          offset += s.length + 1;
         });
-        return { kata: peta, sebut: sebutKata.join(' ') };
+        return { kata: peta, sebut: sebut.join(' ') };
       });
     }
 
-    function lukis(){
-      skrin.innerHTML = '';
-      senarai.forEach(function(b, i){
-        var baris = document.createElement('span');
-        baris.className = 'baris';
-        baris.setAttribute('data-baris', i);
-        b.kata.forEach(function(k, j){
-          var span = document.createElement('span');
-          span.className = 'kata';
-          span.setAttribute('data-kata', i + '-' + j);
-          span.textContent = k.w;
-          baris.appendChild(span);
-          baris.appendChild(document.createTextNode(' '));
-        });
-        skrin.appendChild(baris);
+    function lukis(b){
+      barEl.innerHTML = '';
+      b.kata.forEach(function(k){
+        var sp = document.createElement('span');
+        sp.className = 'k';
+        sp.textContent = k.w;
+        barEl.appendChild(sp);
+        barEl.appendChild(document.createTextNode(' '));
       });
-      skrin.scrollTop = 0;
+      barEl.scrollLeft = 0;
+      kataAktif = null;
     }
 
-    function tumpu(el){
-      if(!el) return;
-      var atas = el.offsetTop;
-      if(atas < skrin.scrollTop || atas + el.offsetHeight > skrin.scrollTop + skrin.clientHeight){
-        skrin.scrollTop = Math.max(0, atas - skrin.clientHeight / 2 + el.offsetHeight / 2);
-      }
-    }
-
-    function suaraMelayu(){
-      var senaraiSuara = synth.getVoices() || [];
-      for(var i = 0; i < senaraiSuara.length; i++){
-        if(/^ms/i.test(senaraiSuara[i].lang)) return senaraiSuara[i];
-      }
-      return null;
-    }
-
-    function tandaKata(i, j){
-      var el = skrin.querySelector('[data-kata="' + i + '-' + j + '"]');
+    function tandaKata(el){
       if(!el || el === kataAktif) return;
-      if(kataAktif) kataAktif.classList.remove('penanda');
-      el.classList.add('penanda');
+      if(kataAktif) kataAktif.classList.remove('p');
+      el.classList.add('p');
       kataAktif = el;
+      var kiri = el.offsetLeft - barEl.scrollLeft;
+      if(kiri < 0 || kiri + el.offsetWidth > barEl.clientWidth){
+        barEl.scrollLeft = el.offsetLeft - barEl.clientWidth / 2 + el.offsetWidth / 2;
+      }
     }
 
-    function berhenti(){
-      try { synth.cancel(); } catch (e) {}
-      if(kataAktif){ kataAktif.classList.remove('penanda'); kataAktif = null; }
-      if(barisAktif){ barisAktif.classList.remove('aktif'); barisAktif = null; }
-      statusEl.textContent = '';
+    function henti(){
+      try { enjin().cancel(); } catch (e) {}
+      mainBtn.classList.remove('on');
+      if(kataAktif){ kataAktif.classList.remove('p'); kataAktif = null; }
     }
 
-    function bacaBaris(i){
-      if(i >= senarai.length){
-        statusEl.textContent = '✅ Selesai.';
+    function baca(i){
+      if(i >= ayat.length){
+        henti();
+        barEl.textContent = '✅ Selesai.';
         return;
       }
-      var b = senarai[i];
-      var barisEl = skrin.querySelector('[data-baris="' + i + '"]');
-      if(barisAktif && barisAktif !== barisEl){
-        barisAktif.classList.remove('aktif');
-        barisAktif.classList.add('siap');
-      }
-      barisAktif = barisEl;
-      if(barisEl){
-        barisEl.classList.add('aktif');
-        barisEl.classList.remove('siap');
-        tumpu(barisEl);
-      }
-      statusEl.textContent = '🔊 Baris ' + (i + 1) + ' / ' + senarai.length;
-
+      var b = ayat[i];
+      lukis(b);
       var u = new SpeechSynthesisUtterance(b.sebut);
-      var v = suaraMelayu();
-      if(v){ u.voice = v; u.lang = v.lang; } else { u.lang = 'ms-MY'; }
+      var v = suaraTerbaik();
+      if(v){ try { u.voice = v; } catch (e) {} u.lang = v.lang; } else { u.lang = 'ms-MY'; }
       u.rate = 1.0;
       u.pitch = 1.0;
+      u.onstart = function(){ msgEl.textContent = ''; };
       u.onboundary = function(ev){
         var nama = ev.name || '';
         if(nama && nama !== 'word') return;
         var c = ev.charIndex || 0;
         for(var k = 0; k < b.kata.length; k++){
-          if(c >= b.kata[k].s && c < b.kata[k].e){ tandaKata(i, k); return; }
+          if(c >= b.kata[k].s && c < b.kata[k].e){
+            tandaKata(barEl.children[k]);
+            return;
+          }
         }
       };
-      u.onend = function(){
-        if(barisEl){ barisEl.classList.remove('aktif'); barisEl.classList.add('siap'); }
-        if(kataAktif){ kataAktif.classList.remove('penanda'); kataAktif = null; }
-        bacaBaris(i + 1);
+      u.onend = function(){ baca(i + 1); };
+      u.onerror = function(ev){
+        var jenis = (ev && ev.error) ? ev.error : '?';
+        if(jenis === 'interrupted' || jenis === 'canceled') return;
+        var n = senaraiSuara().length;
+        msgEl.textContent = 'Suara gagal (' + jenis + '). Suara pada peranti: ' + n + '.';
+        henti();
       };
-      u.onerror = function(){
-        statusEl.textContent = 'Suara tidak tersedia pada peranti ini. Pasang suara Bahasa Melayu di tetapan sistem.';
-      };
-      synth.speak(u);
+      var s = enjin();
+      try { s.resume(); } catch (e) {}
+      s.speak(u);
     }
 
-    function mula(teks){
-      var t = String(teks || '').trim();
-      if(!t){ statusEl.textContent = 'Tiada teks untuk dibaca.'; return; }
-      berhenti();
-      senarai = binaBaris(t);
-      lukis();
-      setTimeout(function(){ bacaBaris(0); }, 70);
+    function mula(){
+      var t = String(D.t || '').trim();
+      if(!t){ msgEl.textContent = 'Tiada teks untuk dibaca.'; return; }
+      henti();
+      msgEl.textContent = '';
+      ayat = bina(t);
+      if(!ayat.length){ msgEl.textContent = 'Tiada teks untuk dibaca.'; return; }
+      mainBtn.classList.add('on');
+      var s = enjin();
+      var mulaBaca = function(){ baca(0); };
+      if(senaraiSuara().length > 0){ mulaBaca(); return; }
+      var sudah = false;
+      var jln = function(){
+        if(sudah) return;
+        sudah = true;
+        try { s.removeEventListener('voiceschanged', jln); } catch (e) {}
+        setTimeout(mulaBaca, 60);
+      };
+      try { s.addEventListener('voiceschanged', jln); } catch (e) {}
+      setTimeout(jln, 700);
     }
 
-    function laporan(kind){
-      var isPolis = (kind === 'polis');
-      var kron = isPolis ? DATA.polis : DATA.mahkamah;
-      if(!kron || !kron.trim()){
-        statusEl.textContent = isPolis ? 'Isi Kronologi Polis dahulu.' : 'Isi Kronologi Mahkamah dahulu.';
-        return '';
+    mainBtn.addEventListener('click', function(){
+      if(mainBtn.classList.contains('on')){
+        henti();
+        barEl.textContent = 'Berhenti. Tekan 🔊 untuk baca semula.';
+        return;
       }
-      var rows = [isPolis ? 'Laporan Polis berkenaan kes penipuan.' : 'Laporan Mahkamah berkenaan tuntutan balik wang.'];
-      if(DATA.nama) rows.push('Nama pengadu: ' + DATA.nama + '.');
-      if(DATA.ic) rows.push('Nombor kad pengenalan: ' + DATA.ic + '.');
-      if(DATA.tel) rows.push('Nombor telefon: ' + DATA.tel + '.');
-      if(DATA.alamat) rows.push('Alamat: ' + DATA.alamat + '.');
-      if(DATA.kerugian) rows.push('Jumlah kerugian: ' + DATA.kerugian + '.');
-      rows.push(kron);
-      return rows.join('. ');
-    }
-
-    document.getElementById('b-polis').addEventListener('click', function(){ mula(laporan('polis')); });
-    document.getElementById('b-mahkamah').addEventListener('click', function(){ mula(laporan('mahkamah')); });
-    document.getElementById('b-teks').addEventListener('click', function(){
-      var box = document.getElementById('teks-bebas');
-      if(!box.value.trim()){ statusEl.textContent = 'Tampal atau taip teks dahulu.'; return; }
-      mula(box.value);
+      mula();
     });
-    document.getElementById('b-henti').addEventListener('click', berhenti);
-    if(synth && typeof synth.getVoices === 'function'){ synth.getVoices(); }
+    stopBtn.addEventListener('click', function(){
+      henti();
+      barEl.textContent = 'Berhenti.';
+    });
     </script>
     """
     html_code = html_code.replace("__DATA__", payload)
-    components.html(html_code, height=545, scrolling=False)
+    components.html(html_code, height=tinggi, scrolling=False)
 
 # ==========================================
 # SISTEM LOG MASUK
@@ -463,6 +437,11 @@ if check_password():
         alamat_pengadu = st.text_area("Alamat Penuh Anda", key="pengadu_alamat")
         jumlah_kerugian = st.text_input("Jumlah Kerugian (cth: RM 2,083.00)", key="pengadu_kerugian")
 
+        _teks_pengadu = "Nama pengadu {}. Nombor kad pengenalan {}. Nombor telefon {}. Alamat {}. Jumlah kerugian {}.".format(
+            nama_pengadu or "belum diisi", ic_pengadu or "belum diisi", tel_pengadu or "belum diisi",
+            alamat_pengadu or "belum diisi", jumlah_kerugian or "belum diisi")
+        suara_seksyen(_teks_pengadu, "Baca maklumat pengadu")
+
         st.markdown("### 📝 Teks Kronologi (Boleh Edit)")
         
         # Dua kotak teks berasingan
@@ -470,16 +449,11 @@ if check_password():
         with col_kron1:
             st.warning("🚨 **Kronologi untuk Laporan Polis** (Fokus pada ugutan/gangguan/penipuan)")
             kronologi_polis = st.text_area("Kronologi Polis:", key="kronologi_polis", height=350)
+            suara_seksyen(kronologi_polis, "Baca Kronologi Polis")
         with col_kron2:
             st.info("⚖️ **Kronologi untuk Mahkamah** (Fokus pada aliran wang & hutang)")
             kronologi_mahkamah = st.text_area("Kronologi Mahkamah:", key="kronologi_mahkamah", height=350)
-
-        # ==========================================
-        # BACAAN SUARA (PERCUMA, TIADA HAD)
-        # ==========================================
-        st.markdown("### 🔊 Baca dengan Suara")
-        st.caption("Tekan butang di bawah untuk mendengar kronologi anda. Percuma, tiada had aksara, dan tiada akaun diperlukan.")
-        baca_suara_ui(nama_pengadu, ic_pengadu, tel_pengadu, alamat_pengadu, jumlah_kerugian, kronologi_polis, kronologi_mahkamah)
+            suara_seksyen(kronologi_mahkamah, "Baca Kronologi Mahkamah")
 
         col_btn1, col_btn2 = st.columns(2)
         with col_btn1:
